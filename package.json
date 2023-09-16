@@ -1,0 +1,14 @@
+{
+  "name": "conduit",
+  "version": "0.0.1",
+  "description": "A real world example app built with Go and htmx",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier-plugin-go-template": "^0.0.15"
+  }
+}
