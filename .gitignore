@@ -1,0 +1,6 @@
+bin
+tmp
+result
+.env
+node_modules
+web/public/css/output.css
