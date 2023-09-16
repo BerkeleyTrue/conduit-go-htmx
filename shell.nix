@@ -1,5 +1,9 @@
 {...}: {
-  perSystem = {pkgs, config, ...}: let
+  perSystem = {
+    pkgs,
+    config,
+    ...
+  }: let
     # update the vendorSha256 of the default package
     update-vendor-sha = pkgs.writeShellScriptBin "update-vendor-sha" ''
       set -exuo pipefail
@@ -22,7 +26,6 @@
     watch-tests = pkgs.writeShellScriptBin "watch-tests" ''
       ${pkgs.ginkgo}/bin/ginkgo watch -r -p
     '';
-
   in {
     boulder = {
       commands = [
@@ -44,18 +47,23 @@
     devShells.default = pkgs.mkShell {
       name = "go-conduit-htmx";
       inputsFrom = [config.boulder.devShell];
-      packages = with pkgs; [
-        go
-        gopls # language server
-        gotools
-        go-tools
-        air # live reload
-        ginkgo # testing framework
+      packages = with pkgs;
+        [
+          go
+          gopls # language server
+          gotools
+          go-tools
+          air # live reload
+          ginkgo # testing framework
 
-        # editor
-        nodePackages.vscode-langservers-extracted # html/css language server
-        nodePackages.typescript-language-server # typescript language server
-      ];
+          # prettier
+          nodejs_18
+        ]
+        ++ (with nodePackages; [
+          # editor
+          vscode-langservers-extracted # html/css language server
+          typescript-language-server # typescript language server
+        ]);
 
       # enter zsh on startup
       shellHook = ''
