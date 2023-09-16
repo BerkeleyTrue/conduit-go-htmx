@@ -19,8 +19,8 @@
   </head>
 
   <body class="">
-    {{ include "partials/header.gohtml" }}
+    {{ template "partials/header" . }}
     {{ embed }}
-    {{ include "partials/footer.gohtml"}}
+    {{ template "partials/footer" . }}
   </body>
 </html>
