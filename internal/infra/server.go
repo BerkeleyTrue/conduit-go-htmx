@@ -3,6 +3,7 @@ package infra
 import (
 	"context"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"go.uber.org/fx"
@@ -14,6 +15,7 @@ import (
 var (
 	Module = fx.Options(
 		fx.Provide(NewServer),
+		fx.Provide(NewValidator),
 		fx.Invoke(AddMiddlewares),
 		app.Module,
 		fx.Invoke(RegisterServer),
@@ -31,6 +33,10 @@ func NewServer(cfg *config.Config) *fiber.App {
 	})
 
 	return app
+}
+
+func NewValidator() *validator.Validate {
+  return validator.New(validator.WithRequiredStructEnabled())
 }
 
 func StartServer(app *fiber.App, config *config.Config) error {
