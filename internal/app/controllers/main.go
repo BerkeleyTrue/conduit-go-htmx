@@ -63,7 +63,7 @@ func (c *Controller) Index(ctx *fiber.Ctx) error {
 
 func (c *Controller) Login(ctx *fiber.Ctx) error {
 	return ctx.Render("auth", fiber.Map{
-		"IsLogin": true,
+		"IsRegister": false,
 		"Links":   UnAuthedLinks,
 		"Page":    ctx.Path(),
 	}, "layouts/main")
@@ -71,7 +71,7 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 
 func (c *Controller) Register(ctx *fiber.Ctx) error {
 	return ctx.Render("auth", fiber.Map{
-		"IsLogin": false,
+		"IsRegister": true,
 		"Links":   UnAuthedLinks,
 		"Page":    ctx.Path(),
 	}, "layouts/main")
