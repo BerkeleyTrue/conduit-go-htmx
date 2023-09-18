@@ -93,5 +93,5 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 
   fmt.Printf("regsiter: %+v\n", req)
 
-  return ctx.Redirect("/")
+  return ctx.Redirect("/", 303)
 }
