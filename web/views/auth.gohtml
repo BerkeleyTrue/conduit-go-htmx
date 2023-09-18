@@ -15,7 +15,17 @@
           <li>That email is already taken</li>
         </ul>
 
-        <form id="authen">
+        <form
+          id="authen"
+          {{ if .IsRegister }}
+            hx-post="/register"
+          {{ else }}
+            hx-post="/login"
+          {{ end }}
+          hx-target="body"
+          hx-push-url="true"
+          hx-swap="outerHTML"
+        >
           {{ if .IsRegister }}
             <fieldset class="form-group">
               <input
