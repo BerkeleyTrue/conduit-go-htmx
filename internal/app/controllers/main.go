@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -50,8 +52,9 @@ func NewController() *Controller {
 
 func RegisterRoutes(app *fiber.App, c *Controller) {
 	app.Get("/", c.Index)
-	app.Get("/login", c.Login)
-	app.Get("/register", c.Register)
+	app.Get("/login", c.GetLogin)
+	app.Get("/register", c.GetRegister)
+	app.Post("/register", c.Register)
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
@@ -61,7 +64,7 @@ func (c *Controller) Index(ctx *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
-func (c *Controller) Login(ctx *fiber.Ctx) error {
+func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
 	return ctx.Render("auth", fiber.Map{
 		"IsRegister": false,
 		"Links":   UnAuthedLinks,
@@ -69,10 +72,26 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
-func (c *Controller) Register(ctx *fiber.Ctx) error {
+func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 	return ctx.Render("auth", fiber.Map{
 		"IsRegister": true,
 		"Links":   UnAuthedLinks,
 		"Page":    ctx.Path(),
 	}, "layouts/main")
+}
+
+func (c *Controller) Register(ctx *fiber.Ctx) error {
+  req := struct {
+    Username string `form:"username"`
+    Email    string `form:"email"`
+    Password string `form:"password"`
+  }{}
+
+  if err := ctx.BodyParser(&req); err != nil {
+    return err
+  }
+
+  fmt.Printf("regsiter: %+v\n", req)
+
+  return ctx.Redirect("/")
 }
