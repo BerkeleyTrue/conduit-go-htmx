@@ -95,7 +95,12 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	fmt.Printf("register: %+v\n", req)
+
+	if err := c.validator.Struct(req); err != nil {
+		return err
+	}
+
+	fmt.Printf("register success: %+v\n", req)
 
 	return ctx.Redirect("/", 303)
 }
