@@ -1,5 +1,5 @@
 <ul id="errors" class="error-messages" hx-swap-oob="true">
-  {{ range .Errors }}
-    <li>{{ . }}</li>
+  {{ range $key, $val := .Errors }}
+    <li>{{ $key }}: {{ $val }}</li>
   {{ end }}
 </ul>
