@@ -55,6 +55,7 @@
           go-tools
           air # live reload
           ginkgo # testing framework
+          golines # go formatter
 
           # prettier
           nodejs_18
