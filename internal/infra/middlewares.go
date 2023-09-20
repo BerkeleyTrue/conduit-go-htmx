@@ -10,14 +10,4 @@ import (
 func AddMiddlewares(app *fiber.App, store *session.Store) {
 	app.Use(logger.New())
 	app.Use(cors.New())
-	app.Use("/", func(ctx *fiber.Ctx) error {
-    _, err := store.Get(ctx)
-
-    if err != nil {
-        return err
-    }
-
-
-    return ctx.Next()
-  })
 }

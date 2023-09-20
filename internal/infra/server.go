@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/template/html/v2"
 	"go.uber.org/fx"
 
@@ -15,8 +14,10 @@ import (
 var (
 	Module = fx.Options(
 		fx.Provide(NewServer),
+		fx.Provide(NewDB),
 		fx.Provide(NewSessionStore),
 		fx.Invoke(AddMiddlewares),
+		fx.Invoke(AddSessionMiddleware),
 		app.Module,
 		fx.Invoke(RegisterServer),
 	)
@@ -33,10 +34,6 @@ func NewServer(cfg *config.Config) *fiber.App {
 	})
 
 	return app
-}
-
-func NewSessionStore(cfg *config.Config) *session.Store {
-	return session.New()
 }
 
 func StartServer(app *fiber.App, config *config.Config) error {
