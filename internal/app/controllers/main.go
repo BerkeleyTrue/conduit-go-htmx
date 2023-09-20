@@ -3,13 +3,11 @@ package controllers
 import (
 	"fmt"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type (
 	Controller struct {
-		validator *validator.Validate
 	}
 	Link struct {
 		Uri   string
@@ -48,10 +46,8 @@ var (
 	}
 )
 
-func NewController(validator *validator.Validate) *Controller {
-	return &Controller{
-		validator: validator,
-	}
+func NewController() *Controller {
+	return &Controller{}
 }
 
 func RegisterRoutes(app *fiber.App, c *Controller) {
@@ -86,17 +82,12 @@ func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 
 func (c *Controller) Register(ctx *fiber.Ctx) error {
 	req := struct {
-		Username string `form:"username" validate:"required,min=3,max=32"`
-		Email    string `form:"email" validate:"required,email"`
-		Password string `form:"password" validate:"required,min=4"`
+		Username string `form:"username"`
+		Email    string `form:"email"`
+		Password string `form:"password"`
 	}{}
 
 	if err := ctx.BodyParser(&req); err != nil {
-		return err
-	}
-
-
-	if err := c.validator.Struct(req); err != nil {
 		return err
 	}
 
