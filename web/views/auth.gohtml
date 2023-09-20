@@ -11,9 +11,7 @@
           {{ end }}
         </p>
 
-        <ul class="error-messages" hidden>
-          <li>That email is already taken</li>
-        </ul>
+        <ul id="errors" class="error-messages" hidden></ul>
 
         <form
           id="authen"
@@ -23,7 +21,6 @@
             hx-post="/login"
           {{ end }}
           hx-target="body"
-          hx-push-url="true"
           hx-swap="outerHTML"
         >
           {{ if .IsRegister }}
@@ -55,7 +52,7 @@
               type="password"
             />
           </fieldset>
-          <button class="btn btn-lg btn-primary pull-xs-right">
+
           <button type="submit" class="btn btn-lg btn-primary pull-xs-right">
             Sign {{ if .IsRegiter }}up{{ else }}in{{ end }}
           </button>

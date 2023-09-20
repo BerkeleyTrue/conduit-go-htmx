@@ -3,6 +3,8 @@ package controllers
 import (
 	"fmt"
 
+	"github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -12,6 +14,11 @@ type (
 	Link struct {
 		Uri   string
 		Title string
+	}
+	RegisterRequest struct {
+		Username string `form:"username"`
+		Email    string `form:"email"`
+		Password string `form:"password"`
 	}
 )
 
@@ -80,18 +87,42 @@ func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
-func (c *Controller) Register(ctx *fiber.Ctx) error {
-	req := struct {
-		Username string `form:"username"`
-		Email    string `form:"email"`
-		Password string `form:"password"`
-	}{}
+func (r *RegisterRequest) Validate() error {
+	return validation.ValidateStruct(
+		r,
+		validation.Field(
+			&r.Username,
+			validation.Required,
+			validation.Length(4, 32),
+		),
+		validation.Field(&r.Email, validation.Required, is.Email),
+		validation.Field(
+			&r.Password,
+			validation.Required,
+			validation.Length(8, 32),
+		),
+	)
+}
 
-	if err := ctx.BodyParser(&req); err != nil {
+func (c *Controller) Register(ctx *fiber.Ctx) error {
+	registerReq := RegisterRequest{}
+
+	if err := ctx.BodyParser(&registerReq); err != nil {
 		return err
 	}
 
-	fmt.Printf("register success: %+v\n", req)
+	if err := registerReq.Validate(); err != nil {
 
+		ctx.Response().Header.Add("HX-Push-Url", "false")
+		ctx.Response().Header.Add("HX-Reswap", "none")
+
+		return ctx.Render("partials/auth-errors", fiber.Map{
+			"Errors": err,
+		})
+	}
+
+	fmt.Printf("register success: %+v\n", registerReq)
+
+  ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", 303)
 }
