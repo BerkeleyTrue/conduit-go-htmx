@@ -1,22 +1,43 @@
 package domain
 
+import "time"
+
 type (
 	User struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		UserId    string    `json:"userId"`
+		Username  string    `json:"username"`
+		Email     string    `json:"email"`
+		Password  string    `json:"password"`  // hashed password
+		Following []*string `json:"following"` // []UserId
+		Bio       string    `json:"bio"`       // nullable
+		Image     string    `json:"image"`
+		CreatedAt time.Time `json:"createdAt"`
+		UpdatedAt time.Time `json:"updatedAt"`
 	}
 
 	Article struct {
-		ID      string `json:"id"`
-		Title   string `json:"title"`
-		Content string `json:"content"`
+		AuthorId  string `json:"authorId"`
+		ArticleId string `json:"articleId"`
+
+		Title string `json:"title"`
+		Slug  string `json:"slug"`
+
+		Description string   `json:"description"`
+		Body        string   `json:"body"`
+		Tags        []string `json:"Tags"`
+
+		CreatedAt time.Time `json:"createdAt"`
+		UpdatedAt time.Time `json:"updatedAt"`
+
+		FavoritedBy []string `json:"favoritedBy"` // []UserId
 	}
 
 	Comment struct {
-		ID      string `json:"id"`
-		Content string `json:"content"`
-		UserID  string `json:"userId"`
+		CommentId string `json:"commentId"`
+		AuthorId  string `json:"authorId"`
+		ArticleId string `json:"articleId"`
+		Body      string `json:"body"`
+		CreatedAt string `json:"createdAt"`
+		UpdatedAt string `json:"updatedAt"`
 	}
 )
