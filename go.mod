@@ -13,6 +13,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	go.uber.org/fx v1.20.0
+	golang.org/x/crypto v0.12.0
 )
 
 require (
