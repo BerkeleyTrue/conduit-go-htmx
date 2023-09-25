@@ -1,9 +1,21 @@
 package domain
 
+import (
+	"github.com/berkeleytrue/conduit/internal/infra/data/password"
+)
+
 type (
 	Updater[T any] func(*T) *T
+
+	UserCreateInput struct {
+		Username       string
+		Email          string
+		Password       password.Password
+		HashedPassword password.HashedPassword
+	}
+
 	UserRepository interface {
-		Create(password string) (*User, error)
+		Create(UserCreateInput) (*User, error)
 		GetByID(id string) (*User, error)
 		GetByEmail(email string) (*User, error)
 		GetByUsername(username string) (*User, error)
