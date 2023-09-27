@@ -1,18 +1,22 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/berkeleytrue/conduit/internal/infra/data/password"
+)
 
 type (
 	User struct {
-		UserId    string    `json:"userId"`
-		Username  string    `json:"username"`
-		Email     string    `json:"email"`
-		Password  string    `json:"password"`  // hashed password
-		Following []*string `json:"following"` // []UserId
-		Bio       string    `json:"bio"`       // nullable
-		Image     string    `json:"image"`
-		CreatedAt time.Time `json:"createdAt"`
-		UpdatedAt time.Time `json:"updatedAt"`
+		UserId    string                  `json:"userId"`
+		Username  string                  `json:"username"`
+		Email     string                  `json:"email"`
+		Password  password.HashedPassword `json:"password"`  // hashed password
+		Following []*string               `json:"following"` // []UserId
+		Bio       string                  `json:"bio"`       // nullable
+		Image     string                  `json:"image"`
+		CreatedAt time.Time               `json:"createdAt"`
+		UpdatedAt time.Time               `json:"updatedAt"`
 	}
 
 	Article struct {

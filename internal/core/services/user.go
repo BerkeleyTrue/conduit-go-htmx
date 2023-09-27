@@ -1,8 +1,10 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/berkeleytrue/conduit/internal/core/domain"
-	"github.com/berkeleytrue/conduit/internal/infra/data/password"
+	pss "github.com/berkeleytrue/conduit/internal/infra/data/password"
 )
 
 type (
@@ -50,7 +52,7 @@ func New(repo domain.UserRepository) *UserService {
 }
 
 func (s *UserService) Register(input domain.UserCreateInput) (*UserOutput, error) {
-	hashedPassword, err := password.HashPassword(input.Password)
+	hashedPassword, err := pss.HashPassword(input.Password)
 
 	if err != nil {
 		return nil, err
@@ -69,8 +71,25 @@ func (s *UserService) Register(input domain.UserCreateInput) (*UserOutput, error
 	return formatUser(user), nil
 }
 
-// func (s *UserService) Login(email, password string) (*UserOutput, error) {
-// }
+func (s *UserService) Login(email, rawPass string) (*UserOutput, error) {
+  user, err := s.repo.GetByEmail(email)
+
+  if err != nil {
+    return nil, err
+  }
+
+  password, err := pss.New(rawPass)
+
+  if err != nil {
+    return nil, err
+  }
+
+  if err := pss.CompareHashAndPassword(user.Password, password); err != nil {
+    return nil, errors.New("Invalid password")
+  }
+
+  return formatUser(user), nil
+}
 // func (s *UserService) GetUser(userId string) (*UserOutput, error) {
 // }
 // func (s *UserService) GetIdFromUsername(username string) (string, error) {
