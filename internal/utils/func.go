@@ -1,6 +1,6 @@
 package utils
 
-func some[T comparable](predicate func(T) bool, input []T) bool {
+func Some[T comparable](predicate func(T) bool, input []T) bool {
 
 	for _, elem := range input {
 

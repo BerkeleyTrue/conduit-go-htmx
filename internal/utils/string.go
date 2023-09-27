@@ -3,17 +3,17 @@ package utils
 import "unicode"
 
 func IsAnyLowercase(input []rune) bool {
-	return some(unicode.IsLower, input)
+	return Some(unicode.IsLower, input)
 }
 
 func IsAnyUppercase(input []rune) bool {
-  return some(unicode.IsUpper, input)
+  return Some(unicode.IsUpper, input)
 }
 
 func IsAnyDigit(input []rune) bool {
-	return some(unicode.IsDigit, input)
+	return Some(unicode.IsDigit, input)
 }
 
 func IsAnySymbol(input []rune) bool {
-  return some(unicode.IsSymbol, input)
+  return Some(unicode.IsSymbol, input)
 }

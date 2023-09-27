@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Updater[T any] func(*T) *T
+	Updater[T any] func(u *T) *T
 
 	UserCreateInput struct {
 		Username       string
@@ -19,7 +19,7 @@ type (
 		GetByID(id string) (*User, error)
 		GetByEmail(email string) (*User, error)
 		GetByUsername(username string) (*User, error)
-		Update(userId string, updater Updater[*User]) (*User, error)
+		Update(userId string, updater Updater[User]) (*User, error)
 		Follow(userId, authorId string) (*User, error)
 		Unfollow(userId, authorId string) (*User, error)
 	}

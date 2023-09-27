@@ -12,7 +12,7 @@ type (
 		Username  string                  `json:"username"`
 		Email     string                  `json:"email"`
 		Password  password.HashedPassword `json:"password"`  // hashed password
-		Following []*string               `json:"following"` // []UserId
+		Following []string                `json:"following"` // []UserId
 		Bio       string                  `json:"bio"`       // nullable
 		Image     string                  `json:"image"`
 		CreatedAt time.Time               `json:"createdAt"`
