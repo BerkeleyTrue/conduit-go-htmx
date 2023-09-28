@@ -2,6 +2,7 @@ package userRepo
 
 import (
 	"context"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
@@ -56,7 +57,23 @@ func NewSqlStore(db *sqlx.DB) *SqlStore {
 }
 
 func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
-	panic("implement me")
+  now := time.Now()
+  user := domain.User{
+    Username: input.Username,
+    Email: input.Email,
+    Password: input.HashedPassword,
+    Bio: "",
+    Image: "",
+    CreatedAt: now,
+  }
+
+  query := `
+    INSERT INTO users (username, email, password, bio, image, created_at, updated_at)
+    VALUES (:username, :email, :password, :bio, :image, :created_at, :updated_at)
+  `
+  _, err := s.db.NamedExec(query, user)
+
+  return &user, err
 }
 
 func (s *SqlStore) GetByID(id string) (*domain.User, error) {
