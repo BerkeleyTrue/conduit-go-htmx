@@ -14,9 +14,8 @@ import (
 var (
 	Module = fx.Options(
 		fx.Provide(NewServer),
-		fx.Provide(NewDB),
+		DBModule,
 		fx.Provide(NewSessionStore),
-		fx.Invoke(RegisterDB),
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(AddSessionMiddleware),
 		app.Module,
