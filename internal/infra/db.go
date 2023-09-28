@@ -15,19 +15,6 @@ var (
 		fx.Provide(NewDB),
 		fx.Invoke(RegisterDB),
 	)
-  //sqlite datatypes
-	schema = `
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL,
-        bio TEXT,
-        image TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-    );
-  `
 )
 
 func NewDB(cfg *config.Config) (*sqlx.DB, error) {
@@ -46,12 +33,6 @@ func RegisterDB(lc fx.Lifecycle, db *sqlx.DB) {
 			if err := db.Ping(); err != nil {
 				return err
 			}
-
-      _, err := db.Exec(schema)
-
-      if err != nil {
-        return err
-      }
 
 			return nil
 		},
