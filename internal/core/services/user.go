@@ -23,8 +23,8 @@ type (
 	}
 
 	UserIdOrUsername struct {
-		authorId   string
-		authorname string
+		userId   int8
+		username string
 	}
 
 	// sent to any third party user
@@ -55,8 +55,8 @@ func formatUser(user *domain.User) *UserOutput {
 }
 
 // is this user a follower of this author?
-func isFollowing(author *domain.User, userId string) bool {
-	return utils.Some(func(follower string) bool {
+func isFollowing(author *domain.User, userId int8) bool {
+	return utils.Some(func(follower int8) bool {
 		return follower == userId
 	}, author.Followers)
 }
@@ -114,7 +114,7 @@ func (s *UserService) Login(email, rawPass string) (*UserOutput, error) {
 	return formatUser(user), nil
 }
 
-func (s *UserService) GetUser(userId string) (*UserOutput, error) {
+func (s *UserService) GetUser(userId int8) (*UserOutput, error) {
 	user, err := s.repo.GetByID(userId)
 
 	if err != nil {
@@ -124,11 +124,11 @@ func (s *UserService) GetUser(userId string) (*UserOutput, error) {
 	return formatUser(user), nil
 }
 
-func (s *UserService) GetIdFromUsername(username string) (string, error) {
+func (s *UserService) GetIdFromUsername(username string) (int8, error) {
 	user, err := s.repo.GetByUsername(username)
 
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	return user.UserId, nil
@@ -144,10 +144,10 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 	err = nil
 
 	var author *domain.User
-	if authorIdOrAuthorname.authorId != "" {
-		author, err = s.repo.GetByID(authorIdOrAuthorname.authorId)
-	} else if authorIdOrAuthorname.authorname != "" {
-		author, err = s.repo.GetByUsername(authorIdOrAuthorname.authorname)
+	if authorIdOrAuthorname.userId != 0 {
+		author, err = s.repo.GetByID(authorIdOrAuthorname.userId)
+	} else if authorIdOrAuthorname.username != "" {
+		author, err = s.repo.GetByUsername(authorIdOrAuthorname.username)
 	} else {
 		return nil, errors.New("Invalid authorId or authorname")
 	}
@@ -161,16 +161,19 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 
 func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUserInput) (*UserOutput, error) {
 	now := time.Now()
-	var userId string
+	var userId int8
 	var err error
 
-	if userIdOrUsername.authorId != "" {
-		userId = userIdOrUsername.authorId
-	} else if userIdOrUsername.authorname != "" {
-		userId, err = s.GetIdFromUsername(userIdOrUsername.authorname)
+	if userIdOrUsername.userId != 0 {
+		userId = userIdOrUsername.userId
+	} else if userIdOrUsername.username != "" {
+
+		userId, err = s.GetIdFromUsername(userIdOrUsername.username)
+
 		if err != nil {
 			return nil, err
 		}
+
 	} else {
 		return nil, errors.New("Invalid authorId or authorname")
 	}
@@ -189,16 +192,16 @@ func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUser
 	return formatUser(user), nil
 }
 
-func (s *UserService) Follow(userId string, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
+func (s *UserService) Follow(userId int8, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
 	var (
-		authorId string
+		authorId int8
 		err      error
 	)
 
-	if authorIdOrAuthorname.authorId != "" {
-		authorId = authorIdOrAuthorname.authorId
-	} else if authorIdOrAuthorname.authorname != "" {
-		authorId, err = s.GetIdFromUsername(authorIdOrAuthorname.authorname)
+	if authorIdOrAuthorname.userId != 0 {
+		authorId = authorIdOrAuthorname.userId
+	} else if authorIdOrAuthorname.username != "" {
+		authorId, err = s.GetIdFromUsername(authorIdOrAuthorname.username)
 
 		if err != nil {
 			return nil, err
@@ -216,23 +219,23 @@ func (s *UserService) Follow(userId string, authorIdOrAuthorname UserIdOrUsernam
 	return formatToPublicProfile(user, true), nil
 }
 
-func (s *UserService) Unfollow(userId, authorIdOrAuthorname string) (*PublicProfile, error) {
-  var (
-    authorId string
-    err      error
-  )
+func (s *UserService) Unfollow(userId int8, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
+	var (
+		authorId int8
+		err      error
+	)
 
-  if authorIdOrAuthorname != "" {
-    authorId = authorIdOrAuthorname
-  } else {
-    return nil, errors.New("Invalid authorId or authorname")
-  }
+	if authorIdOrAuthorname.userId != 0 {
+		authorId = authorIdOrAuthorname.userId
+	} else {
+		return nil, errors.New("Invalid authorId or authorname")
+	}
 
-  user, err := s.repo.Unfollow(userId, authorId)
+	user, err := s.repo.Unfollow(userId, authorId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  return formatToPublicProfile(user, false), nil
+	return formatToPublicProfile(user, false), nil
 }

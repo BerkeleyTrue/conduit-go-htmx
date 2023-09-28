@@ -16,12 +16,12 @@ type (
 
 	UserRepository interface {
 		Create(UserCreateInput) (*User, error)
-		GetByID(id string) (*User, error)
+		GetByID(id int8) (*User, error)
 		GetByEmail(email string) (*User, error)
 		GetByUsername(username string) (*User, error)
-		Update(userId string, updater Updater[User]) (*User, error)
-		Follow(userId, authorId string) (*User, error)
-		Unfollow(userId, authorId string) (*User, error)
+		Update(userId int8, updater Updater[User]) (*User, error)
+		Follow(userId, authorId int8) (*User, error)
+		Unfollow(userId, authorId int8) (*User, error)
 	}
 
 	ArticleCreateInput struct {

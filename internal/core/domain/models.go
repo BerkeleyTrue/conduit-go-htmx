@@ -8,15 +8,15 @@ import (
 
 type (
 	User struct {
-		UserId    string                  `json:"userId"`
+		UserId    int8                    `json:"userId" db:"id"`
 		Username  string                  `json:"username"`
 		Email     string                  `json:"email"`
 		Password  password.HashedPassword `json:"password"`  // hashed password
-		Followers []string                `json:"following"` // []UserId
+		Followers []int8                  `json:"following"` // []UserId
 		Bio       string                  `json:"bio"`       // nullable
 		Image     string                  `json:"image"`
-		CreatedAt time.Time               `json:"createdAt"`
-		UpdatedAt time.Time               `json:"updatedAt"`
+		CreatedAt time.Time               `json:"createdAt" db:"created_at"`
+		UpdatedAt time.Time               `json:"updatedAt" db:"updated_at"`
 	}
 
 	Article struct {

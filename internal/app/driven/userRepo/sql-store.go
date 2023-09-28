@@ -65,8 +65,8 @@ func NewSqlStore(db *sqlx.DB) *SqlStore {
 }
 
 // get followers for a user
-func (s *SqlStore) getFollowers(userId string) ([]string, error) {
-  var followers []string
+func (s *SqlStore) getFollowers(userId int8) ([]int8, error) {
+  var followers []int8
   err := s.db.Select(&followers, "SELECT follower_id FROM followers WHERE user_id = $1", userId)
 
   if err != nil {
@@ -157,7 +157,7 @@ func (s *SqlStore) Update(
 	return updatedUser, nil
 }
 
-func (s *SqlStore) Follow(userId, authorId string) (*domain.User, error) {
+func (s *SqlStore) Follow(userId, authorId int8) (*domain.User, error) {
   var author domain.User
   err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
@@ -185,7 +185,7 @@ func (s *SqlStore) Follow(userId, authorId string) (*domain.User, error) {
   return &author, nil
 }
 
-func (s *SqlStore) Unfollow(userId, authorId string) (*domain.User, error) {
+func (s *SqlStore) Unfollow(userId, authorId int8) (*domain.User, error) {
   var author domain.User
   err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
