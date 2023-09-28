@@ -6,16 +6,21 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/gofiber/fiber/v2"
+
+	"github.com/berkeleytrue/conduit/internal/core/domain"
+	"github.com/berkeleytrue/conduit/internal/core/services"
+	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 )
 
 type (
 	Controller struct {
+		userService *services.UserService
 	}
 	Link struct {
 		Uri   string
 		Title string
 	}
-	RegisterRequest struct {
+	RegisterInput struct {
 		Username string `form:"username"`
 		Email    string `form:"email"`
 		Password string `form:"password"`
@@ -87,7 +92,7 @@ func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
-func (r *RegisterRequest) Validate() error {
+func (r *RegisterInput) Validate() error {
 	return validation.ValidateStruct(
 		r,
 		validation.Field(
@@ -105,13 +110,13 @@ func (r *RegisterRequest) Validate() error {
 }
 
 func (c *Controller) Register(ctx *fiber.Ctx) error {
-	registerReq := RegisterRequest{}
+	registerInput := RegisterInput{}
 
-	if err := ctx.BodyParser(&registerReq); err != nil {
+	if err := ctx.BodyParser(&registerInput); err != nil {
 		return err
 	}
 
-	if err := registerReq.Validate(); err != nil {
+	if err := registerInput.Validate(); err != nil {
 
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
@@ -121,8 +126,18 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Printf("register success: %+v\n", registerReq)
+	_, err := c.userService.Register(domain.UserCreateInput{
+	  Username: registerInput.Username,
+	  Email:    registerInput.Email,
+	  Password: password.Password(registerInput.Password),
+	})
 
-  ctx.Response().Header.Add("HX-Push-Url", "/")
+  if err != nil {
+    return err
+  }
+
+	fmt.Printf("register success: %+v\n", registerInput)
+
+	ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", 303)
 }

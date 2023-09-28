@@ -58,7 +58,7 @@ func formatUser(user *domain.User) *UserOutput {
 func isFollowing(author *domain.User, userId string) bool {
 	return utils.Some(func(follower string) bool {
 		return follower == userId
-	}, author.Following)
+	}, author.Followers)
 }
 
 func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
