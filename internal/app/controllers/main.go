@@ -71,8 +71,15 @@ func RegisterRoutes(app *fiber.App, c *Controller) {
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
+	userId := ctx.Locals("userId")
+	links := UnAuthedLinks
+
+	if userId != 0 {
+		links = AuthedLinks
+	}
+
 	return ctx.Render("index", fiber.Map{
-		"Links": UnAuthedLinks,
+		"Links": links,
 		"Page":  ctx.Path(),
 	}, "layouts/main")
 }
