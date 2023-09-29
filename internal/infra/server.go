@@ -9,6 +9,8 @@ import (
 
 	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/app/controllers"
+	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
+	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/core/services"
 	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
@@ -17,7 +19,8 @@ var (
 	Module = fx.Options(
 		fx.Provide(NewServer),
 		fx.Provide(NewDB),
-    fx.Provide(services.NewUserService),
+		fx.Provide(fx.Annotate(userRepo.NewSqlStore, fx.As(new(domain.UserRepository)))),
+		fx.Provide(services.NewUserService),
 		fx.Provide(session.NewSessionStore),
 		fx.Provide(controllers.NewController),
 
