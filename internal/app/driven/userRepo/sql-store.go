@@ -8,6 +8,7 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
+	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 )
 
 type (
@@ -27,7 +28,7 @@ var (
         bio TEXT,
         image TEXT,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
+        updated_at TEXT
     );
 
     CREATE TABLE IF NOT EXISTS followers (
@@ -82,7 +83,7 @@ func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
 		Password:  input.HashedPassword,
 		Bio:       "",
 		Image:     "",
-		CreatedAt: now,
+		CreatedAt: krono.Krono{Time: now},
 	}
 
 	query := `

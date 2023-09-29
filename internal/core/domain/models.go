@@ -3,6 +3,7 @@ package domain
 import (
 	"time"
 
+	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 )
 
@@ -15,8 +16,8 @@ type (
 		Followers []int                   `json:"following"` // []UserId
 		Bio       string                  `json:"bio"`       // nullable
 		Image     string                  `json:"image"`
-		CreatedAt time.Time               `json:"createdAt" db:"created_at"`
-		UpdatedAt time.Time               `json:"updatedAt" db:"updated_at"`
+		CreatedAt krono.Krono             `json:"createdAt" db:"created_at"`
+		UpdatedAt krono.Krono             `json:"updatedAt" db:"updated_at"`
 	}
 
 	Article struct {

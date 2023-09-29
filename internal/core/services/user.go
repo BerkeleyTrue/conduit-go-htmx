@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
+	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	pss "github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/utils"
 	"go.uber.org/fx"
@@ -188,7 +189,7 @@ func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUser
 		u.Username = input.username
 		u.Image = input.image
 		u.Bio = input.bio
-		u.UpdatedAt = now
+		u.UpdatedAt = krono.Krono{Time: now}
 		return u
 	}
 
