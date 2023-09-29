@@ -38,10 +38,6 @@ var (
         UNIQUE(user_id, follower_id)
     );
   `
-	Module = fx.Options(
-		fx.Provide(NewSqlStore),
-		fx.Invoke(RegisterUserSchema),
-	)
 )
 
 func RegisterUserSchema(lc fx.Lifecycle, db *sqlx.DB) {

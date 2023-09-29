@@ -10,13 +10,6 @@ import (
 	"github.com/berkeleytrue/conduit/config"
 )
 
-var (
-	DBModule = fx.Options(
-		fx.Provide(NewDB),
-		fx.Invoke(RegisterDB),
-	)
-)
-
 func NewDB(cfg *config.Config) (*sqlx.DB, error) {
 	db, err := sqlx.Open("sqlite3", cfg.DB)
 

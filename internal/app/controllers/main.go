@@ -58,8 +58,8 @@ var (
 	}
 )
 
-func NewController() *Controller {
-	return &Controller{}
+func NewController(userService *services.UserService) *Controller {
+	return &Controller{userService: userService}
 }
 
 func RegisterRoutes(app *fiber.App, c *Controller) {
@@ -127,14 +127,14 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 	}
 
 	_, err := c.userService.Register(domain.UserCreateInput{
-	  Username: registerInput.Username,
-	  Email:    registerInput.Email,
-	  Password: password.Password(registerInput.Password),
+		Username: registerInput.Username,
+		Email:    registerInput.Email,
+		Password: password.Password(registerInput.Password),
 	})
 
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 
 	fmt.Printf("register success: %+v\n", registerInput)
 

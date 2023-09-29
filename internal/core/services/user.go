@@ -7,6 +7,7 @@ import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	pss "github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/utils"
+	"go.uber.org/fx"
 )
 
 type (
@@ -44,6 +45,10 @@ type (
 	}
 )
 
+var Module = fx.Options(
+	fx.Provide(NewUserService),
+)
+
 func formatUser(user *domain.User) *UserOutput {
 	return &UserOutput{
 		email:    user.Email,
@@ -70,7 +75,7 @@ func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
 	}
 }
 
-func New(repo domain.UserRepository) *UserService {
+func NewUserService(repo domain.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 

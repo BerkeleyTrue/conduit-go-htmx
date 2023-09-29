@@ -8,17 +8,19 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/berkeleytrue/conduit/config"
-	"github.com/berkeleytrue/conduit/internal/app"
+	"github.com/berkeleytrue/conduit/internal/app/controllers"
+	"github.com/berkeleytrue/conduit/internal/core/services"
 )
 
 var (
 	Module = fx.Options(
 		fx.Provide(NewServer),
-		DBModule,
+		fx.Provide(NewDB),
+    fx.Provide(services.NewUserService),
 		fx.Provide(NewSessionStore),
+		fx.Provide(controllers.NewController),
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(AddSessionMiddleware),
-		app.Module,
 		fx.Invoke(RegisterServer),
 	)
 )
