@@ -25,6 +25,7 @@ var (
 		fx.Provide(controllers.NewController),
 
 		fx.Invoke(AddMiddlewares),
+		fx.Invoke(session.RegisterSessionMiddleware),
 		fx.Invoke(controllers.RegisterRoutes),
 		fx.Invoke(RegisterServer),
 	)

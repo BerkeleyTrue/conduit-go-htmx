@@ -19,6 +19,36 @@ func NewSessionStore(cfg *config.Config) *session.Store {
 	})
 }
 
+func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService *services.UserService) {
+	app.Use(func(ctx *fiber.Ctx) error {
+		session, err := store.Get(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		// ctx.Locals("session", session)
+		userId, ok := session.Get("userId").(int8)
+
+		if !ok {
+			ctx.Locals("userId", 0)
+		} else {
+			ctx.Locals("userId", userId)
+
+			user, err := userService.GetUser(userId)
+
+			if err != nil {
+				session.Destroy()
+				return ctx.Status(fiber.StatusForbidden).Redirect("/login")
+			}
+
+			ctx.Locals("user", user)
+		}
+
+		return ctx.Next()
+	})
+}
+
 func NewAuthMiddleware(app *fiber.App, store *session.Store, userService *services.UserService) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		session, err := store.Get(ctx)
@@ -27,21 +57,21 @@ func NewAuthMiddleware(app *fiber.App, store *session.Store, userService *servic
 			return err
 		}
 
-		userId := session.Get("userId").(int8)
+		userId, ok := session.Get("userId").(int8)
 
-		if userId == 0 {
+		if !ok || userId == 0 {
 			return ctx.Status(fiber.StatusForbidden).Redirect("/login")
 		}
 
 		user, err := userService.GetUser(userId)
 
 		if err != nil {
-		  session.Destroy()
-      return ctx.Status(fiber.StatusForbidden).Redirect("/login")
-    }
+			session.Destroy()
+			return ctx.Status(fiber.StatusForbidden).Redirect("/login")
+		}
 
-    ctx.Locals("user", user)
-    ctx.Locals("userId", userId)
+		ctx.Locals("user", user)
+		ctx.Locals("userId", userId)
 
 		return ctx.Next()
 	}
