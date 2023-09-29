@@ -99,24 +99,24 @@ func (s *UserService) Register(input domain.UserCreateInput) (int8, error) {
 	return user.UserId, nil
 }
 
-func (s *UserService) Login(email, rawPass string) (*UserOutput, error) {
+func (s *UserService) Login(email, rawPass string) (int8, error) {
 	user, err := s.repo.GetByEmail(email)
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	password, err := pss.New(rawPass)
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	if err := pss.CompareHashAndPassword(user.Password, password); err != nil {
-		return nil, errors.New("Invalid password")
+		return 0, errors.New("Invalid password")
 	}
 
-	return formatUser(user), nil
+	return user.UserId, nil
 }
 
 func (s *UserService) GetUser(userId int8) (*UserOutput, error) {

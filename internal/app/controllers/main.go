@@ -27,6 +27,10 @@ type (
 		Email    string `form:"email"`
 		Password string `form:"password"`
 	}
+	LoginInput struct {
+	  Email    string `form:"email"`
+	  Password string `form:"password"`
+  }
 )
 
 var (
@@ -67,6 +71,7 @@ func NewController(userService *services.UserService, store *session.Store) *Con
 func RegisterRoutes(app *fiber.App, c *Controller) {
 	app.Get("/", c.Index)
 	app.Get("/login", c.GetLogin)
+	app.Post("/login", c.Login)
 	app.Get("/register", c.GetRegister)
 	app.Post("/register", c.Register)
 }
@@ -155,4 +160,54 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", 303)
+}
+
+func (i *LoginInput) validate() error {
+	return validation.ValidateStruct(
+		i,
+		validation.Field(&i.Email, validation.Required, is.Email),
+		validation.Field(
+			&i.Password,
+			validation.Required,
+			validation.Length(8, 32),
+		),
+	)
+}
+
+func (c *Controller) Login(ctx *fiber.Ctx) error {
+  loginInput := LoginInput{}
+  if err := ctx.BodyParser(&loginInput); err != nil {
+    return err
+  }
+
+  if err := loginInput.validate(); err != nil {
+    ctx.Response().Header.Add("HX-Push-Url", "false")
+    ctx.Response().Header.Add("HX-Reswap", "none")
+
+    return ctx.Render("partials/auth-errors", fiber.Map{
+      "Errors": err,
+    })
+  }
+
+  userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
+
+  if err != nil {
+    return err
+  }
+
+  session, err := c.store.Get(ctx)
+
+  if err != nil {
+    return err
+  }
+
+  session.Set("userId", userId)
+  err = session.Save()
+
+  if err != nil {
+    return err
+  }
+
+  ctx.Response().Header.Add("HX-Push-Url", "/")
+  return ctx.Redirect("/", 303)
 }
