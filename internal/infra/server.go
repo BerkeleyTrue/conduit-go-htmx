@@ -19,11 +19,17 @@ var (
 	Module = fx.Options(
 		fx.Provide(NewServer),
 		fx.Provide(NewDB),
-		fx.Provide(fx.Annotate(userRepo.NewSqlStore, fx.As(new(domain.UserRepository)))),
+		fx.Provide(
+			fx.Annotate(
+				userRepo.NewSqlStore,
+				fx.As(new(domain.UserRepository)),
+			),
+		),
 		fx.Provide(services.NewUserService),
 		fx.Provide(session.NewSessionStore),
 		fx.Provide(controllers.NewController),
 
+		fx.Invoke(userRepo.RegisterUserSchema),
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(session.RegisterSessionMiddleware),
 		fx.Invoke(controllers.RegisterRoutes),
