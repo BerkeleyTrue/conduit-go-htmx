@@ -28,7 +28,7 @@ func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService
 		}
 
 		// ctx.Locals("session", session)
-		userId, ok := session.Get("userId").(int8)
+		userId, ok := session.Get("userId").(int)
 
 		if !ok {
 			ctx.Locals("userId", 0)
@@ -57,7 +57,7 @@ func NewAuthMiddleware(app *fiber.App, store *session.Store, userService *servic
 			return err
 		}
 
-		userId, ok := session.Get("userId").(int8)
+		userId, ok := session.Get("userId").(int)
 
 		if !ok || userId == 0 {
 			return ctx.Status(fiber.StatusForbidden).Redirect("/login")

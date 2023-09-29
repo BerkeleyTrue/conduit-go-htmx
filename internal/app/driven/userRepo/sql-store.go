@@ -38,8 +38,8 @@ var (
         UNIQUE(user_id, follower_id)
     );
   `
-  // compile time check to make sure SqlStore implements domain.UserRepository
-  _ domain.UserRepository = (*SqlStore)(nil)
+	// compile time check to make sure SqlStore implements domain.UserRepository
+	_ domain.UserRepository = (*SqlStore)(nil)
 )
 
 func RegisterUserSchema(lc fx.Lifecycle, db *sqlx.DB) {
@@ -64,14 +64,14 @@ func NewSqlStore(db *sqlx.DB) *SqlStore {
 
 // get followers for a user
 func (s *SqlStore) getFollowers(userId int) ([]int, error) {
-  var followers []int
-  err := s.db.Select(&followers, "SELECT follower_id FROM followers WHERE user_id = $1", userId)
+	var followers []int
+	err := s.db.Select(&followers, "SELECT follower_id FROM followers WHERE user_id = $1", userId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  return followers, nil
+	return followers, nil
 }
 
 func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
@@ -90,6 +90,16 @@ func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
     VALUES (:username, :email, :password, :bio, :image, :created_at, :updated_at)
   `
 	_, err := s.db.NamedExec(query, user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", input.Email)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &user, err
 }
@@ -156,57 +166,57 @@ func (s *SqlStore) Update(
 }
 
 func (s *SqlStore) Follow(userId, authorId int) (*domain.User, error) {
-  var author domain.User
-  err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
+	var author domain.User
+	err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  _, err = s.db.Exec(`
+	_, err = s.db.Exec(`
     INSERT INTO followers (user_id, follower_id)
     VALUES ($1, $2)
     WHERE id = $2
   `, userId, authorId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  followers, err := s.getFollowers(authorId)
+	followers, err := s.getFollowers(authorId)
 
-  if err != nil {
-    return nil, err
-  }
-  author.Followers = followers
+	if err != nil {
+		return nil, err
+	}
+	author.Followers = followers
 
-  return &author, nil
+	return &author, nil
 }
 
 func (s *SqlStore) Unfollow(userId, authorId int) (*domain.User, error) {
-  var author domain.User
-  err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
+	var author domain.User
+	err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  _, err = s.db.Exec(`
+	_, err = s.db.Exec(`
     DELETE FROM followers
     WHERE user_id = $1 AND follower_id = $2
   `, userId, authorId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  followers, err := s.getFollowers(authorId)
+	followers, err := s.getFollowers(authorId)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  author.Followers = followers
+	author.Followers = followers
 
-  return &author, nil
+	return &author, nil
 }
