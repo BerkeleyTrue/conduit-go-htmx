@@ -10,6 +10,7 @@ import (
 	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/app/controllers"
 	"github.com/berkeleytrue/conduit/internal/core/services"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
 
 var (
@@ -17,10 +18,10 @@ var (
 		fx.Provide(NewServer),
 		fx.Provide(NewDB),
     fx.Provide(services.NewUserService),
-		fx.Provide(NewSessionStore),
+		fx.Provide(session.NewSessionStore),
 		fx.Provide(controllers.NewController),
+
 		fx.Invoke(AddMiddlewares),
-		fx.Invoke(AddSessionMiddleware),
 		fx.Invoke(RegisterServer),
 	)
 )
