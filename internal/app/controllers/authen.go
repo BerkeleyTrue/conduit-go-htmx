@@ -48,7 +48,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 	registerInput := RegisterInput{}
 
 	if err := ctx.BodyParser(&registerInput); err != nil {
-		return err
+		return fmt.Errorf("error parsing register input: %w", err)
 	}
 
 	if err := registerInput.validate(); err != nil {
@@ -68,7 +68,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		return err
+		return fmt.Errorf("error registering user: %w", err)
 	}
 
 	fmt.Printf("register success: %+v\n", registerInput)
@@ -76,14 +76,14 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
   session, err := c.store.Get(ctx)
 
   if err != nil {
-    return err
+    return fmt.Errorf("error getting session: %w", err)
   }
 
   session.Set("userId", userId)
   err = session.Save()
 
   if err != nil {
-    return err
+    return fmt.Errorf("error saving session: %w", err)
   }
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
@@ -105,7 +105,7 @@ func (i *LoginInput) validate() error {
 func (c *Controller) Login(ctx *fiber.Ctx) error {
   loginInput := LoginInput{}
   if err := ctx.BodyParser(&loginInput); err != nil {
-    return err
+    return fmt.Errorf("error parsing login input: %w", err)
   }
 
   if err := loginInput.validate(); err != nil {
@@ -120,20 +120,20 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
   userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
 
   if err != nil {
-    return err
+    return fmt.Errorf("error logging in user: %w", err)
   }
 
   session, err := c.store.Get(ctx)
 
   if err != nil {
-    return err
+    return fmt.Errorf("error getting session: %w", err)
   }
 
   session.Set("userId", userId)
   err = session.Save()
 
   if err != nil {
-    return err
+    return fmt.Errorf("error saving session: %w", err)
   }
 
   ctx.Response().Header.Add("HX-Push-Url", "/")

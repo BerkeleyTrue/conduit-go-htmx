@@ -2,6 +2,7 @@ package userRepo
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -93,13 +94,13 @@ func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
 	_, err := s.db.NamedExec(query, user)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error creating user: %w", err)
 	}
 
 	err = s.db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", input.Email)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting new user: %w", err)
 	}
 
 	return &user, err
@@ -110,7 +111,7 @@ func (s *SqlStore) GetByID(id int) (*domain.User, error) {
 	err := s.db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", id)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
 	return &user, nil
@@ -120,7 +121,7 @@ func (s *SqlStore) GetByEmail(email string) (*domain.User, error) {
 	var user domain.User
 	err := s.db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", email)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
 	return &user, nil
@@ -131,7 +132,7 @@ func (s *SqlStore) GetByUsername(username string) (*domain.User, error) {
 	err := s.db.Get(&user, "SELECT * FROM users WHERE username = $1 LIMIT 1", username)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
 	return &user, nil
@@ -144,7 +145,7 @@ func (s *SqlStore) Update(
 	var user domain.User
 	err := s.db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", userId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 	updatedUser := updater(&user)
 
@@ -160,7 +161,7 @@ func (s *SqlStore) Update(
   `, updatedUser)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error updating user: %w", err)
 	}
 
 	return updatedUser, nil
@@ -171,7 +172,7 @@ func (s *SqlStore) Follow(userId, authorId int) (*domain.User, error) {
 	err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
 	_, err = s.db.Exec(`
@@ -181,13 +182,13 @@ func (s *SqlStore) Follow(userId, authorId int) (*domain.User, error) {
   `, userId, authorId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error following user: %w", err)
 	}
 
 	followers, err := s.getFollowers(authorId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
 	}
 	author.Followers = followers
 
@@ -199,7 +200,7 @@ func (s *SqlStore) Unfollow(userId, authorId int) (*domain.User, error) {
 	err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
 	_, err = s.db.Exec(`
@@ -208,13 +209,13 @@ func (s *SqlStore) Unfollow(userId, authorId int) (*domain.User, error) {
   `, userId, authorId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error unfollowing user: %w", err)
 	}
 
 	followers, err := s.getFollowers(authorId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
 	}
 
 	author.Followers = followers

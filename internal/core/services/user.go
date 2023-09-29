@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
@@ -94,8 +95,10 @@ func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
 	})
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error creating user: %w", err)
 	}
+
+	fmt.Printf("user: %+v\n", user)
 
 	return user.UserId, nil
 }
@@ -104,13 +107,13 @@ func (s *UserService) Login(email, rawPass string) (int, error) {
 	user, err := s.repo.GetByEmail(email)
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error getting user: %w", err)
 	}
 
 	password, err := pss.New(rawPass)
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error creating password: %w", err)
 	}
 
 	if err := pss.CompareHashAndPassword(user.Password, password); err != nil {
@@ -124,7 +127,7 @@ func (s *UserService) GetUser(userId int) (*UserOutput, error) {
 	user, err := s.repo.GetByID(userId)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting user: %w", err)
 	}
 
 	return formatUser(user), nil
@@ -134,7 +137,7 @@ func (s *UserService) GetIdFromUsername(username string) (int, error) {
 	user, err := s.repo.GetByUsername(username)
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error getting user: %w", err)
 	}
 
 	return user.UserId, nil
@@ -145,7 +148,7 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 	user, err := s.repo.GetByUsername(username)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting user: %w", err)
 	}
 	err = nil
 
@@ -155,11 +158,11 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 	} else if authorIdOrAuthorname.username != "" {
 		author, err = s.repo.GetByUsername(authorIdOrAuthorname.username)
 	} else {
-		return nil, errors.New("Invalid authorId or authorname")
+    return nil, errors.New("UserService: Invalid authorId or authorname")
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting author: %w", err)
 	}
 
 	return formatToPublicProfile(author, isFollowing(author, user.UserId)), nil
