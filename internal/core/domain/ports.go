@@ -16,12 +16,12 @@ type (
 
 	UserRepository interface {
 		Create(UserCreateInput) (*User, error)
-		GetByID(id int8) (*User, error)
+		GetByID(id int) (*User, error)
 		GetByEmail(email string) (*User, error)
 		GetByUsername(username string) (*User, error)
-		Update(userId int8, updater Updater[User]) (*User, error)
-		Follow(userId, authorId int8) (*User, error)
-		Unfollow(userId, authorId int8) (*User, error)
+		Update(userId int, updater Updater[User]) (*User, error)
+		Follow(userId, authorId int) (*User, error)
+		Unfollow(userId, authorId int) (*User, error)
 	}
 
 	ArticleCreateInput struct {
@@ -36,8 +36,8 @@ type (
 		tag       string
 		author    string // authorId
 		favorited string // authorId
-		limit     int8
-		offset    int8
+		limit     int
+		offset    int
 	}
 
 	ArticleRepository interface {

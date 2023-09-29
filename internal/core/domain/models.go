@@ -8,11 +8,11 @@ import (
 
 type (
 	User struct {
-		UserId    int8                    `json:"userId" db:"id"`
+		UserId    int                     `json:"userId" db:"id"`
 		Username  string                  `json:"username"`
 		Email     string                  `json:"email"`
 		Password  password.HashedPassword `json:"password"`  // hashed password
-		Followers []int8                  `json:"following"` // []UserId
+		Followers []int                   `json:"following"` // []UserId
 		Bio       string                  `json:"bio"`       // nullable
 		Image     string                  `json:"image"`
 		CreatedAt time.Time               `json:"createdAt" db:"created_at"`

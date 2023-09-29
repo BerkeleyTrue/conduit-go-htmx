@@ -24,7 +24,7 @@ type (
 	}
 
 	UserIdOrUsername struct {
-		userId   int8
+		userId   int
 		username string
 	}
 
@@ -60,8 +60,8 @@ func formatUser(user *domain.User) *UserOutput {
 }
 
 // is this user a follower of this author?
-func isFollowing(author *domain.User, userId int8) bool {
-	return utils.Some(func(follower int8) bool {
+func isFollowing(author *domain.User, userId int) bool {
+	return utils.Some(func(follower int) bool {
 		return follower == userId
 	}, author.Followers)
 }
@@ -79,7 +79,7 @@ func NewUserService(repo domain.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) Register(input domain.UserCreateInput) (int8, error) {
+func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
 	hashedPassword, err := pss.HashPassword(input.Password)
 
 	if err != nil {
@@ -99,7 +99,7 @@ func (s *UserService) Register(input domain.UserCreateInput) (int8, error) {
 	return user.UserId, nil
 }
 
-func (s *UserService) Login(email, rawPass string) (int8, error) {
+func (s *UserService) Login(email, rawPass string) (int, error) {
 	user, err := s.repo.GetByEmail(email)
 
 	if err != nil {
@@ -119,7 +119,7 @@ func (s *UserService) Login(email, rawPass string) (int8, error) {
 	return user.UserId, nil
 }
 
-func (s *UserService) GetUser(userId int8) (*UserOutput, error) {
+func (s *UserService) GetUser(userId int) (*UserOutput, error) {
 	user, err := s.repo.GetByID(userId)
 
 	if err != nil {
@@ -129,7 +129,7 @@ func (s *UserService) GetUser(userId int8) (*UserOutput, error) {
 	return formatUser(user), nil
 }
 
-func (s *UserService) GetIdFromUsername(username string) (int8, error) {
+func (s *UserService) GetIdFromUsername(username string) (int, error) {
 	user, err := s.repo.GetByUsername(username)
 
 	if err != nil {
@@ -166,7 +166,7 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 
 func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUserInput) (*UserOutput, error) {
 	now := time.Now()
-	var userId int8
+	var userId int
 	var err error
 
 	if userIdOrUsername.userId != 0 {
@@ -197,9 +197,9 @@ func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUser
 	return formatUser(user), nil
 }
 
-func (s *UserService) Follow(userId int8, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
+func (s *UserService) Follow(userId int, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
 	var (
-		authorId int8
+		authorId int
 		err      error
 	)
 
@@ -224,9 +224,9 @@ func (s *UserService) Follow(userId int8, authorIdOrAuthorname UserIdOrUsername)
 	return formatToPublicProfile(user, true), nil
 }
 
-func (s *UserService) Unfollow(userId int8, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
+func (s *UserService) Unfollow(userId int, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
 	var (
-		authorId int8
+		authorId int
 		err      error
 	)
 
