@@ -6,6 +6,7 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/core/services"
@@ -15,6 +16,7 @@ import (
 type (
 	Controller struct {
 		userService *services.UserService
+		store       *session.Store
 	}
 	Link struct {
 		Uri   string
@@ -58,8 +60,8 @@ var (
 	}
 )
 
-func NewController(userService *services.UserService) *Controller {
-	return &Controller{userService: userService}
+func NewController(userService *services.UserService, store *session.Store) *Controller {
+	return &Controller{userService: userService, store: store}
 }
 
 func RegisterRoutes(app *fiber.App, c *Controller) {
@@ -92,7 +94,7 @@ func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
-func (r *RegisterInput) Validate() error {
+func (r *RegisterInput) validate() error {
 	return validation.ValidateStruct(
 		r,
 		validation.Field(
@@ -116,7 +118,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	if err := registerInput.Validate(); err != nil {
+	if err := registerInput.validate(); err != nil {
 
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
@@ -126,7 +128,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		})
 	}
 
-	_, err := c.userService.Register(domain.UserCreateInput{
+	userId, err := c.userService.Register(domain.UserCreateInput{
 		Username: registerInput.Username,
 		Email:    registerInput.Email,
 		Password: password.Password(registerInput.Password),
@@ -137,6 +139,19 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 	}
 
 	fmt.Printf("register success: %+v\n", registerInput)
+
+  session, err := c.store.Get(ctx)
+
+  if err != nil {
+    return err
+  }
+
+  session.Set("userId", userId)
+  err = session.Save()
+
+  if err != nil {
+    return err
+  }
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", 303)

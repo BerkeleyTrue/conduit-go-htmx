@@ -79,11 +79,11 @@ func NewUserService(repo domain.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) Register(input domain.UserCreateInput) (*UserOutput, error) {
+func (s *UserService) Register(input domain.UserCreateInput) (int8, error) {
 	hashedPassword, err := pss.HashPassword(input.Password)
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	user, err := s.repo.Create(domain.UserCreateInput{
@@ -93,10 +93,10 @@ func (s *UserService) Register(input domain.UserCreateInput) (*UserOutput, error
 	})
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	return formatUser(user), nil
+	return user.UserId, nil
 }
 
 func (s *UserService) Login(email, rawPass string) (*UserOutput, error) {
