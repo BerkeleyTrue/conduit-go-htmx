@@ -38,6 +38,8 @@ var (
         UNIQUE(user_id, follower_id)
     );
   `
+  // compile time check to make sure SqlStore implements domain.UserRepository
+  _ domain.UserRepository = (*SqlStore)(nil)
 )
 
 func RegisterUserSchema(lc fx.Lifecycle, db *sqlx.DB) {
@@ -92,7 +94,7 @@ func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
 	return &user, err
 }
 
-func (s *SqlStore) GetByID(id string) (*domain.User, error) {
+func (s *SqlStore) GetByID(id int8) (*domain.User, error) {
 	var user domain.User
 	err := s.db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", id)
 
@@ -125,7 +127,7 @@ func (s *SqlStore) GetByUsername(username string) (*domain.User, error) {
 }
 
 func (s *SqlStore) Update(
-	userId string,
+	userId int8,
 	updater domain.Updater[domain.User],
 ) (*domain.User, error) {
 	var user domain.User
