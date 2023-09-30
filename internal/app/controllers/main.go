@@ -91,6 +91,7 @@ func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler)
 	app.Use(authMiddleware)
 
 	app.Get("/settings", c.GetSettings)
+	app.Post("/settings", c.UpdateSettings)
 	app.Post("/logout", c.Logout)
 }
 

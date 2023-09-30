@@ -9,7 +9,8 @@
         <form
           id="settings"
           hx-post="/settings"
-          hx-target="body"
+          hx-target="#settings"
+          hx-select="#settings"
           hx-swap="outerHTML"
         >
           <fieldset>
@@ -43,8 +44,8 @@
                 class="form-control form-control-lg"
                 rows="8"
               >
-                {{ if .user.Bio }}{{ .user.Bio }}{{ end }}
-              </textarea>
+{{ if .user.Bio }}{{ .user.Bio }}{{ end }}</textarea
+              >
             </fieldset>
 
             <fieldset class="form-group">

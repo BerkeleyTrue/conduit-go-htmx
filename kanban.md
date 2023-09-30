@@ -17,15 +17,15 @@
 
 * Settings page
   * [x] Get settings page
-  * [ ] make errors dynamic
-  * [ ] add post for form
+  * [x] make errors dynamic
+  * [x] add post for form
   * [x] add logout handler
   * [ ] Update settings
-    * image
-    * username
-    * bio
-    * email
-    * password
+    * [x] image
+    * [x] username
+    * [x] bio
+    * [x] email
+    * [ ] password
 
 # Done
 

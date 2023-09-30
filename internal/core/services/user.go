@@ -25,8 +25,8 @@ type (
 	}
 
 	UserIdOrUsername struct {
-		userId   int
-		username string
+		UserId   int
+		Username string
 	}
 
 	// sent to any third party user
@@ -38,11 +38,11 @@ type (
 	}
 
 	UpdateUserInput struct {
-		email    string
-		username string
-		image    string
-		bio      string
-		password string // unhashed password
+		Email    string
+		Username string
+		Image    string
+		Bio      string
+		Password pss.Password
 	}
 )
 
@@ -152,10 +152,10 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 	err = nil
 
 	var author *domain.User
-	if authorIdOrAuthorname.userId != 0 {
-		author, err = s.repo.GetByID(authorIdOrAuthorname.userId)
-	} else if authorIdOrAuthorname.username != "" {
-		author, err = s.repo.GetByUsername(authorIdOrAuthorname.username)
+	if authorIdOrAuthorname.UserId != 0 {
+		author, err = s.repo.GetByID(authorIdOrAuthorname.UserId)
+	} else if authorIdOrAuthorname.Username != "" {
+		author, err = s.repo.GetByUsername(authorIdOrAuthorname.Username)
 	} else {
 		return nil, errors.New("UserService: Invalid authorId or authorname")
 	}
@@ -172,11 +172,11 @@ func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUser
 	var userId int
 	var err error
 
-	if userIdOrUsername.userId != 0 {
-		userId = userIdOrUsername.userId
-	} else if userIdOrUsername.username != "" {
+	if userIdOrUsername.UserId != 0 {
+		userId = userIdOrUsername.UserId
+	} else if userIdOrUsername.Username != "" {
 
-		userId, err = s.GetIdFromUsername(userIdOrUsername.username)
+		userId, err = s.GetIdFromUsername(userIdOrUsername.Username)
 
 		if err != nil {
 			return nil, err
@@ -187,10 +187,10 @@ func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUser
 	}
 
 	var updater domain.Updater[domain.User] = func(u *domain.User) *domain.User {
-		u.Email = input.email
-		u.Username = input.username
-		u.Image = input.image
-		u.Bio = input.bio
+		u.Email = input.Email
+		u.Username = input.Username
+		u.Image = input.Image
+		u.Bio = input.Bio
 		u.UpdatedAt = krono.Krono{Time: now}
 		return u
 	}
@@ -206,10 +206,10 @@ func (s *UserService) Follow(userId int, authorIdOrAuthorname UserIdOrUsername) 
 		err      error
 	)
 
-	if authorIdOrAuthorname.userId != 0 {
-		authorId = authorIdOrAuthorname.userId
-	} else if authorIdOrAuthorname.username != "" {
-		authorId, err = s.GetIdFromUsername(authorIdOrAuthorname.username)
+	if authorIdOrAuthorname.UserId != 0 {
+		authorId = authorIdOrAuthorname.UserId
+	} else if authorIdOrAuthorname.Username != "" {
+		authorId, err = s.GetIdFromUsername(authorIdOrAuthorname.Username)
 
 		if err != nil {
 			return nil, err
@@ -233,8 +233,8 @@ func (s *UserService) Unfollow(userId int, authorIdOrAuthorname UserIdOrUsername
 		err      error
 	)
 
-	if authorIdOrAuthorname.userId != 0 {
-		authorId = authorIdOrAuthorname.userId
+	if authorIdOrAuthorname.UserId != 0 {
+		authorId = authorIdOrAuthorname.UserId
 	} else {
 		return nil, errors.New("Invalid authorId or authorname")
 	}
