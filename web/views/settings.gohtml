@@ -51,7 +51,14 @@
           </fieldset>
         </form>
         <hr />
-        <button class="btn btn-outline-danger">Or click here to logout.</button>
+        <button
+          class="btn btn-outline-danger"
+          hx-post="/logout"
+          hx-target="body"
+          hx-swap="outerHTML"
+        >
+          Or click here to logout.
+        </button>
       </div>
     </div>
   </div>

@@ -146,3 +146,17 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 	ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", 303)
 }
+
+func (c *Controller) Logout(ctx *fiber.Ctx) error {
+	session, err := c.store.Get(ctx)
+
+	if err != nil {
+		return fmt.Errorf("error getting session: %w", err)
+	}
+
+	session.Destroy()
+
+	ctx.Response().Header.Add("HX-Push-Url", "/")
+	ctx.Response().Header.Add("HX-Reswap", "none")
+	return ctx.Redirect("/", 303)
+}

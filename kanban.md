@@ -19,7 +19,7 @@
   * [x] Get settings page
   * [ ] make errors dynamic
   * [ ] add post for form
-  * [ ] add logout handler
+  * [x] add logout handler
   * [ ] Update settings
     * image
     * username
