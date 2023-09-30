@@ -27,12 +27,23 @@ var (
 		),
 		fx.Provide(services.NewUserService),
 		fx.Provide(session.NewSessionStore),
+		fx.Provide(
+			fx.Annotate(
+				session.NewAuthMiddleware,
+				fx.ResultTags(`name:"authMiddleware"`),
+			),
+		),
 		fx.Provide(controllers.NewController),
 
 		fx.Invoke(userRepo.RegisterUserSchema),
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(session.RegisterSessionMiddleware),
-		fx.Invoke(controllers.RegisterRoutes),
+		fx.Invoke(
+			fx.Annotate(
+				controllers.RegisterRoutes,
+				fx.ParamTags("", "", `name:"authMiddleware"`),
+			),
+		),
 		fx.Invoke(RegisterServer),
 	)
 )
@@ -44,7 +55,7 @@ func NewServer(cfg *config.Config) *fiber.App {
 	engine.Reload(isDev)
 
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:             engine,
 		PassLocalsToViews: true,
 	})
 

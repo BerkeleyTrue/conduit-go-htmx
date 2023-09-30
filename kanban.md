@@ -15,14 +15,17 @@
 
 # Doing
 
-* Get Settings page
-  * Update settings
+* Settings page
+  * [x] Get settings page
+  * [ ] make errors dynamic
+  * [ ] add post for form
+  * [ ] add logout handler
+  * [ ] Update settings
     * image
     * username
     * bio
     * email
     * password
-  * Log out
 
 # Done
 

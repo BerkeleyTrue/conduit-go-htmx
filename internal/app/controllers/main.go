@@ -65,7 +65,7 @@ func NewController(
 	return &Controller{userService: userService, store: store}
 }
 
-func RegisterRoutes(app *fiber.App, c *Controller) {
+func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler) {
 	app.Use(func(ctx *fiber.Ctx) error {
 		userId := ctx.Locals("userId")
 		links := UnAuthedLinks
@@ -87,6 +87,10 @@ func RegisterRoutes(app *fiber.App, c *Controller) {
 	app.Post("/login", c.Login)
 	app.Get("/register", c.GetRegister)
 	app.Post("/register", c.Register)
+
+	app.Use(authMiddleware)
+
+	app.Get("/settings", c.GetSettings)
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
