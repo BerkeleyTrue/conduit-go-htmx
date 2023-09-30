@@ -14,16 +14,12 @@ import (
 func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
 	return ctx.Render("auth", fiber.Map{
 		"IsRegister": false,
-		"Links":      UnAuthedLinks,
-		"Page":       ctx.Path(),
 	}, "layouts/main")
 }
 
 func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 	return ctx.Render("auth", fiber.Map{
 		"IsRegister": true,
-		"Links":      UnAuthedLinks,
-		"Page":       ctx.Path(),
 	}, "layouts/main")
 }
 
@@ -67,9 +63,9 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-	  return ctx.Render("partials/auth-errors", fiber.Map{
-	    "Errors": []error{err},
-	  })
+		return ctx.Render("partials/auth-errors", fiber.Map{
+			"Errors": []error{err},
+		})
 	}
 
 	userId, err := c.userService.Register(domain.UserCreateInput{
@@ -82,20 +78,20 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error registering user: %w", err)
 	}
 
-	fmt.Printf("register success: %+v\n", registerInput)
+	// fmt.Printf("register success: %+v\n", registerInput)
 
-  session, err := c.store.Get(ctx)
+	session, err := c.store.Get(ctx)
 
-  if err != nil {
-    return fmt.Errorf("error getting session: %w", err)
-  }
+	if err != nil {
+		return fmt.Errorf("error getting session: %w", err)
+	}
 
-  session.Set("userId", userId)
-  err = session.Save()
+	session.Set("userId", userId)
+	err = session.Save()
 
-  if err != nil {
-    return fmt.Errorf("error saving session: %w", err)
-  }
+	if err != nil {
+		return fmt.Errorf("error saving session: %w", err)
+	}
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", 303)
@@ -114,39 +110,39 @@ func (i *LoginInput) validate() error {
 }
 
 func (c *Controller) Login(ctx *fiber.Ctx) error {
-  loginInput := LoginInput{}
-  if err := ctx.BodyParser(&loginInput); err != nil {
-    return fmt.Errorf("error parsing login input: %w", err)
-  }
+	loginInput := LoginInput{}
+	if err := ctx.BodyParser(&loginInput); err != nil {
+		return fmt.Errorf("error parsing login input: %w", err)
+	}
 
-  if err := loginInput.validate(); err != nil {
-    ctx.Response().Header.Add("HX-Push-Url", "false")
-    ctx.Response().Header.Add("HX-Reswap", "none")
+	if err := loginInput.validate(); err != nil {
+		ctx.Response().Header.Add("HX-Push-Url", "false")
+		ctx.Response().Header.Add("HX-Reswap", "none")
 
-    return ctx.Render("partials/auth-errors", fiber.Map{
-      "Errors": err,
-    })
-  }
+		return ctx.Render("partials/auth-errors", fiber.Map{
+			"Errors": err,
+		})
+	}
 
-  userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
+	userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
 
-  if err != nil {
-    return fmt.Errorf("error logging in user: %w", err)
-  }
+	if err != nil {
+		return fmt.Errorf("error logging in user: %w", err)
+	}
 
-  session, err := c.store.Get(ctx)
+	session, err := c.store.Get(ctx)
 
-  if err != nil {
-    return fmt.Errorf("error getting session: %w", err)
-  }
+	if err != nil {
+		return fmt.Errorf("error getting session: %w", err)
+	}
 
-  session.Set("userId", userId)
-  err = session.Save()
+	session.Set("userId", userId)
+	err = session.Save()
 
-  if err != nil {
-    return fmt.Errorf("error saving session: %w", err)
-  }
+	if err != nil {
+		return fmt.Errorf("error saving session: %w", err)
+	}
 
-  ctx.Response().Header.Add("HX-Push-Url", "/")
-  return ctx.Redirect("/", 303)
+	ctx.Response().Header.Add("HX-Push-Url", "/")
+	return ctx.Redirect("/", 303)
 }

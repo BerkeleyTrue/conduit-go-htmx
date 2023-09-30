@@ -58,11 +58,30 @@ var (
 	}
 )
 
-func NewController(userService *services.UserService, store *session.Store) *Controller {
+func NewController(
+	userService *services.UserService,
+	store *session.Store,
+) *Controller {
 	return &Controller{userService: userService, store: store}
 }
 
 func RegisterRoutes(app *fiber.App, c *Controller) {
+	app.Use(func(ctx *fiber.Ctx) error {
+		userId := ctx.Locals("userId")
+		links := UnAuthedLinks
+
+		if userId != 0 {
+			links = AuthedLinks
+		}
+
+		ctx.Bind(fiber.Map{
+			"Links": links,
+			"Page":  ctx.Path(),
+		})
+
+		return ctx.Next()
+	})
+
 	app.Get("/", c.Index)
 	app.Get("/login", c.GetLogin)
 	app.Post("/login", c.Login)
@@ -71,15 +90,6 @@ func RegisterRoutes(app *fiber.App, c *Controller) {
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
-	userId := ctx.Locals("userId")
-	links := UnAuthedLinks
 
-	if userId != 0 {
-		links = AuthedLinks
-	}
-
-	return ctx.Render("index", fiber.Map{
-		"Links": links,
-		"Page":  ctx.Path(),
-	}, "layouts/main")
+	return ctx.Render("index", fiber.Map{}, "layouts/main")
 }
