@@ -45,6 +45,7 @@ func NewServer(cfg *config.Config) *fiber.App {
 
 	app := fiber.New(fiber.Config{
 		Views: engine,
+		PassLocalsToViews: true,
 	})
 
 	return app
