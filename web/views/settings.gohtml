@@ -4,48 +4,71 @@
       <div class="col-md-6 offset-md-3 col-xs-12">
         <h1 class="text-xs-center">Your Settings</h1>
 
-        <ul class="error-messages">
-          <li>That name is required</li>
-        </ul>
+        <ul id="errors" class="error-messages" hidden></ul>
 
-        <form>
+        <form
+          id="settings"
+          hx-post="/settings"
+          hx-target="body"
+          hx-swap="outerHTML"
+        >
           <fieldset>
             <fieldset class="form-group">
               <input
+                id="image"
+                name="image"
                 class="form-control"
                 type="text"
                 placeholder="URL of profile picture"
+                value="{{ .user.Image }}"
               />
             </fieldset>
+
             <fieldset class="form-group">
               <input
+                id="username"
+                name="username"
+                placeholder="Your Username"
                 class="form-control form-control-lg"
                 type="text"
-                placeholder="Your Name"
+                value="{{ .user.Username }}"
               />
             </fieldset>
+
             <fieldset class="form-group">
               <textarea
+                id="bio"
+                name="bio"
+                placeholder="Short bio about you"
                 class="form-control form-control-lg"
                 rows="8"
-                placeholder="Short bio about you"
-              ></textarea>
+              >
+                {{ if .user.Bio }}{{ .user.Bio }}{{ end }}
+              </textarea>
             </fieldset>
+
             <fieldset class="form-group">
               <input
+                id="email"
+                name="email"
+                placeholder="Email"
                 class="form-control form-control-lg"
                 type="text"
-                placeholder="Email"
+                value="{{ .user.Email }}"
               />
             </fieldset>
+
             <fieldset class="form-group">
               <input
+                id="password"
+                name="password"
+                placeholder="New Password"
                 class="form-control form-control-lg"
                 type="password"
-                placeholder="New Password"
               />
             </fieldset>
-            <button class="btn btn-lg btn-primary pull-xs-right">
+
+            <button type="submit" class="btn btn-lg btn-primary pull-xs-right">
               Update Settings
             </button>
           </fieldset>
