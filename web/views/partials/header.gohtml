@@ -11,6 +11,19 @@
           >
         </li>
       {{ end }}
+
+      {{ if ne .userId 0 }}
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/{{ .user.Username }}">
+            {{ if .user.Image }}
+              <img src="{{ .user.Image }}" class="user-pic" />
+            {{ else }}
+              <img src="https://placehold.co/200" class="user-pic" />
+            {{ end }}
+            {{ .user.Username }}
+          </a>
+        </li>
+      {{ end }}
     </ul>
   </div>
 </nav>

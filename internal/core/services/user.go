@@ -18,11 +18,10 @@ type (
 	}
 
 	UserOutput struct {
-		email    string
-		username string
-		token    string
-		bio      string
-		image    string
+		Email    string
+		Username string
+		Bio      string
+		Image    string
 	}
 
 	UserIdOrUsername struct {
@@ -53,11 +52,10 @@ var Module = fx.Options(
 
 func formatUser(user *domain.User) *UserOutput {
 	return &UserOutput{
-		email:    user.Email,
-		username: user.Username,
-		token:    "",
-		bio:      user.Bio,
-		image:    user.Image,
+		Email:    user.Email,
+		Username: user.Username,
+		Bio:      user.Bio,
+		Image:    user.Image,
 	}
 }
 
