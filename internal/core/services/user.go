@@ -111,7 +111,8 @@ func (s *UserService) Login(email, rawPass string) (int, error) {
 	password, err := pss.New(rawPass)
 
 	if err != nil {
-		return 0, fmt.Errorf("error creating password: %w", err)
+		fmt.Printf("error creating password: %v\n", err)
+		return 0, err
 	}
 
 	if err := pss.CompareHashAndPassword(user.Password, password); err != nil {
@@ -156,7 +157,7 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 	} else if authorIdOrAuthorname.username != "" {
 		author, err = s.repo.GetByUsername(authorIdOrAuthorname.username)
 	} else {
-    return nil, errors.New("UserService: Invalid authorId or authorname")
+		return nil, errors.New("UserService: Invalid authorId or authorname")
 	}
 
 	if err != nil {

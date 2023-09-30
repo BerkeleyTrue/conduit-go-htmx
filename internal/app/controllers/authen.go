@@ -127,7 +127,14 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 	userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
 
 	if err != nil {
-		return fmt.Errorf("error logging in user: %w", err)
+	  fmt.Printf("error logging in: %+v\n", err)
+
+		ctx.Response().Header.Add("HX-Push-Url", "false")
+		ctx.Response().Header.Add("HX-Reswap", "none")
+
+		return ctx.Render("partials/auth-errors", fiber.Map{
+	    "Errors": map[string]error{"login": err},
+	  })
 	}
 
 	session, err := c.store.Get(ctx)
@@ -157,6 +164,5 @@ func (c *Controller) Logout(ctx *fiber.Ctx) error {
 	session.Destroy()
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
-	ctx.Response().Header.Add("HX-Reswap", "none")
 	return ctx.Redirect("/", 303)
 }
