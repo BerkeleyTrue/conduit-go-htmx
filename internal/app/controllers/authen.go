@@ -61,10 +61,21 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		})
 	}
 
+	pass, err := password.New(registerInput.Password)
+
+	if err != nil {
+		ctx.Response().Header.Add("HX-Push-Url", "false")
+		ctx.Response().Header.Add("HX-Reswap", "none")
+
+	  return ctx.Render("partials/auth-errors", fiber.Map{
+	    "Errors": []error{err},
+	  })
+	}
+
 	userId, err := c.userService.Register(domain.UserCreateInput{
 		Username: registerInput.Username,
 		Email:    registerInput.Email,
-		Password: password.Password(registerInput.Password),
+		Password: pass,
 	})
 
 	if err != nil {
