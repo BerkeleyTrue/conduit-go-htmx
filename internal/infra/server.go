@@ -9,6 +9,7 @@ import (
 
 	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/app/controllers"
+	"github.com/berkeleytrue/conduit/internal/app/driven/articlesRepo"
 	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/core/services"
@@ -25,7 +26,14 @@ var (
 				fx.As(new(domain.UserRepository)),
 			),
 		),
+		fx.Provide(
+			fx.Annotate(
+				articlesRepo.NewSqlStore,
+				fx.As(new(domain.ArticleRepository)),
+			),
+		),
 		fx.Provide(services.NewUserService),
+		fx.Provide(services.NewArticleService),
 		fx.Provide(session.NewSessionStore),
 		fx.Provide(
 			fx.Annotate(
@@ -36,6 +44,7 @@ var (
 		fx.Provide(controllers.NewController),
 
 		fx.Invoke(userRepo.RegisterUserSchema),
+		fx.Invoke(articlesRepo.RegisterArticleSchema),
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(session.RegisterSessionMiddleware),
 		fx.Invoke(

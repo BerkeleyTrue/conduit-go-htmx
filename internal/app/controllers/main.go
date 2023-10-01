@@ -9,8 +9,9 @@ import (
 
 type (
 	Controller struct {
-		userService *services.UserService
-		store       *session.Store
+		store          *session.Store
+		userService    *services.UserService
+		articleService *services.ArticleService
 	}
 	Link struct {
 		Uri   string
@@ -59,10 +60,15 @@ var (
 )
 
 func NewController(
-	userService *services.UserService,
 	store *session.Store,
+	userService *services.UserService,
+	articleService *services.ArticleService,
 ) *Controller {
-	return &Controller{userService: userService, store: store}
+	return &Controller{
+		store:          store,
+		userService:    userService,
+		articleService: articleService,
+	}
 }
 
 func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler) {

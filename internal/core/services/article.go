@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
-	"github.com/berkeleytrue/conduit/internal/infra/data/maybe"
 	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
 )
 
@@ -52,7 +51,7 @@ func NewArticleService(repo domain.ArticleRepository) *ArticleService {
 	return &ArticleService{repo: repo}
 }
 
-func (s *ArticleService) List(maybeUser maybe.Maybe[string], input domain.ArticleListInput) ([]ArticleOutput, error) {
+func (s *ArticleService) List(username string, input domain.ArticleListInput) ([]ArticleOutput, error) {
 	// TODO: following
 	// username, ok := maybeUser.Get()
 
