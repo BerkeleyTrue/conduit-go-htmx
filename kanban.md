@@ -1,8 +1,5 @@
 # TODO
 
-- add seed data import
-  - add seed data for login
-  - add seed articles for default user
 - Get new/edit articles page
   - /editor - new
   - /editor/slug - edit
@@ -11,18 +8,16 @@
   - delete if owner
   - comments
   - delete comment if owner
+- Comments
+  - create comment on article
+  - delete comment from article
 
 # Doing
 
-- Articles Api
-  - [ ] Add get route
-  - [ ] return list of articles
+- Add seed data import
+  - add seed data for login
+  - add seed articles for default user
 - Profile page
-  - [x] Get profile page
-  - [x] Make content live
-  - [x] link to settings
-  - [x] hide follow if own profile
-  - [x] show favorited articles
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
 
@@ -41,3 +36,12 @@
     - [x] bio
     - [x] email
     - [x] password
+- Profile page
+  - [x] Get profile page
+  - [x] Make content live
+  - [x] link to settings
+  - [x] hide follow if own profile
+  - [x] show favorited articles
+- Articles Api
+  - [x] Add get route
+  - [x] return list of articles
