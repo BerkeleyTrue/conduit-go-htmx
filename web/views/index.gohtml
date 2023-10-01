@@ -11,23 +11,41 @@
       <div class="col-md-9">
         <div class="feed-toggle">
           <ul class="nav nav-pills outline-active">
-            <li class="nav-item" hidden>
-              <a class="nav-link" href="">Your Feed</a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link active" href="">Global Feed</a>
-            </li>
+            {{ if ne .userId 0 }}
+              <li
+                class="nav-item"
+                hx-get="/articles/feed?limit=10"
+                hx-trigger="load delay:250ms"
+                hx-target="#articles"
+              >
+                <a class="nav-link">Your Feed</a>
+              </li>
+              <li
+                class="nav-item"
+                hx-get="/articles?limit=10"
+                hx-target="#articles"
+              >
+                <a class="nav-link active">Global Feed</a>
+                <
+              </li>
+            {{ else }}
+              <li
+                class="nav-item"
+                hx-get="/articles?limit=10"
+                hx-trigger="load delay:250ms"
+                hx-target="#articles"
+              >
+                <a class="nav-link active">Global Feed</a>
+              </li>
+            {{ end }}
           </ul>
         </div>
 
-        <div class="article-preview">Loading articles...</div>
+        <div id="articles">
+          <div class="article-preview">Loading articles...</div>
+        </div>
 
-        <ul class="pagination" hidden>
-          <li class="page-item active">
-            <a class="page-link" href="">1</a>
-          </li>
-        </ul>
+        <ul id="pagination" class="pagination" hidden></ul>
       </div>
 
       <div class="col-md-3">

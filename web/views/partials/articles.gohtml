@@ -32,3 +32,13 @@
 {{ else }}
   <div class="article-preview">No articles are here... yet.</div>
 {{ end }}
+
+{{ if .ShowPagination }}
+  <ul id="pagination" class="pagination" hx-swap-oob>
+    {{ range $page := Iterate .NumOfPages }}
+      <li class="page-item {{ if eq .CurrentPage $page }}active{{ end }}">
+        <a class="page-link" href="">{{ $page }}</a>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
