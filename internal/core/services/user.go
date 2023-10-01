@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/fx"
+
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	pss "github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/utils"
-	"go.uber.org/fx"
 )
 
 type (
@@ -142,16 +143,16 @@ func (s *UserService) GetIdFromUsername(username string) (int, error) {
 	return user.UserId, nil
 }
 
-func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username string) (*PublicProfile, error) {
+func (s *UserService) GetProfile(
+	authorIdOrAuthorname UserIdOrUsername,
+	userId int, // the user who is requesting the profile, if any
+) (*PublicProfile, error) {
+	var (
+		author       *domain.User
+		err          error
+		_isFollowing bool = false
+	)
 
-	user, err := s.repo.GetByUsername(username)
-
-	if err != nil {
-		return nil, fmt.Errorf("error getting user: %w", err)
-	}
-	err = nil
-
-	var author *domain.User
 	if authorIdOrAuthorname.UserId != 0 {
 		author, err = s.repo.GetByID(authorIdOrAuthorname.UserId)
 	} else if authorIdOrAuthorname.Username != "" {
@@ -164,10 +165,17 @@ func (s *UserService) GetProfile(authorIdOrAuthorname UserIdOrUsername, username
 		return nil, fmt.Errorf("error getting author: %w", err)
 	}
 
-	return formatToPublicProfile(author, isFollowing(author, user.UserId)), nil
+	if userId != 0 {
+		_isFollowing = isFollowing(author, userId)
+	}
+
+	return formatToPublicProfile(author, _isFollowing), nil
 }
 
-func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUserInput) (*UserOutput, error) {
+func (s *UserService) Update(
+	userIdOrUsername UserIdOrUsername,
+	input UpdateUserInput,
+) (*UserOutput, error) {
 	now := time.Now()
 	var userId int
 	var err error
@@ -200,7 +208,10 @@ func (s *UserService) Update(userIdOrUsername UserIdOrUsername, input UpdateUser
 	return formatUser(user), nil
 }
 
-func (s *UserService) Follow(userId int, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
+func (s *UserService) Follow(
+	userId int,
+	authorIdOrAuthorname UserIdOrUsername,
+) (*PublicProfile, error) {
 	var (
 		authorId int
 		err      error
@@ -227,7 +238,10 @@ func (s *UserService) Follow(userId int, authorIdOrAuthorname UserIdOrUsername) 
 	return formatToPublicProfile(user, true), nil
 }
 
-func (s *UserService) Unfollow(userId int, authorIdOrAuthorname UserIdOrUsername) (*PublicProfile, error) {
+func (s *UserService) Unfollow(
+	userId int,
+	authorIdOrAuthorname UserIdOrUsername,
+) (*PublicProfile, error) {
 	var (
 		authorId int
 		err      error

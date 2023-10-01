@@ -88,6 +88,8 @@ func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler)
 	app.Get("/register", c.GetRegister)
 	app.Post("/register", c.Register)
 
+	app.Get("/profile/:username", c.GetProfile)
+
 	app.Use(authMiddleware)
 
 	app.Get("/settings", c.GetSettings)
