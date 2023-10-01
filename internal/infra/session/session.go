@@ -60,14 +60,14 @@ func NewAuthMiddleware(app *fiber.App, store *session.Store, userService *servic
 		userId, ok := session.Get("userId").(int)
 
 		if !ok || userId == 0 {
-			return ctx.Status(fiber.StatusForbidden).Redirect("/login")
+			return ctx.Redirect("/login", fiber.StatusForbidden)
 		}
 
 		user, err := userService.GetUser(userId)
 
 		if err != nil {
 			session.Destroy()
-			return ctx.Status(fiber.StatusForbidden).Redirect("/login")
+			return ctx.Redirect("/login", fiber.StatusForbidden)
 		}
 
 		ctx.Locals("user", user)
