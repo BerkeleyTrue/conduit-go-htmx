@@ -14,14 +14,17 @@
 
 # Doing
 
+- Articles Api
+  - [ ] Add get route
+  - [ ] return list of articles
 - Profile page
   - [x] Get profile page
-  - [ ] Make content live
-  - [ ] link to settings
-  - [ ] hide follow if own profile
+  - [x] Make content live
+  - [x] link to settings
+  - [x] hide follow if own profile
+  - [x] show favorited articles
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
-  - [ ] show favorited articles
 
 # Done
 

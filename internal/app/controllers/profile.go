@@ -13,8 +13,13 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 	userId, ok := ctx.Locals("userId").(int)
 
 	if !ok {
-		fmt.Println("user not found")
 		userId = 0
+	}
+
+	username, ok := ctx.Locals("username").(string)
+
+	if !ok {
+		username = ""
 	}
 
 	profile, err := c.userService.GetProfile(services.UserIdOrUsername{
@@ -27,6 +32,7 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Render("profile", fiber.Map{
-		"Profile": profile,
+		"Profile":  profile,
+		"IsMyself": profile.Username == username,
 	}, "layouts/main")
 }
