@@ -14,9 +14,9 @@
 
 # Doing
 
-- Add seed data import
-  - add seed data for login
-  - add seed articles for default user
+- Add seed data import (use gofakeit)
+  - [ ] add seed data for login
+  - [ ] add seed articles for default user
 - Profile page
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
