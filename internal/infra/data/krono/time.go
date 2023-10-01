@@ -10,6 +10,10 @@ type Krono struct {
 	Time time.Time
 }
 
+func Now() Krono {
+	return Krono{Time: time.Now()}
+}
+
 // define how to format the Krono to text for sqlite
 func (ts Krono) Value() (driver.Value, error) {
 	return ts.Time.Format(time.RFC3339), nil

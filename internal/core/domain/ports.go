@@ -25,41 +25,41 @@ type (
 	}
 
 	ArticleCreateInput struct {
-		title       string
-		description string
-		body        string
-		tags        []string
-		authorId    string
+		Title       string
+		Description string
+		Body        string
+		Tags        []string
+		AuthorId    int
 	}
 
 	ArticleListInput struct {
-		tag       string
-		author    string // authorId
-		favorited string // authorId
-		limit     int
-		offset    int
+		Tag       string
+		Author    string // authorId
+		Favorited string // authorId
+		Limit     int
+		Offset    int
 	}
 
 	ArticleRepository interface {
 		Create(input ArticleCreateInput) (*Article, error)
 		GetById(articleId string) (*Article, error)
 		GetBySlug(mySlug string) (*Article, error)
-		List(input ArticleListInput) []*Article
-		Update(slug string, updater Updater[*Article]) (*Article, error)
+		List(input ArticleListInput) ([]*Article, error)
+		Update(slug string, updater Updater[Article]) (*Article, error)
 		Delete(slug string) error
 	}
 
 	CommentCreateInput struct {
-		body      string
-		authorId  string // UserId
-		articleId string // ArticleId
+		Body      string
+		AuthorId  int // UserId
+		ArticleId int // ArticleId
 	}
 
 	CommentRepository interface {
 		Create(input CommentCreateInput) (*Comment, error)
 		GetById(commentId string) (*Comment, error)
 		GetByArticleId(articleId string) ([]*Comment, error)
-		Update(commentId string, updater Updater[*Comment]) (*Comment, error)
+		Update(commentId string, updater Updater[Comment]) (*Comment, error)
 		Delete(commentId string) error
 	}
 )

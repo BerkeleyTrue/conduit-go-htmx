@@ -3,6 +3,7 @@ package domain
 import (
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
+	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
 )
 
 type (
@@ -19,18 +20,18 @@ type (
 	}
 
 	Article struct {
-		AuthorId  int `json:"authorId"`
-		ArticleId int `json:"articleId"`
+		ArticleId int `json:"articleId" db:"id"`
+		AuthorId  int `json:"authorId" db:"author_id"`
 
-		Title string `json:"title"`
-		Slug  string `json:"slug"`
+		Title string    `json:"title" db:"title"`
+		Slug  slug.Slug `json:"slug" db:"slug"`
 
-		Description string   `json:"description"`
-		Body        string   `json:"body"`
+		Description string   `json:"description" db:"description"`
+		Body        string   `json:"body" db:"body"`
 		Tags        []string `json:"Tags"`
 
-		CreatedAt krono.Krono `json:"createdAt"`
-		UpdatedAt krono.Krono `json:"updatedAt"`
+		CreatedAt krono.Krono `json:"createdAt" db:"created_at"`
+		UpdatedAt krono.Krono `json:"updatedAt" db:"updated_at"`
 	}
 
 	Comment struct {
