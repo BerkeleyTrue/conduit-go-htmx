@@ -10,12 +10,7 @@ import (
 	"github.com/berkeleytrue/conduit/config"
 )
 
-func NewServer(cfg *config.Config) *fiber.App {
-	isDev := cfg.Release == "development"
-
-	engine := html.New("./web/views", ".gohtml")
-	engine.Reload(isDev)
-
+func NewServer(engine *html.Engine) *fiber.App {
 	app := fiber.New(fiber.Config{
 		Views:             engine,
 		PassLocalsToViews: true,

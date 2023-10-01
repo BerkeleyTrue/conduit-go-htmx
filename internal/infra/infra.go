@@ -15,6 +15,7 @@ import (
 
 var (
 	Module = fx.Options(
+		fx.Provide(server.NewEngine),
 		fx.Provide(server.NewServer),
 		fx.Provide(db.NewDB),
 		fx.Provide(
