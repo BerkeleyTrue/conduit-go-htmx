@@ -32,10 +32,10 @@ type (
 
 	// sent to any third party user
 	PublicProfile struct {
-		username  string
-		bio       string
-		image     string
-		following bool
+		Username  string
+		Bio       string
+		Image     string
+		Following bool
 	}
 
 	UpdateUserInput struct {
@@ -69,10 +69,10 @@ func isFollowing(author *domain.User, userId int) bool {
 
 func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
 	return &PublicProfile{
-		username:  author.Username,
-		bio:       author.Bio,
-		image:     author.Image,
-		following: following,
+		Username:  author.Username,
+		Bio:       author.Bio,
+		Image:     author.Image,
+		Following: following,
 	}
 }
 
