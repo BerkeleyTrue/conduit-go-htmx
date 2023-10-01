@@ -33,8 +33,6 @@ func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService
 		if !ok {
 			ctx.Locals("userId", 0)
 		} else {
-			ctx.Locals("userId", userId)
-
 			user, err := userService.GetUser(userId)
 
 			if err != nil {
@@ -42,7 +40,9 @@ func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService
 				return ctx.Status(fiber.StatusForbidden).Redirect("/login")
 			}
 
+			ctx.Locals("userId", userId)
 			ctx.Locals("user", user)
+			ctx.Locals("username", user.Username)
 		}
 
 		return ctx.Next()
@@ -72,6 +72,7 @@ func NewAuthMiddleware(app *fiber.App, store *session.Store, userService *servic
 
 		ctx.Locals("user", user)
 		ctx.Locals("userId", userId)
+		ctx.Locals("username", user.Username)
 
 		return ctx.Next()
 	}
