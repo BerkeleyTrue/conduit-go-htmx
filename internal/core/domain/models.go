@@ -1,8 +1,6 @@
 package domain
 
 import (
-	"time"
-
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 )
@@ -21,8 +19,8 @@ type (
 	}
 
 	Article struct {
-		AuthorId  string `json:"authorId"`
-		ArticleId string `json:"articleId"`
+		AuthorId  int `json:"authorId"`
+		ArticleId int `json:"articleId"`
 
 		Title string `json:"title"`
 		Slug  string `json:"slug"`
@@ -31,10 +29,8 @@ type (
 		Body        string   `json:"body"`
 		Tags        []string `json:"Tags"`
 
-		CreatedAt time.Time `json:"createdAt"`
-		UpdatedAt time.Time `json:"updatedAt"`
-
-		FavoritedBy []string `json:"favoritedBy"` // []UserId
+		CreatedAt krono.Krono `json:"createdAt"`
+		UpdatedAt krono.Krono `json:"updatedAt"`
 	}
 
 	Comment struct {

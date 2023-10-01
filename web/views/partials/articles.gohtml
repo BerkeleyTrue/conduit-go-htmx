@@ -1,0 +1,34 @@
+{{ define "article-preview" }}
+  <div class="article-preview">
+    <div class="article-meta">
+      <a href="/profile/{{ .Author.Username }}"
+        ><img src="{{ .Author.Image }}"
+      /></a>
+      <div class="info">
+        <a href="/profile/{{ .Author.Username }}" class="author"
+          >{{ .Author.Username }}</a
+        >
+        <span class="date">{{ .CreatedAt }}</span>
+      </div>
+      <button class="btn btn-outline-primary btn-sm pull-xs-right">
+        <i class="ion-heart"></i> {{ .FavoritesCount }}
+      </button>
+    </div>
+    <a href="/article/{{ .Slug }}" class="preview-link">
+      <h1>{{ .Title }}</h1>
+      <p>{{ .Description }}</p>
+      <span>Read more...</span>
+      <ul class="tag-list">
+        {{ range .Tags }}
+          <li class="tag-default tag-pill tag-outline">{{ . }}</li>
+        {{ end }}
+      </ul>
+    </a>
+  </div>
+{{ end }}
+
+{{ range .Articles }}
+  {{ template "article-preview" . }}
+{{ else }}
+  <div class="article-preview">No articles are here... yet.</div>
+{{ end }}
