@@ -61,18 +61,29 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 			"Errors": err,
 		})
 	}
+	updates := services.UpdateUserInput{
+		Username: settingsInput.Username,
+		Email:    settingsInput.Email,
+		Bio:      settingsInput.Bio,
+		Image:    settingsInput.Image,
+	}
 
-	pass, err := password.New(settingsInput.Password)
 
-	if err != nil {
+	if settingsInput.Password != "" {
+	  fmt.Printf("settings input %+v\n", settingsInput)
 
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		if pass, err := password.New(settingsInput.Password); err == nil {
+			updates.Password = pass
+		} else {
 
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": map[string]error{"password": err},
-		})
+			ctx.Response().Header.Add("HX-Push-Url", "false")
+			ctx.Response().Header.Add("HX-Reswap", "none")
 
+			return ctx.Render("partials/auth-errors", fiber.Map{
+				"Errors": map[string]error{"password": err},
+			})
+
+		}
 	}
 
 	// fmt.Printf("settings input %+v\n", settingsInput)
@@ -80,13 +91,7 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 	user, err := c.userService.Update(services.UserIdOrUsername{
 		UserId: ctx.Locals("userId").(int),
 	},
-		services.UpdateUserInput{
-			Username: settingsInput.Username,
-			Email:    settingsInput.Email,
-			Bio:      settingsInput.Bio,
-			Image:    settingsInput.Image,
-			Password: pass,
-		},
+		updates,
 	)
 
 	if err != nil {
