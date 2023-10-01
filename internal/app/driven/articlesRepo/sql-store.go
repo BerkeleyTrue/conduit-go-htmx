@@ -27,10 +27,10 @@ var (
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         body TEXT NOT NULL,
-        author_id INTEGER NOT NULL FOREIGN KEY REFERENCES users (id)
-
+        author_id INTEGER NOT NULL,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(author_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS tags (
@@ -40,9 +40,11 @@ var (
 
     CREATE TABLE IF NOT EXISTS article_tags (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        article_id INTEGER NOT NULL FOREIGN KEY REFERENCES articles (id),
-        tag_id INTEGER NOT NULL FOREIGN KEY REFERENCES tags (id),
-        UNIQUE(article_id, tag_id)
+        article_id INTEGER NOT NULL,
+        tag_id INTEGER NOT NULL,
+        UNIQUE(article_id, tag_id),
+        FOREIGN KEY(article_id) REFERENCES articles(id),
+        FOREIGN KEY(tag_id) REFERENCES tags(id)
     );
 
   `
