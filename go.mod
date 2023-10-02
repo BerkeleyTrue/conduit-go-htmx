@@ -3,6 +3,7 @@ module github.com/berkeleytrue/conduit
 go 1.20
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.23.2
 	github.com/glebarez/go-sqlite v1.21.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/gofiber/fiber/v2 v2.49.2
