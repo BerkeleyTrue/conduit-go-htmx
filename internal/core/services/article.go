@@ -11,6 +11,13 @@ type (
 		repo domain.ArticleRepository
 	}
 
+	ArticleCreateInput struct {
+		Title       string
+		Description string
+		Body        string
+		Tags        []string
+	}
+
 	ArticleOutput struct {
 		Slug           slug.Slug
 		Title          string
@@ -25,9 +32,9 @@ type (
 	}
 
 	ArticleUpdateInput struct {
-		title       string
-		description string
-		body        string
+		Title       string
+		Description string
+		Body        string
 	}
 )
 
@@ -49,6 +56,22 @@ func formatArticle(article *domain.Article) ArticleOutput {
 
 func NewArticleService(repo domain.ArticleRepository) *ArticleService {
 	return &ArticleService{repo: repo}
+}
+
+func (s *ArticleService) Create(userId int, input ArticleCreateInput) (ArticleOutput, error) {
+	article, err := s.repo.Create(domain.ArticleCreateInput{
+		Title:       input.Title,
+		Description: input.Description,
+		Body:        input.Body,
+		Tags:        input.Tags,
+		AuthorId:    userId,
+	})
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article), nil
 }
 
 func (s *ArticleService) List(username string, input domain.ArticleListInput) ([]ArticleOutput, error) {
@@ -74,12 +97,58 @@ func (s *ArticleService) List(username string, input domain.ArticleListInput) ([
 	return outputs, err
 }
 
+func (s *ArticleService) GetBySlug(slug string, userId int) (ArticleOutput, error) {
+	article, err := s.repo.GetBySlug(slug)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article), nil
+}
+
+func (s *ArticleService) GetIdFromSlug(slug string) (int, error) {
+	article, err := s.repo.GetBySlug(slug)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return article.ArticleId, nil
+}
+
+func (s *ArticleService) Update(slug string, username string, input ArticleUpdateInput) (ArticleOutput, error) {
+	article, err := s.repo.Update(slug, func(a *domain.Article) *domain.Article {
+		a.Title = input.Title
+		a.Description = input.Description
+		a.Body = input.Body
+		return a
+	})
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article), nil
+}
+
+func (s *ArticleService) Favorite(slug string, username string) (ArticleOutput, error) {
+	article, err := s.repo.Update(slug, func(a *domain.Article) *domain.Article {
+		return a
+	})
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article), nil
+}
+
+func (s *ArticleService) Delete(slug string, username string) error {
+	return s.repo.Delete(slug)
+}
+
 // newtype ArticleService = ArticleService
-//   { list :: { username :: (Maybe Username), input :: ArticleListInput } -> Om {} (ArticleServiceErrs ()) (Array ArticleOutput)
-//   , getBySlug :: MySlug -> (Maybe Username) -> Om {} (ArticleServiceErrs ()) ArticleOutput
-//   , getIdFromSlug :: MySlug -> Om {} (ArticleServiceErrs ()) ArticleId
-//   , update :: MySlug -> Username -> ArticleUpdateInput -> Om {} (ArticleServiceErrs ()) ArticleOutput
-//   , delete :: MySlug -> Om {} (ArticleServiceErrs ()) Unit
 //   , favorite :: MySlug -> Username -> Om {} (ArticleServiceErrs ()) ArticleOutput
 //   , unfavorite :: MySlug -> Username -> Om {} (ArticleServiceErrs ()) ArticleOutput
 //   }

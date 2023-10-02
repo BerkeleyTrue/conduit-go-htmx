@@ -46,6 +46,7 @@ type (
 		GetBySlug(mySlug string) (*Article, error)
 		List(input ArticleListInput) ([]*Article, error)
 		Update(slug string, updater Updater[Article]) (*Article, error)
+		Favorite(slug string, userId int) (*Article, error)
 		Delete(slug string) error
 	}
 
