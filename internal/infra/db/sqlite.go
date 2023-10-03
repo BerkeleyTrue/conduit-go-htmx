@@ -11,7 +11,7 @@ import (
 )
 
 func NewDB(cfg *config.Config) (*sqlx.DB, error) {
-	db, err := sqlx.Open("sqlite3", cfg.DB)
+	db, err := sqlx.Open("sqlite", cfg.DB)
 
 	if err != nil {
 		return nil, err
