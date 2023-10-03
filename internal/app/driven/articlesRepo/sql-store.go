@@ -1,7 +1,6 @@
 package articlesRepo
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -59,26 +58,31 @@ var (
 
   `
 	_ domain.ArticleRepository = (*SqlStore)(nil)
+
+	Module = fx.Options(
+		fx.Provide(fx.Annotate(
+			newSqlStore,
+			fx.As(new(domain.ArticleRepository)),
+		)),
+
+		fx.Invoke(registerArticleSchema),
+	)
 )
 
-func NewSqlStore(db *sqlx.DB) *SqlStore {
+func newSqlStore(db *sqlx.DB) *SqlStore {
 	return &SqlStore{
 		db: db,
 	}
 }
 
-func RegisterArticleSchema(lc fx.Lifecycle, db *sqlx.DB) {
-	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
-			_, err := db.Exec(schema)
+func registerArticleSchema(db *sqlx.DB) error {
+	_, err := db.Exec(schema)
 
-			if err != nil {
-				return err
-			}
+	if err != nil {
+		return err
+	}
 
-			return nil
-		},
-	})
+	return nil
 }
 
 func (s *SqlStore) Create(

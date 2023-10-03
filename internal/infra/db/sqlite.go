@@ -1,8 +1,6 @@
 package db
 
 import (
-	"context"
-
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
@@ -10,7 +8,17 @@ import (
 	"github.com/berkeleytrue/conduit/config"
 )
 
-func NewDB(cfg *config.Config) (*sqlx.DB, error) {
+var Module = fx.Options(
+	fx.Provide(fx.Annotate(
+		newDB,
+		fx.OnStop(func(db *sqlx.DB) error {
+			return db.Close()
+		})),
+	),
+	fx.Invoke(pingDb),
+)
+
+func newDB(cfg *config.Config) (*sqlx.DB, error) {
 	db, err := sqlx.Open("sqlite", cfg.DB)
 
 	if err != nil {
@@ -20,17 +28,6 @@ func NewDB(cfg *config.Config) (*sqlx.DB, error) {
 	return db, nil
 }
 
-func RegisterDB(lc fx.Lifecycle, db *sqlx.DB) {
-	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
-			if err := db.Ping(); err != nil {
-				return err
-			}
-
-			return nil
-		},
-		OnStop: func(_ context.Context) error {
-			return db.Close()
-		},
-	})
+func pingDb(db *sqlx.DB) error {
+	return db.Ping()
 }

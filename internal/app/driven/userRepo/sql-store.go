@@ -1,7 +1,6 @@
 package userRepo
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -42,26 +41,30 @@ var (
   `
 	// compile time check to make sure SqlStore implements domain.UserRepository
 	_ domain.UserRepository = (*SqlStore)(nil)
+
+	Module = fx.Options(
+		fx.Provide(fx.Annotate(
+			newSqlStore,
+			fx.As(new(domain.UserRepository))),
+		),
+		fx.Invoke(registerUserSchema),
+	)
 )
 
-func RegisterUserSchema(lc fx.Lifecycle, db *sqlx.DB) {
-	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
-			_, err := db.Exec(schema)
-
-			if err != nil {
-				return err
-			}
-
-			return nil
-		},
-	})
-}
-
-func NewSqlStore(db *sqlx.DB) *SqlStore {
+func newSqlStore(db *sqlx.DB) *SqlStore {
 	return &SqlStore{
 		db: db,
 	}
+}
+
+func registerUserSchema(db *sqlx.DB) error {
+	_, err := db.Exec(schema)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // get followers for a user
