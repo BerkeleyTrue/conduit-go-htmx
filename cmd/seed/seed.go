@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
 
 	"github.com/berkeleytrue/conduit/config"
@@ -13,6 +14,14 @@ import (
 	"github.com/berkeleytrue/conduit/internal/core/services"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/infra/db"
+)
+
+type (
+	Generate struct {
+		userService    *services.UserService
+		articleService *services.ArticleService
+		shutdown       fx.Shutdowner
+	}
 )
 
 func generateUser(userService *services.UserService) (*services.UserOutput, error) {
@@ -38,7 +47,7 @@ func generateUser(userService *services.UserService) (*services.UserOutput, erro
 	return userOutput, nil
 }
 
-func generate(userService *services.UserService, articleService *services.ArticleService) {
+func seed(userService *services.UserService, articleService *services.ArticleService, shutdown fx.Shutdowner) {
 	numOfUsers := 30
 	// numOfArticles := 20
 
@@ -48,7 +57,7 @@ func generate(userService *services.UserService, articleService *services.Articl
 		user, err := generateUser(userService)
 
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 
 		users = append(users, user)
@@ -68,6 +77,24 @@ func generate(userService *services.UserService, articleService *services.Articl
 	//     }
 	//   }
 	// }
+
+	shutdown.Shutdown()
+}
+
+func clearDb(db *sqlx.DB) {
+	fmt.Println("clearing db")
+
+	_, err := db.Exec(`
+    DELETE FROM users;
+    DELETE FROM articles;
+    -- DELETE FROM comments;
+    DELETE FROM tags;
+    DELETE FROM article_tags;
+  `)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
@@ -75,22 +102,16 @@ func main() {
 	app := fx.New(
 		config.Module,
 
-		fx.Provide(db.NewDB),
-		fx.Provide(
-			fx.Annotate(
-				userRepo.NewSqlStore,
-				fx.As(new(domain.UserRepository)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				articlesRepo.NewSqlStore,
-				fx.As(new(domain.ArticleRepository)),
-			),
-		),
+		db.Module,
+		fx.Invoke(clearDb),
+
+		userRepo.Module,
+		articlesRepo.Module,
+
 		fx.Provide(services.NewUserService),
 		fx.Provide(services.NewArticleService),
-		fx.Invoke(generate),
+
+		fx.Invoke(seed),
 	)
 
 	app.Run()
