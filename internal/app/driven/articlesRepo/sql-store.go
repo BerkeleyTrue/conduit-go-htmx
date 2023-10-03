@@ -47,6 +47,16 @@ var (
         FOREIGN KEY(tag_id) REFERENCES tags(id)
     );
 
+    CREATE TABLE IF NOT EXISTS favoires (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        article_id INTEGER NOT NULL,
+        UNIQUE(user_id, article_id),
+
+        FOREIGN KEY(user_id) REFERENCES users(id),
+        FOREIGN KEY(article_id) REFERENCES articles(id)
+    )
+
   `
 	_ domain.ArticleRepository = (*SqlStore)(nil)
 )
@@ -71,7 +81,9 @@ func RegisterArticleSchema(lc fx.Lifecycle, db *sqlx.DB) {
 	})
 }
 
-func (s *SqlStore) Create(input domain.ArticleCreateInput) (*domain.Article, error) {
+func (s *SqlStore) Create(
+	input domain.ArticleCreateInput,
+) (*domain.Article, error) {
 	slug := slug.NewSlug(input.Title)
 	now := krono.Now()
 	article := domain.Article{
@@ -128,7 +140,9 @@ func (s *SqlStore) GetBySlug(mySlug string) (*domain.Article, error) {
 	return &article, nil
 }
 
-func (s *SqlStore) List(input domain.ArticleListInput) ([]*domain.Article, error) {
+func (s *SqlStore) List(
+	input domain.ArticleListInput,
+) ([]*domain.Article, error) {
 	var articles []*domain.Article
 	// TODO: add tags, author, favorited
 	query := `
@@ -172,6 +186,26 @@ func (s *SqlStore) Update(
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error updating article: %w", err)
+	}
+
+	return article, nil
+}
+
+func (s *SqlStore) Favorite(slug string, userId int) (*domain.Article, error) {
+
+	article, err := s.GetBySlug(slug)
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
+	}
+
+	_, err = s.db.Exec(`
+    INSERT INTO favorites (user_id, article_id)
+    VALUES ($1, $2)
+  `, userId, article.ArticleId)
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error favoriting article: %w", err)
 	}
 
 	return article, nil
