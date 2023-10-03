@@ -205,6 +205,10 @@ func (s *UserService) Update(
 
 	user, err := s.repo.Update(userId, updater)
 
+	if err != nil {
+		return nil, err
+	}
+
 	return formatUser(user), nil
 }
 
