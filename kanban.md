@@ -15,8 +15,9 @@
 # Doing
 
 - Add seed data import (use gofakeit)
-  - [ ] add seed data for login
-  - [ ] add seed articles for default user
+  - [x] add users
+  - [ ] add articles
+  - [ ] add comments
 - Profile page
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
@@ -45,3 +46,5 @@
 - Articles Api
   - [x] Add get route
   - [x] return list of articles
+- ArticlesRepo
+  - [x] Unfavorite

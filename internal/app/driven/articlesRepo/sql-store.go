@@ -215,6 +215,25 @@ func (s *SqlStore) Favorite(slug string, userId int) (*domain.Article, error) {
 	return article, nil
 }
 
+func (s *SqlStore) Unfavorite(slug string, userId int) (*domain.Article, error) {
+	article, err := s.GetBySlug(slug)
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
+	}
+
+	_, err = s.db.Exec(`
+      DELETE FROM favorites
+      WHERE user_id = $1 AND article_id = $2
+    `, userId, article.ArticleId)
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error unfavoriting article: %w", err)
+	}
+
+	return article, nil
+}
+
 func (s *SqlStore) Delete(slug string) error {
 	_, err := s.db.Exec("DELETE FROM articles WHERE slug = $1", slug)
 
