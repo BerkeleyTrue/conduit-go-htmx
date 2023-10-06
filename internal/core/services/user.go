@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -47,8 +48,11 @@ type (
 	}
 )
 
-var Module = fx.Options(
-	fx.Provide(NewUserService),
+var (
+	Module = fx.Options(
+		fx.Provide(NewUserService),
+	)
+	ErrNoUser = errors.New("No user found with that email and password")
 )
 
 func formatUser(user *domain.User) *UserOutput {
@@ -106,6 +110,10 @@ func (s *UserService) Login(email, rawPass string) (int, error) {
 	user, err := s.repo.GetByEmail(email)
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, ErrNoUser
+		}
+
 		return 0, fmt.Errorf("error getting user: %w", err)
 	}
 
@@ -117,7 +125,7 @@ func (s *UserService) Login(email, rawPass string) (int, error) {
 	}
 
 	if err := pss.CompareHashAndPassword(user.Password, password); err != nil {
-		return 0, errors.New("Invalid password")
+		return 0, ErrNoUser
 	}
 
 	return user.UserId, nil
