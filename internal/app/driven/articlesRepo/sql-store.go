@@ -46,7 +46,7 @@ var (
         FOREIGN KEY(tag_id) REFERENCES tags(id)
     );
 
-    CREATE TABLE IF NOT EXISTS favoires (
+    CREATE TABLE IF NOT EXISTS favorites (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         article_id INTEGER NOT NULL,
