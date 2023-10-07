@@ -1,8 +1,6 @@
 package domain
 
 import (
-	"fmt"
-
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
@@ -45,24 +43,3 @@ type (
 		UpdatedAt string `json:"updatedAt"`
 	}
 )
-
-func (u *User) String() string {
-	return fmt.Sprintf(`
-User{
-  UserId: %d, 
-  Username: %s, 
-  Email: %s,
-  Password: ***, 
-  Bio: %s,
-  Image: %s, 
-  CreatedAt: %s, 
-  UpdatedAt: %s
-}`, u.UserId,
-		u.Username,
-		u.Email,
-		u.Bio,
-		u.Image,
-		u.CreatedAt,
-		u.UpdatedAt,
-	)
-}

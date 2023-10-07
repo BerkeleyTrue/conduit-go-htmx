@@ -101,7 +101,7 @@ func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
 		return 0, fmt.Errorf("error creating user: %w", err)
 	}
 
-	fmt.Printf("user: %+v\n", user)
+	fmt.Printf("%+v\n", user)
 
 	return user.UserId, nil
 }
