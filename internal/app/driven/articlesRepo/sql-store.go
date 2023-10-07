@@ -85,11 +85,21 @@ func registerArticleSchema(db *sqlx.DB) error {
 	return nil
 }
 
+func rollBack(err error, tx *sqlx.Tx) error {
+	rbErr := tx.Rollback()
+
+	if rbErr != nil {
+		return fmt.Errorf("error rolling back transaction: %w, after %v", rbErr, err)
+	}
+	return err
+}
+
 func (s *SqlStore) Create(
 	input domain.ArticleCreateInput,
 ) (*domain.Article, error) {
 	slug := slug.NewSlug(input.Title)
 	now := krono.Now()
+
 	article := domain.Article{
 		Slug:        slug,
 		Title:       input.Title,
@@ -100,24 +110,71 @@ func (s *SqlStore) Create(
 		CreatedAt:   now,
 	}
 
-	// TODO: add tag creation and article_tag creation
-	query := `
-    INSERT INTO articles (slug, title, description, body, created_at, updated_at)
-    VALUES (:slug, :title, :description, :body, :created_at, :updated_at)
-
-  `
-
-	_, err := s.db.NamedExec(query, article)
+	tx, err := s.db.Beginx()
 
 	if err != nil {
 		return nil, fmt.Errorf("error creating article: %w", err)
 	}
 
+	// TODO: add tag creation and article_tag creation
+	query := `
+    INSERT INTO articles (slug, title, description, body, author_id, created_at, updated_at)
+    VALUES (:slug, :title, :description, :body, :author_id, :created_at, :updated_at);
+  `
+
+	res, err := tx.NamedExec(query, article)
+
+	if err != nil {
+
+		return nil, rollBack(fmt.Errorf("error creating article: %w", err), tx)
+	}
+
+	articleId, err := res.LastInsertId()
+
+	if err != nil {
+		return nil, rollBack(fmt.Errorf("error getting article id: %w", err), tx)
+	}
+
+	article.ArticleId = int(articleId)
+
+	// insert tags into tags table and create article_tag records
+	for _, tag := range input.Tags {
+		query = `
+	    INSERT INTO tags (tag)
+	    VALUES ($1)
+	    ON CONFLICT (tag) DO UPDATE SET tag = $1
+    `
+		_, err = tx.Exec(query, tag)
+
+		if err != nil {
+			return nil, rollBack(fmt.Errorf("error creating article: %w", err), tx)
+		}
+
+		query = `
+      INSERT INTO article_tags (article_id, tag_id)
+      VALUES ($1, (SELECT id FROM tags WHERE tag = $2))
+    `
+
+		_, err = tx.Exec(query, articleId, tag)
+
+		if err != nil {
+			return nil, rollBack(fmt.Errorf("error creating article: %w", err), tx)
+		}
+	}
+
+	err = tx.Commit()
+
+	if err != nil {
+		return nil, fmt.Errorf("error in commit: %w", err)
+	}
+
 	err = s.db.Get(&article, "SELECT * FROM articles WHERE slug = $1", slug)
 
 	if err != nil {
-		return nil, fmt.Errorf("error getting article: %w", err)
+		return nil, fmt.Errorf("error getting res article: %w", err)
 	}
+
+	fmt.Printf("%+v\n", article)
 
 	return &article, err
 }
