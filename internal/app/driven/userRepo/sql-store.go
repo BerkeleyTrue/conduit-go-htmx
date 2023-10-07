@@ -9,11 +9,12 @@ import (
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
+	"github.com/berkeleytrue/conduit/internal/infra/db"
 )
 
 type (
-	SqlStore struct {
-		db *sqlx.DB
+	UserStore struct {
+		db.SqlStore
 	}
 )
 
@@ -40,7 +41,7 @@ var (
     );
   `
 	// compile time check to make sure SqlStore implements domain.UserRepository
-	_ domain.UserRepository = (*SqlStore)(nil)
+	_ domain.UserRepository = (*UserStore)(nil)
 
 	Module = fx.Options(
 		fx.Provide(fx.Annotate(
@@ -51,9 +52,11 @@ var (
 	)
 )
 
-func newSqlStore(db *sqlx.DB) *SqlStore {
-	return &SqlStore{
-		db: db,
+func newSqlStore(_db *sqlx.DB) *UserStore {
+	return &UserStore{
+		SqlStore: db.SqlStore{
+			Db: _db,
+		},
 	}
 }
 
@@ -68,9 +71,9 @@ func registerUserSchema(db *sqlx.DB) error {
 }
 
 // get followers for a user
-func (s *SqlStore) getFollowers(userId int) ([]int, error) {
+func (s *UserStore) getFollowers(userId int) ([]int, error) {
 	var followers []int
-	err := s.db.Select(&followers, "SELECT follower_id FROM followers WHERE user_id = $1", userId)
+	err := s.Db.Select(&followers, "SELECT follower_id FROM followers WHERE user_id = $1", userId)
 
 	if err != nil {
 		return nil, err
@@ -79,7 +82,7 @@ func (s *SqlStore) getFollowers(userId int) ([]int, error) {
 	return followers, nil
 }
 
-func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
+func (s *UserStore) Create(input domain.UserCreateInput) (*domain.User, error) {
 	now := time.Now()
 	user := domain.User{
 		Username:  input.Username,
@@ -94,13 +97,13 @@ func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
     INSERT INTO users (username, email, password, bio, image, created_at, updated_at)
     VALUES (:username, :email, :password, :bio, :image, :created_at, :updated_at)
   `
-	_, err := s.db.NamedExec(query, user)
+	_, err := s.Db.NamedExec(query, user)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error creating user: %w", err)
 	}
 
-	err = s.db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", input.Email)
+	err = s.Db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", input.Email)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting new user: %w", err)
@@ -109,9 +112,9 @@ func (s *SqlStore) Create(input domain.UserCreateInput) (*domain.User, error) {
 	return &user, err
 }
 
-func (s *SqlStore) GetByID(id int) (*domain.User, error) {
+func (s *UserStore) GetByID(id int) (*domain.User, error) {
 	var user domain.User
-	err := s.db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", id)
+	err := s.Db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", id)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
@@ -120,9 +123,9 @@ func (s *SqlStore) GetByID(id int) (*domain.User, error) {
 	return &user, nil
 }
 
-func (s *SqlStore) GetByEmail(email string) (*domain.User, error) {
+func (s *UserStore) GetByEmail(email string) (*domain.User, error) {
 	var user domain.User
-	err := s.db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", email)
+	err := s.Db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", email)
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
@@ -130,9 +133,9 @@ func (s *SqlStore) GetByEmail(email string) (*domain.User, error) {
 	return &user, nil
 }
 
-func (s *SqlStore) GetByUsername(username string) (*domain.User, error) {
+func (s *UserStore) GetByUsername(username string) (*domain.User, error) {
 	var user domain.User
-	err := s.db.Get(&user, "SELECT * FROM users WHERE username = $1 LIMIT 1", username)
+	err := s.Db.Get(&user, "SELECT * FROM users WHERE username = $1 LIMIT 1", username)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
@@ -141,18 +144,18 @@ func (s *SqlStore) GetByUsername(username string) (*domain.User, error) {
 	return &user, nil
 }
 
-func (s *SqlStore) Update(
+func (s *UserStore) Update(
 	userId int,
 	updater domain.Updater[domain.User],
 ) (*domain.User, error) {
 	var user domain.User
-	err := s.db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", userId)
+	err := s.Db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", userId)
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 	updatedUser := updater(&user)
 
-	_, err = s.db.NamedExec(`
+	_, err = s.Db.NamedExec(`
     UPDATE users
     SET username = :username,
         email = :email,
@@ -170,15 +173,15 @@ func (s *SqlStore) Update(
 	return updatedUser, nil
 }
 
-func (s *SqlStore) Follow(userId, authorId int) (*domain.User, error) {
+func (s *UserStore) Follow(userId, authorId int) (*domain.User, error) {
 	var author domain.User
-	err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
+	err := s.Db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	_, err = s.db.Exec(`
+	_, err = s.Db.Exec(`
     INSERT INTO followers (user_id, follower_id)
     VALUES ($1, $2)
     WHERE id = $2
@@ -198,15 +201,15 @@ func (s *SqlStore) Follow(userId, authorId int) (*domain.User, error) {
 	return &author, nil
 }
 
-func (s *SqlStore) Unfollow(userId, authorId int) (*domain.User, error) {
+func (s *UserStore) Unfollow(userId, authorId int) (*domain.User, error) {
 	var author domain.User
-	err := s.db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
+	err := s.Db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	_, err = s.db.Exec(`
+	_, err = s.Db.Exec(`
     DELETE FROM followers
     WHERE user_id = $1 AND follower_id = $2
   `, userId, authorId)

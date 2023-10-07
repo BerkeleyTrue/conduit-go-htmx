@@ -88,7 +88,7 @@ func seed(
 					Title:       gofakeit.Sentence(5),
 					Description: gofakeit.Sentence(10),
 					Body:        gofakeit.Sentence(20),
-					Tags:        []string{gofakeit.HipsterWord()},
+					Tags:        []string{gofakeit.HipsterWord(), gofakeit.HipsterWord()},
 				},
 			)
 

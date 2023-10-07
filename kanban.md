@@ -14,9 +14,12 @@
 
 # Doing
 
+- Home
+  - [ ] Fix: home page should load articles
+  - [ ] Load tags
 - Add seed data import (use gofakeit)
   - [x] add users
-  - [ ] add articles
+  - [x] add articles
   - [ ] add comments
 - Profile page
   - [ ] favorite own article?
@@ -48,3 +51,4 @@
   - [x] return list of articles
 - ArticlesRepo
   - [x] Unfavorite
+  - [x] Insert tags

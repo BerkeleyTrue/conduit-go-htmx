@@ -9,11 +9,12 @@ import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
+	"github.com/berkeleytrue/conduit/internal/infra/db"
 )
 
 type (
-	SqlStore struct {
-		db *sqlx.DB
+	ArticleStore struct {
+		db.SqlStore
 	}
 )
 
@@ -57,7 +58,7 @@ var (
     )
 
   `
-	_ domain.ArticleRepository = (*SqlStore)(nil)
+	_ domain.ArticleRepository = (*ArticleStore)(nil)
 
 	Module = fx.Options(
 		fx.Provide(fx.Annotate(
@@ -69,9 +70,9 @@ var (
 	)
 )
 
-func newSqlStore(db *sqlx.DB) *SqlStore {
-	return &SqlStore{
-		db: db,
+func newSqlStore(_db *sqlx.DB) *ArticleStore {
+	return &ArticleStore{
+		SqlStore: db.SqlStore{Db: _db},
 	}
 }
 
@@ -85,16 +86,7 @@ func registerArticleSchema(db *sqlx.DB) error {
 	return nil
 }
 
-func rollBack(err error, tx *sqlx.Tx) error {
-	rbErr := tx.Rollback()
-
-	if rbErr != nil {
-		return fmt.Errorf("error rolling back transaction: %w, after %v", rbErr, err)
-	}
-	return err
-}
-
-func (s *SqlStore) Create(
+func (s *ArticleStore) Create(
 	input domain.ArticleCreateInput,
 ) (*domain.Article, error) {
 	slug := slug.NewSlug(input.Title)
@@ -110,65 +102,59 @@ func (s *SqlStore) Create(
 		CreatedAt:   now,
 	}
 
-	tx, err := s.db.Beginx()
-
-	if err != nil {
-		return nil, fmt.Errorf("error creating article: %w", err)
-	}
-
-	// TODO: add tag creation and article_tag creation
-	query := `
-    INSERT INTO articles (slug, title, description, body, author_id, created_at, updated_at)
-    VALUES (:slug, :title, :description, :body, :author_id, :created_at, :updated_at);
-  `
-
-	res, err := tx.NamedExec(query, article)
-
-	if err != nil {
-
-		return nil, rollBack(fmt.Errorf("error creating article: %w", err), tx)
-	}
-
-	articleId, err := res.LastInsertId()
-
-	if err != nil {
-		return nil, rollBack(fmt.Errorf("error getting article id: %w", err), tx)
-	}
-
-	article.ArticleId = int(articleId)
-
-	// insert tags into tags table and create article_tag records
-	for _, tag := range input.Tags {
-		query = `
-	    INSERT INTO tags (tag)
-	    VALUES ($1)
-	    ON CONFLICT (tag) DO UPDATE SET tag = $1
-    `
-		_, err = tx.Exec(query, tag)
-
-		if err != nil {
-			return nil, rollBack(fmt.Errorf("error creating article: %w", err), tx)
-		}
-
-		query = `
-      INSERT INTO article_tags (article_id, tag_id)
-      VALUES ($1, (SELECT id FROM tags WHERE tag = $2))
+	err := s.CreateTx(func(tx *sqlx.Tx) error {
+		query := `
+      INSERT INTO articles (slug, title, description, body, author_id, created_at, updated_at)
+      VALUES (:slug, :title, :description, :body, :author_id, :created_at, :updated_at);
     `
 
-		_, err = tx.Exec(query, articleId, tag)
+		res, err := tx.NamedExec(query, article)
 
 		if err != nil {
-			return nil, rollBack(fmt.Errorf("error creating article: %w", err), tx)
+			return fmt.Errorf("error creating article: %w", err)
 		}
-	}
 
-	err = tx.Commit()
+		articleId, err := res.LastInsertId()
+
+		if err != nil {
+			return fmt.Errorf("error getting article id: %w", err)
+		}
+
+		article.ArticleId = int(articleId)
+
+		// insert tags into tags table and create article_tag records
+		for _, tag := range input.Tags {
+			query = `
+        INSERT INTO tags (tag)
+        VALUES ($1)
+        ON CONFLICT (tag) DO UPDATE SET tag = $1
+      `
+			_, err = tx.Exec(query, tag)
+
+			if err != nil {
+				return fmt.Errorf("error creating article: %w", err)
+			}
+
+			query = `
+        INSERT INTO article_tags (article_id, tag_id)
+        VALUES ($1, (SELECT id FROM tags WHERE tag = $2))
+      `
+
+			_, err = tx.Exec(query, articleId, tag)
+
+			if err != nil {
+				return fmt.Errorf("error creating article: %w", err)
+			}
+		}
+
+		return nil
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("error in commit: %w", err)
 	}
 
-	err = s.db.Get(&article, "SELECT * FROM articles WHERE slug = $1", slug)
+	err = s.Db.Get(&article, "SELECT * FROM articles WHERE slug = $1", slug)
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting res article: %w", err)
@@ -179,9 +165,9 @@ func (s *SqlStore) Create(
 	return &article, err
 }
 
-func (s *SqlStore) GetById(articleId string) (*domain.Article, error) {
+func (s *ArticleStore) GetById(articleId string) (*domain.Article, error) {
 	var article domain.Article
-	err := s.db.Get(&article, "SELECT * FROM articles WHERE id = $1", articleId)
+	err := s.Db.Get(&article, "SELECT * FROM articles WHERE id = $1", articleId)
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting article: %w", err)
@@ -190,9 +176,9 @@ func (s *SqlStore) GetById(articleId string) (*domain.Article, error) {
 	return &article, nil
 }
 
-func (s *SqlStore) GetBySlug(mySlug string) (*domain.Article, error) {
+func (s *ArticleStore) GetBySlug(mySlug string) (*domain.Article, error) {
 	var article domain.Article
-	err := s.db.Get(&article, "SELECT * FROM articles WHERE slug = $1", mySlug)
+	err := s.Db.Get(&article, "SELECT * FROM articles WHERE slug = $1", mySlug)
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting article: %w", err)
@@ -201,7 +187,7 @@ func (s *SqlStore) GetBySlug(mySlug string) (*domain.Article, error) {
 	return &article, nil
 }
 
-func (s *SqlStore) List(
+func (s *ArticleStore) List(
 	input domain.ArticleListInput,
 ) ([]*domain.Article, error) {
 	var articles []*domain.Article
@@ -213,7 +199,7 @@ func (s *SqlStore) List(
     OFFSET $2
   `
 
-	err := s.db.Select(&articles, query, input.Limit, input.Offset)
+	err := s.Db.Select(&articles, query, input.Limit, input.Offset)
 
 	if err != nil {
 		fmt.Printf("error getting articles: %v\n", err)
@@ -223,7 +209,7 @@ func (s *SqlStore) List(
 	return articles, nil
 }
 
-func (s *SqlStore) Update(
+func (s *ArticleStore) Update(
 	slug string,
 	updater domain.Updater[domain.Article],
 ) (*domain.Article, error) {
@@ -236,7 +222,7 @@ func (s *SqlStore) Update(
 
 	updater(article)
 
-	_, err = s.db.NamedExec(`
+	_, err = s.Db.NamedExec(`
     UPDATE articles SET
       title = :title,
       description = :description,
@@ -252,7 +238,7 @@ func (s *SqlStore) Update(
 	return article, nil
 }
 
-func (s *SqlStore) Favorite(slug string, userId int) (*domain.Article, error) {
+func (s *ArticleStore) Favorite(slug string, userId int) (*domain.Article, error) {
 
 	article, err := s.GetBySlug(slug)
 
@@ -260,7 +246,7 @@ func (s *SqlStore) Favorite(slug string, userId int) (*domain.Article, error) {
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
 	}
 
-	_, err = s.db.Exec(`
+	_, err = s.Db.Exec(`
     INSERT INTO favorites (user_id, article_id)
     VALUES ($1, $2)
   `, userId, article.ArticleId)
@@ -272,14 +258,14 @@ func (s *SqlStore) Favorite(slug string, userId int) (*domain.Article, error) {
 	return article, nil
 }
 
-func (s *SqlStore) Unfavorite(slug string, userId int) (*domain.Article, error) {
+func (s *ArticleStore) Unfavorite(slug string, userId int) (*domain.Article, error) {
 	article, err := s.GetBySlug(slug)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
 	}
 
-	_, err = s.db.Exec(`
+	_, err = s.Db.Exec(`
       DELETE FROM favorites
       WHERE user_id = $1 AND article_id = $2
     `, userId, article.ArticleId)
@@ -291,8 +277,8 @@ func (s *SqlStore) Unfavorite(slug string, userId int) (*domain.Article, error) 
 	return article, nil
 }
 
-func (s *SqlStore) Delete(slug string) error {
-	_, err := s.db.Exec("DELETE FROM articles WHERE slug = $1", slug)
+func (s *ArticleStore) Delete(slug string) error {
+	_, err := s.Db.Exec("DELETE FROM articles WHERE slug = $1", slug)
 
 	if err != nil {
 		return fmt.Errorf("sql-store: error deleting article: %w", err)
