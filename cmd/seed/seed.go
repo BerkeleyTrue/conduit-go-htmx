@@ -103,10 +103,11 @@ func main() {
 		config.Module,
 
 		db.Module,
-		fx.Invoke(clearDb),
 
 		userRepo.Module,
 		articlesRepo.Module,
+
+		fx.Invoke(clearDb),
 
 		fx.Provide(services.NewUserService),
 		fx.Provide(services.NewArticleService),
