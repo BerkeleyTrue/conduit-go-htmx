@@ -22,9 +22,16 @@ type (
 		articleService *services.ArticleService
 		shutdown       fx.Shutdowner
 	}
+
+	UserOutputPlusId struct {
+		*services.UserOutput
+		userId int
+	}
 )
 
-func generateUser(userService *services.UserService) (*services.UserOutput, error) {
+func generateUser(
+	userService *services.UserService,
+) (*UserOutputPlusId, error) {
 	pass := gofakeit.Password(true, true, true, true, false, 10)
 
 	input := domain.UserCreateInput{
@@ -39,19 +46,29 @@ func generateUser(userService *services.UserService) (*services.UserOutput, erro
 		return nil, fmt.Errorf("error registering user: %w", err)
 	}
 
-	userOutput, err := userService.Update(services.UserIdOrUsername{UserId: userId}, services.UpdateUserInput{
-		Bio:   gofakeit.Sentence(10),
-		Image: gofakeit.ImageURL(200, 200),
-	})
+	userOutput, err := userService.Update(
+		services.UserIdOrUsername{UserId: userId},
+		services.UpdateUserInput{
+			Bio:   gofakeit.Sentence(10),
+			Image: gofakeit.ImageURL(200, 200),
+		},
+	)
 
-	return userOutput, nil
+	return &UserOutputPlusId{
+		UserOutput: userOutput,
+		userId:     userId,
+	}, nil
 }
 
-func seed(userService *services.UserService, articleService *services.ArticleService, shutdown fx.Shutdowner) {
+func seed(
+	userService *services.UserService,
+	articleService *services.ArticleService,
+	shutdown fx.Shutdowner,
+) {
 	numOfUsers := 30
-	// numOfArticles := 20
+	numOfArticles := 20
 
-	users := make([]*services.UserOutput, numOfUsers)
+	users := make([]*UserOutputPlusId, numOfUsers)
 
 	for i := 0; i < numOfUsers; i++ {
 		user, err := generateUser(userService)
@@ -60,23 +77,26 @@ func seed(userService *services.UserService, articleService *services.ArticleSer
 			panic(err)
 		}
 
-		users = append(users, user)
+		users[i] = user
 	}
 
-	// for user := range users {
-	//   for i := 0; i < numOfArticles; i++ {
-	//     _, err := articleService.Create(services.UserIdOrUsername{UserId: user.UserId}, services.CreateArticleInput{
-	//       Title:       gofakeit.Sentence(5),
-	//       Description: gofakeit.Sentence(10),
-	//       Body:        gofakeit.Sentence(20),
-	//       Tags:        []string{gofakeit.HipsterWord()},
-	//     })
-	//
-	//     if err != nil {
-	//       fmt.Println(err)
-	//     }
-	//   }
-	// }
+	for _, user := range users {
+		for i := 0; i < numOfArticles; i++ {
+			_, err := articleService.Create(
+				user.userId,
+				services.ArticleCreateInput{
+					Title:       gofakeit.Sentence(5),
+					Description: gofakeit.Sentence(10),
+					Body:        gofakeit.Sentence(20),
+					Tags:        []string{gofakeit.HipsterWord()},
+				},
+			)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 
 	shutdown.Shutdown()
 }
