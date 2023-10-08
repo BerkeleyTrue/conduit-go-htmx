@@ -90,8 +90,8 @@ func (s *ArticleService) List(username string, input domain.ArticleListInput) ([
 
 	outputs := make([]ArticleOutput, len(articles))
 
-	for _, article := range articles {
-		outputs = append(outputs, formatArticle(article))
+	for idx, article := range articles {
+		outputs[idx] = formatArticle(article)
 	}
 
 	return outputs, err

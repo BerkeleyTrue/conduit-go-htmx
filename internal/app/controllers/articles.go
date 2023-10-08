@@ -53,6 +53,10 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		username = ""
 	}
 
+	if input.limit == 0 {
+    input.limit = 20
+  }
+
 	articles, err := c.articleService.List(
 		username,
 		domain.ArticleListInput{
