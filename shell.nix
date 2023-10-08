@@ -65,12 +65,6 @@
           vscode-langservers-extracted # html/css language server
           typescript-language-server # typescript language server
         ]);
-
-      # enter zsh on startup
-      shellHook = ''
-        zsh
-        exit
-      '';
     };
   };
 }
