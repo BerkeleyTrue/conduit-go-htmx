@@ -150,15 +150,16 @@ func (s *UserStore) Update(
 ) (*domain.User, error) {
 	var user domain.User
 	err := s.Db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", userId)
+
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
+
 	updatedUser := updater(&user)
 
 	_, err = s.Db.NamedExec(`
     UPDATE users
-    SET username = :username,
-        email = :email,
+    SET email = :email,
         password = :password,
         bio = :bio,
         image = :image,

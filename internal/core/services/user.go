@@ -203,10 +203,18 @@ func (s *UserService) Update(
 	}
 
 	var updater domain.Updater[domain.User] = func(u *domain.User) *domain.User {
-		u.Email = input.Email
-		u.Username = input.Username
-		u.Image = input.Image
-		u.Bio = input.Bio
+		if input.Email != "" {
+			u.Email = input.Email
+		}
+
+		if input.Image != "" {
+			u.Image = input.Image
+		}
+
+		if input.Bio != "" {
+			u.Bio = input.Bio
+		}
+
 		u.UpdatedAt = krono.Krono{Time: now}
 		return u
 	}

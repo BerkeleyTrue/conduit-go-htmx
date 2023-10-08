@@ -11,9 +11,9 @@ type (
 		UserId    int                     `json:"userId" db:"id"`
 		Username  string                  `json:"username"`
 		Email     string                  `json:"email"`
-		Password  password.HashedPassword `json:"password"`  // hashed password
-		Followers []int                   `json:"following"` // []UserId
-		Bio       string                  `json:"bio"`       // nullable
+		Password  password.HashedPassword `json:"password"`
+		Followers []int                   `json:"following"`
+		Bio       string                  `json:"bio"`
 		Image     string                  `json:"image"`
 		CreatedAt krono.Krono             `json:"createdAt" db:"created_at"`
 		UpdatedAt krono.Krono             `json:"updatedAt" db:"updated_at"`
