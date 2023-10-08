@@ -2,6 +2,7 @@ package articlesRepo
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
@@ -193,17 +194,44 @@ func (s *ArticleStore) List(
 	var articles []*domain.Article
 	// TODO: add tags, author, favorited
 	query := `
-    SELECT * FROM articles
-    ORDER BY created_at DESC
+    SELECT articles.*, GROUP_CONCAT(tags.tag, ',') AS tags
+    FROM articles
+    LEFT JOIN article_tags ON articles.id = article_tags.article_id
+    LEFT JOIN tags ON article_tags.tag_id = tags.id
+    GROUP BY articles.id
+    ORDER BY articles.created_at DESC
     LIMIT $1
     OFFSET $2
   `
 
-	err := s.Db.Select(&articles, query, input.Limit, input.Offset)
+	rows, err := s.Db.Queryx(query, input.Limit, input.Offset)
 
 	if err != nil {
 		fmt.Printf("error getting articles: %v\n", err)
 		return nil, err
+	}
+
+	for rows.Next() {
+		var article domain.Article
+		var tags string
+		err := rows.Scan(
+			&article.ArticleId,
+			&article.Slug,
+			&article.Title,
+			&article.Description,
+			&article.Body,
+			&article.AuthorId,
+			&article.CreatedAt,
+			&article.UpdatedAt,
+			&tags,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("error scanning articles: %w", err)
+		}
+
+		article.Tags = strings.Split(tags, ",")
+		articles = append(articles, &article)
 	}
 
 	return articles, nil
