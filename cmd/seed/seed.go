@@ -54,6 +54,10 @@ func generateUser(
 		},
 	)
 
+	if err != nil {
+		return nil, fmt.Errorf("error updating user: %w", err)
+	}
+
 	return &UserOutputPlusId{
 		UserOutput: userOutput,
 		userId:     userId,
@@ -88,7 +92,10 @@ func seed(
 					Title:       gofakeit.Sentence(5),
 					Description: gofakeit.Sentence(10),
 					Body:        gofakeit.Sentence(20),
-					Tags:        []string{gofakeit.HipsterWord(), gofakeit.HipsterWord()},
+					Tags: []string{
+						gofakeit.HipsterWord(),
+						gofakeit.HipsterWord(),
+					},
 				},
 			)
 
