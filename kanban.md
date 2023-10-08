@@ -15,8 +15,13 @@
 # Doing
 
 - Home
-  - [ ] Fix: home page should load articles
-  - [ ] Load tags
+  - [x] Fix: home page should load articles
+  - Load tags
+- Articles Api
+  - [x] Add get route
+  - [x] return list of articles
+  - [ ] Check if user is following article author
+  - [x] Filter articles
 - Add seed data import (use gofakeit)
   - [x] add users
   - [x] add articles
@@ -46,9 +51,6 @@
   - [x] link to settings
   - [x] hide follow if own profile
   - [x] show favorited articles
-- Articles Api
-  - [x] Add get route
-  - [x] return list of articles
 - ArticlesRepo
   - [x] Unfavorite
   - [x] Insert tags
