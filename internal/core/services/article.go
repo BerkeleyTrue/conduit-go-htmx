@@ -23,7 +23,7 @@ type (
 		Title          string
 		Description    string
 		Body           string
-		TagList        []string
+		Tags           []string
 		CreatedAt      krono.Krono
 		UpdatedAt      krono.Krono
 		Favorited      bool
@@ -44,7 +44,7 @@ func formatArticle(article *domain.Article) ArticleOutput {
 		Title:       article.Title,
 		Description: article.Description,
 		Body:        article.Body,
-		TagList:     article.Tags,
+		Tags:        article.Tags,
 		CreatedAt:   article.CreatedAt,
 		UpdatedAt:   article.UpdatedAt,
 		// TODO: Favorited
