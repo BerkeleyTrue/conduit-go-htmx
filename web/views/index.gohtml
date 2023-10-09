@@ -15,7 +15,7 @@
               <li
                 class="nav-item"
                 hx-get="/articles/feed?limit=10"
-                hx-trigger="load delay:250ms"
+                hx-trigger="load delay:150ms"
                 hx-target="#articles"
               >
                 <a class="nav-link">Your Feed</a>
@@ -26,13 +26,12 @@
                 hx-target="#articles"
               >
                 <a class="nav-link active">Global Feed</a>
-                <
               </li>
             {{ else }}
               <li
                 class="nav-item"
                 hx-get="/articles?limit=10"
-                hx-trigger="load delay:250ms"
+                hx-trigger="load delay:150ms"
                 hx-target="#articles"
               >
                 <a class="nav-link active">Global Feed</a>
@@ -49,7 +48,7 @@
       </div>
 
       <div class="col-md-3">
-        <div class="sidebar">
+        <div class="sidebar" hx-get="/tags" hx-target="#tags" hx-trigger="load delay:150ms">
           <p>Popular Tags</p>
 
           <div id="tags" class="tag-list">Loading tags...</div>

@@ -205,6 +205,7 @@ func (s *ArticleStore) List(
   `
 
 	rows, err := s.Db.Queryx(query, input.Limit, input.Offset)
+	defer rows.Close()
 
 	if err != nil {
 		fmt.Printf("error getting articles: %v\n", err)
@@ -235,6 +236,39 @@ func (s *ArticleStore) List(
 	}
 
 	return articles, nil
+}
+
+func (s *ArticleStore) GetPopularTags() ([]string, error) {
+	var tags []string
+
+	query := `
+    SELECT tags.tag
+    FROM tags
+    LEFT JOIN article_tags ON tags.id = article_tags.tag_id
+    GROUP BY tags.id, tags.tag
+    ORDER BY COUNT(article_tags.tag_id) DESC
+    LIMIT 10
+  `
+
+	rows, err := s.Db.Queryx(query)
+	defer rows.Close()
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting tags: %w", err)
+	}
+
+	for rows.Next() {
+		var tag string
+		err := rows.Scan(&tag)
+
+		if err != nil {
+			return nil, fmt.Errorf("error scanning tags: %w", err)
+		}
+
+		tags = append(tags, tag)
+	}
+
+	return tags, nil
 }
 
 func (s *ArticleStore) Update(

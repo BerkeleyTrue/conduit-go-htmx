@@ -96,6 +96,7 @@ func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler)
 
 	app.Get("/profile/:username", c.GetProfile)
 	app.Get("/articles", c.GetArticles)
+	app.Get("/tags", c.GetPopularTags)
 
 	app.Use(authMiddleware)
 

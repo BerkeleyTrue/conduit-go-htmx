@@ -45,6 +45,7 @@ type (
 		GetById(articleId string) (*Article, error)
 		GetBySlug(mySlug string) (*Article, error)
 		List(input ArticleListInput) ([]*Article, error)
+		GetPopularTags() ([]string, error)
 		Update(slug string, updater Updater[Article]) (*Article, error)
 		Favorite(slug string, userId int) (*Article, error)
 		Unfavorite(slug string, userId int) (*Article, error)

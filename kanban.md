@@ -14,9 +14,6 @@
 
 # Doing
 
-- Home
-  - [x] Fix: home page should load articles
-  - Load tags
 - Articles Api
   - [x] Add get route
   - [x] return list of articles
@@ -54,3 +51,7 @@
 - ArticlesRepo
   - [x] Unfavorite
   - [x] Insert tags
+  - [x] Get popular tags
+- Home
+  - [x] Fix: home page should load articles
+  - [x] Load tags

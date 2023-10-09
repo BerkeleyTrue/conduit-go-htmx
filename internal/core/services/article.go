@@ -97,6 +97,10 @@ func (s *ArticleService) List(username string, input domain.ArticleListInput) ([
 	return outputs, err
 }
 
+func (s *ArticleService) GetPopularTags() ([]string, error) {
+	return s.repo.GetPopularTags()
+}
+
 func (s *ArticleService) GetBySlug(slug string, userId int) (ArticleOutput, error) {
 	article, err := s.repo.GetBySlug(slug)
 

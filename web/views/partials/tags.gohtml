@@ -1,0 +1,9 @@
+{{ define "popular-tags"}}
+<a class="tag-default tag-pill">{{ . }}</a>
+{{ end }}
+
+{{ range .Tags }}
+  {{ template "popular-tags" . }}
+{{ else }}
+  <div id="tags" class="tag-list">No tags are here... yet.</div>
+{{ end }}
