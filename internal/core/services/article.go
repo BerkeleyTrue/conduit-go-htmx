@@ -119,9 +119,17 @@ func (s *ArticleService) GetIdFromSlug(slug string) (int, error) {
 
 func (s *ArticleService) Update(slug string, username string, input ArticleUpdateInput) (ArticleOutput, error) {
 	article, err := s.repo.Update(slug, func(a *domain.Article) *domain.Article {
-		a.Title = input.Title
-		a.Description = input.Description
-		a.Body = input.Body
+		if input.Title != "" {
+			a.Title = input.Title
+		}
+
+		if input.Description != "" {
+			a.Description = input.Description
+		}
+
+		if input.Body != "" {
+			a.Body = input.Body
+		}
 		return a
 	})
 
