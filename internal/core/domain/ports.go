@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Updater[T any] func(u *T) *T
+	Updater[T any] func(u T) T
 
 	UserCreateInput struct {
 		Username       string

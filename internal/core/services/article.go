@@ -122,7 +122,7 @@ func (s *ArticleService) GetIdFromSlug(slug string) (int, error) {
 }
 
 func (s *ArticleService) Update(slug string, username string, input ArticleUpdateInput) (ArticleOutput, error) {
-	article, err := s.repo.Update(slug, func(a *domain.Article) *domain.Article {
+	article, err := s.repo.Update(slug, func(a domain.Article) domain.Article {
 		if input.Title != "" {
 			a.Title = input.Title
 		}
@@ -145,7 +145,7 @@ func (s *ArticleService) Update(slug string, username string, input ArticleUpdat
 }
 
 func (s *ArticleService) Favorite(slug string, username string) (ArticleOutput, error) {
-	article, err := s.repo.Update(slug, func(a *domain.Article) *domain.Article {
+	article, err := s.repo.Update(slug, func(a domain.Article) domain.Article {
 		return a
 	})
 

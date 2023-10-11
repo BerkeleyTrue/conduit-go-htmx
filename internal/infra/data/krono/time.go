@@ -14,9 +14,17 @@ func Now() Krono {
 	return Krono{Time: time.Now()}
 }
 
+func (ts *Krono) IsZero() bool {
+	return ts.Time.IsZero()
+}
+
+func (ts Krono) String() string {
+	return ts.Time.Format(time.RFC3339)
+}
+
 // define how to format the Krono to text for sqlite
 func (ts Krono) Value() (driver.Value, error) {
-	return ts.Time.Format(time.RFC3339), nil
+	return ts.String(), nil
 }
 
 // define a scan method for sql to use

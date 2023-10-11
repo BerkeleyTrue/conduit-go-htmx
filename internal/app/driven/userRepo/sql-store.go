@@ -1,8 +1,10 @@
 package userRepo
 
 import (
+	"context"
+	"database/sql"
+	_ "embed"
 	"fmt"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
@@ -19,29 +21,10 @@ type (
 )
 
 var (
-	//sqlite datatypes
-	schema = `
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        bio TEXT,
-        image TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS followers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        follower_id INTEGER NOT NULL,
-        created_at TEXT NOT NULL,
-        UNIQUE(user_id, follower_id)
-    );
-  `
+	//go:embed sql/schema.sql
+	schema string
 	// compile time check to make sure SqlStore implements domain.UserRepository
-	_ domain.UserRepository = (*UserStore)(nil)
+	_ domain.UserRepository = (*Queries)(nil)
 
 	Module = fx.Options(
 		fx.Provide(fx.Annotate(
@@ -52,12 +35,8 @@ var (
 	)
 )
 
-func newSqlStore(_db *sqlx.DB) *UserStore {
-	return &UserStore{
-		SqlStore: db.SqlStore{
-			Db: _db,
-		},
-	}
+func newSqlStore(_db *sqlx.DB) *Queries {
+	return &Queries{db: _db}
 }
 
 func registerUserSchema(db *sqlx.DB) error {
@@ -70,162 +49,156 @@ func registerUserSchema(db *sqlx.DB) error {
 	return nil
 }
 
-// get followers for a user
-func (s *UserStore) getFollowers(userId int) ([]int, error) {
-	var followers []int
-	err := s.Db.Select(&followers, "SELECT follower_id FROM followers WHERE user_id = $1", userId)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return followers, nil
-}
-
-func (s *UserStore) Create(input domain.UserCreateInput) (*domain.User, error) {
-	now := time.Now()
-	user := domain.User{
+func (q *Queries) Create(input domain.UserCreateInput) (*domain.User, error) {
+	ctx := context.Background()
+	params := createParams{
 		Username:  input.Username,
 		Email:     input.Email,
-		Password:  input.HashedPassword,
-		Bio:       "",
-		Image:     "",
-		CreatedAt: krono.Krono{Time: now},
+		Password:  string(input.Password),
+		Bio:       sql.NullString{},
+		Image:     sql.NullString{},
+		CreatedAt: krono.Now().String(),
+		UpdatedAt: sql.NullString{},
 	}
 
-	query := `
-    INSERT INTO users (username, email, password, bio, image, created_at, updated_at)
-    VALUES (:username, :email, :password, :bio, :image, :created_at, :updated_at)
-  `
-	_, err := s.Db.NamedExec(query, user)
+	user, err := q.create(ctx, params)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error creating user: %w", err)
 	}
 
-	err = s.Db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", input.Email)
-
-	if err != nil {
-		return nil, fmt.Errorf("sql-store: error getting new user: %w", err)
-	}
-
-	return &user, err
+	return formatToDomain(user, nil), err
 }
 
-func (s *UserStore) GetByID(id int) (*domain.User, error) {
-	var user domain.User
-	err := s.Db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", id)
+func (q *Queries) GetByID(id int) (*domain.User, error) {
+	user, err := q.getById(context.Background(), int64(id))
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	return &user, nil
+	return formatToDomain(user, nil), nil
 }
 
-func (s *UserStore) GetByEmail(email string) (*domain.User, error) {
-	var user domain.User
-	err := s.Db.Get(&user, "SELECT * FROM users WHERE email = $1 LIMIT 1", email)
+func (q *Queries) GetByEmail(email string) (*domain.User, error) {
+	user, err := q.getByEmail(context.Background(), email)
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	return &user, nil
+	return formatToDomain(user, nil), nil
 }
 
-func (s *UserStore) GetByUsername(username string) (*domain.User, error) {
-	var user domain.User
-	err := s.Db.Get(&user, "SELECT * FROM users WHERE username = $1 LIMIT 1", username)
+func (q *Queries) GetByUsername(username string) (*domain.User, error) {
+	user, err := q.getByUsername(context.Background(), username)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	return &user, nil
+	return formatToDomain(user, nil), nil
 }
 
-func (s *UserStore) Update(
+func (q *Queries) Update(
 	userId int,
 	updater domain.Updater[domain.User],
 ) (*domain.User, error) {
-	var user domain.User
-	err := s.Db.Get(&user, "SELECT * FROM users WHERE id = $1 LIMIT 1", userId)
+	ctx := context.Background()
+	user, err := q.getById(ctx, int64(userId))
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	updatedUser := updater(&user)
+	updates := updater(*(formatToDomain(user, nil)))
+	params := updateParams{ID: user.ID}
 
-	_, err = s.Db.NamedExec(`
-    UPDATE users
-    SET email = :email,
-        password = :password,
-        bio = :bio,
-        image = :image,
-        updated_at = :updated_at
-    WHERE id = :id
-  `, updatedUser)
+	if updates.Username != "" {
+		params.Username = updates.Username
+	} else {
+		params.Username = user.Username
+	}
+
+	if updates.Email != "" {
+		params.Email = updates.Email
+	} else {
+		params.Email = user.Email
+	}
+
+	if updates.Password != "" {
+		params.Password = string(updates.Password)
+	} else {
+		params.Password = user.Password
+	}
+
+	if updates.Bio != "" {
+		params.Bio = sql.NullString{}
+		params.Bio.Scan(updates.Bio)
+	} else {
+		params.Bio = user.Bio
+	}
+
+	if updates.Image != "" {
+		params.Image = sql.NullString{}
+		params.Image.Scan(updates.Image)
+	} else {
+		params.Image = user.Image
+	}
+
+	params.UpdatedAt = sql.NullString{}
+	params.UpdatedAt.Scan(krono.Now())
+
+	user, err = q.update(ctx, params)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error updating user: %w", err)
 	}
 
-	return updatedUser, nil
+	return formatToDomain(user, nil), nil
 }
 
-func (s *UserStore) Follow(userId, authorId int) (*domain.User, error) {
-	var author domain.User
-	err := s.Db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
+func (q *Queries) Follow(userId, authorId int) (*domain.User, error) {
+	ctx := context.Background()
+	_, err := q.follow(ctx, followParams{UserID: int64(userId), FollowerID: int64(authorId)})
 
 	if err != nil {
-		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
+		return nil, fmt.Errorf("sql-store: error following author: %w", err)
 	}
 
-	_, err = s.Db.Exec(`
-    INSERT INTO followers (user_id, follower_id)
-    VALUES ($1, $2)
-    WHERE id = $2
-  `, userId, authorId)
+	author, err := q.getById(ctx, int64(authorId))
 
 	if err != nil {
-		return nil, fmt.Errorf("sql-store: error following user: %w", err)
+		return nil, fmt.Errorf("sql-store: error getting author: %w", err)
 	}
 
-	followers, err := s.getFollowers(authorId)
-
-	if err != nil {
-		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
-	}
-	author.Followers = followers
-
-	return &author, nil
-}
-
-func (s *UserStore) Unfollow(userId, authorId int) (*domain.User, error) {
-	var author domain.User
-	err := s.Db.Get(&author, "SELECT * FROM users WHERE id = $1 LIMIT 1", authorId)
-
-	if err != nil {
-		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
-	}
-
-	_, err = s.Db.Exec(`
-    DELETE FROM followers
-    WHERE user_id = $1 AND follower_id = $2
-  `, userId, authorId)
-
-	if err != nil {
-		return nil, fmt.Errorf("sql-store: error unfollowing user: %w", err)
-	}
-
-	followers, err := s.getFollowers(authorId)
+	followers, err := q.getFollowers(ctx, int64(authorId))
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
 	}
 
-	author.Followers = followers
+	return formatToDomain(author, &followers), nil
+}
 
-	return &author, nil
+func (q *Queries) Unfollow(userId, authorId int) (*domain.User, error) {
+	ctx := context.Background()
+	_, err := q.unfollow(ctx, unfollowParams{UserID: int64(userId), FollowerID: int64(authorId)})
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error unfollowing author: %w", err)
+	}
+
+	author, err := q.getById(ctx, int64(authorId))
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error getting author: %w", err)
+	}
+
+	followers, err := q.getFollowers(ctx, int64(authorId))
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
+	}
+
+	return formatToDomain(author, &followers), nil
 }

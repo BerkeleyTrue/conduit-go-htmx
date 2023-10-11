@@ -8,7 +8,7 @@ import (
 
 type (
 	User struct {
-		UserId    int                     `json:"userId" db:"id"`
+		UserId    int                     `json:"userId"    db:"id"`
 		Username  string                  `json:"username"`
 		Email     string                  `json:"email"`
 		Password  password.HashedPassword `json:"password"`
@@ -20,18 +20,15 @@ type (
 	}
 
 	Article struct {
-		ArticleId int `json:"articleId" db:"id"`
-		AuthorId  int `json:"authorId" db:"author_id"`
-
-		Title string    `json:"title" db:"title"`
-		Slug  slug.Slug `json:"slug" db:"slug"`
-
-		Description string   `json:"description" db:"description"`
-		Body        string   `json:"body" db:"body"`
-		Tags        []string `json:"Tags"`
-
-		CreatedAt krono.Krono `json:"createdAt" db:"created_at"`
-		UpdatedAt krono.Krono `json:"updatedAt" db:"updated_at"`
+		ArticleId   int         `json:"articleId" db:"id"`
+		AuthorId    int         `json:"authorId"  db:"author_id"`
+		Title       string      `json:"title" db:"title"`
+		Slug        slug.Slug   `json:"slug"  db:"slug"`
+		Description string      `json:"description" db:"description"`
+		Body        string      `json:"body"        db:"body"`
+		Tags        []string    `json:"Tags"`
+		CreatedAt   krono.Krono `json:"createdAt" db:"created_at"`
+		UpdatedAt   krono.Krono `json:"updatedAt" db:"updated_at"`
 	}
 
 	Comment struct {

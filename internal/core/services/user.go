@@ -202,7 +202,7 @@ func (s *UserService) Update(
 		return nil, errors.New("Invalid authorId or authorname")
 	}
 
-	var updater domain.Updater[domain.User] = func(u *domain.User) *domain.User {
+	var updater domain.Updater[domain.User] = func(u domain.User) domain.User {
 		if input.Email != "" {
 			u.Email = input.Email
 		}
