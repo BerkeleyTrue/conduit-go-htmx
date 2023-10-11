@@ -54,7 +54,7 @@ func (q *Queries) Create(input domain.UserCreateInput) (*domain.User, error) {
 	params := createParams{
 		Username:  input.Username,
 		Email:     input.Email,
-		Password:  string(input.Password),
+		Password:  string(input.HashedPassword),
 		Bio:       sql.NullString{},
 		Image:     sql.NullString{},
 		CreatedAt: krono.Now().String(),

@@ -16,10 +16,7 @@ VALUES
 INSERT INTO
   tags (tag)
 VALUES
-  (?) ON CONFLICT (tag) DO
-UPDATE
-SET
-  tag = ?;
+  (?);
 
 -- name: createArticleTag :execrows
 INSERT INTO

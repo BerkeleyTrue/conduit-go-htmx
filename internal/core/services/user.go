@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"go.uber.org/fx"
+	"golang.org/x/exp/slog"
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
@@ -17,6 +19,7 @@ import (
 type (
 	UserService struct {
 		repo domain.UserRepository
+		log  *slog.Logger
 	}
 
 	UserOutput struct {
@@ -81,7 +84,14 @@ func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
 }
 
 func NewUserService(repo domain.UserRepository) *UserService {
-	return &UserService{repo: repo}
+	logger := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})
+
+	return &UserService{
+		repo: repo,
+		log:  slog.New(logger).WithGroup("services").WithGroup("users"),
+	}
 }
 
 func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
@@ -101,7 +111,7 @@ func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
 		return 0, fmt.Errorf("error creating user: %w", err)
 	}
 
-	fmt.Printf("%+v\n", user)
+	s.log.Debug("user created", "user", user)
 
 	return user.UserId, nil
 }

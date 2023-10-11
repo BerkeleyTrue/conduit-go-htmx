@@ -81,7 +81,7 @@ func (s *ArticleStore) Create(
 			_, err = q.createTag(ctx, tag)
 
 			if err != nil {
-				return fmt.Errorf("error creating article tag: %w", err)
+				return fmt.Errorf("error creating tag: %w", err)
 			}
 
 			_, err = q.createArticleTag(ctx, createArticleTagParams{
@@ -151,7 +151,7 @@ func (s *ArticleStore) List(
 		return nil, err
 	}
 
-	articles := make([]*domain.Article, 0)
+	articles := make([]*domain.Article, len(listRows))
 
 	for idx, row := range listRows {
 		articles[idx] = formatRowToDomain(row)
