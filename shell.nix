@@ -26,6 +26,10 @@
     watch-tests = pkgs.writeShellScriptBin "watch-tests" ''
       ${pkgs.ginkgo}/bin/ginkgo watch -r -p
     '';
+
+    watch-sql = pkgs.writeShellScriptBin "watch-sql" ''
+      ${pkgs.fd}/bin/fd -e sql | ${pkgs.entr}/bin/entr ${pkgs.sqlc}/bin/sqlc generate
+    '';
   in {
     boulder = {
       commands = [
@@ -40,6 +44,10 @@
         {
           exec = watch-tests;
           description = "watch go files for changes and re-run tests";
+        }
+        {
+          exec = watch-sql;
+          description = "watch sql files for changes and re-run sqlc";
         }
       ];
     };
@@ -56,6 +64,7 @@
           air # live reload
           ginkgo # testing framework
           golines # go formatter
+          sqlc # sql code generator
 
           # prettier
           nodejs_18
@@ -64,6 +73,7 @@
           # editor
           vscode-langservers-extracted # html/css language server
           typescript-language-server # typescript language server
+          sql-formatter # sql formatter
         ]);
     };
   };

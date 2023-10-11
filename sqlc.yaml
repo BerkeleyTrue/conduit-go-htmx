@@ -1,0 +1,21 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    schema: "internal/app/driven/userRepo/sql/schema.sql"
+    queries: "internal/app/driven/userRepo/sql/queries.sql"
+    gen:
+      go:
+        out: "internal/app/driven/userRepo"
+        output_files_suffix: ".gen"
+        output_db_file_name: "db.gen"
+        output_models_file_name: "models.gen"
+
+  - engine: "sqlite"
+    schema: "internal/app/driven/articlesRepo/sql/schema.sql"
+    queries: "internal/app/driven/articlesRepo/sql/queries.sql"
+    gen:
+      go:
+        out: "internal/app/driven/articlesRepo"
+        output_files_suffix: ".gen"
+        output_db_file_name: "db.gen"
+        output_models_file_name: "models.gen"
