@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS articles (
     body TEXT NOT NULL,
     author_id INTEGER NOT NULL,
     created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
+    updated_at TEXT,
     FOREIGN KEY (author_id) REFERENCES users (id)
 );
 

@@ -22,3 +22,8 @@ func NewSlug(title string) Slug {
 
 	return Slug(slug)
 }
+
+// String returns the string representation of a Slug.
+func (s Slug) String() string {
+	return string(s)
+}

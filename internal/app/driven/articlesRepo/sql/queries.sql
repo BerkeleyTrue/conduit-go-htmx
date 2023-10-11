@@ -1,4 +1,4 @@
--- name: createArticle :one
+-- name: create :one
 INSERT INTO
   articles (
     slug,

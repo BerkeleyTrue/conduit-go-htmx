@@ -42,7 +42,7 @@ type (
 
 	ArticleRepository interface {
 		Create(input ArticleCreateInput) (*Article, error)
-		GetById(articleId string) (*Article, error)
+		GetById(articleId int) (*Article, error)
 		GetBySlug(mySlug string) (*Article, error)
 		List(input ArticleListInput) ([]*Article, error)
 		GetPopularTags() ([]string, error)
