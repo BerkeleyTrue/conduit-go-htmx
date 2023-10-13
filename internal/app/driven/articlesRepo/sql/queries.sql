@@ -16,7 +16,7 @@ VALUES
 INSERT INTO
   tags (tag)
 VALUES
-  (?);
+  (?) ON CONFLICT DO NOTHING;
 
 -- name: createArticleTag :execrows
 INSERT INTO
