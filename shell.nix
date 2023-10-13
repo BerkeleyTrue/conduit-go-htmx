@@ -4,6 +4,10 @@
     config,
     ...
   }: let
+    generate-queries = pkgs.writeShellScriptBin "generate-queries" ''
+      echo "generating"
+      ${pkgs.sqlc}/bin/sqlc generate;
+    '';
     # update the vendorSha256 of the default package
     update-vendor-sha = pkgs.writeShellScriptBin "update-vendor-sha" ''
       set -exuo pipefail
@@ -19,20 +23,24 @@
       sed -i -e "s|vendorSha256 = \".*\"|vendorSha256 = \"$checksum\"|" ./default.nix
     '';
 
+    watch-sql = pkgs.writeShellScriptBin "watch-sql" ''
+      ${pkgs.fd}/bin/fd -e sql | ${pkgs.entr}/bin/entr ${generate-queries}/bin/generate-queries
+    '';
+
     watch-compile = pkgs.writeShellScriptBin "watch-compile" ''
-      "${pkgs.air}/bin/air"
+      ${pkgs.concurrently}/bin/concurrently -n "air,sqlc" "${pkgs.air}/bin/air" "${watch-sql}/bin/watch-sql"
     '';
 
     watch-tests = pkgs.writeShellScriptBin "watch-tests" ''
       ${pkgs.ginkgo}/bin/ginkgo watch -r -p
     '';
-
-    watch-sql = pkgs.writeShellScriptBin "watch-sql" ''
-      ${pkgs.fd}/bin/fd -e sql | ${pkgs.entr}/bin/entr ${pkgs.sqlc}/bin/sqlc generate
-    '';
   in {
     boulder = {
       commands = [
+        {
+          exec = generate-queries;
+          description = "generate sqlc queries";
+        }
         {
           exec = update-vendor-sha;
           description = "update the vendorSha256 of the default package";
