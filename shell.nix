@@ -4,6 +4,9 @@
     config,
     ...
   }: let
+    seed = pkgs.writeShellScriptBin "seed" ''
+      ${pkgs.go}/bin/go run ./cmd/seed
+    '';
     generate-queries = pkgs.writeShellScriptBin "generate-queries" ''
       echo "generating"
       ${pkgs.sqlc}/bin/sqlc generate;
@@ -40,6 +43,10 @@
         {
           exec = generate-queries;
           description = "generate sqlc queries";
+        }
+        {
+          exec = seed;
+          description = "seed the database";
         }
         {
           exec = update-vendor-sha;
