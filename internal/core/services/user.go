@@ -11,6 +11,7 @@ import (
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
+	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 	pss "github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/utils"
 )
@@ -88,7 +89,13 @@ func NewUserService(repo domain.UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
+type RegisterParams struct {
+	Username string
+	Email    string
+	Password password.Password
+}
+
+func (s *UserService) Register(input RegisterParams) (int, error) {
 	hashedPassword, err := pss.HashPassword(input.Password)
 
 	if err != nil {
@@ -99,6 +106,7 @@ func (s *UserService) Register(input domain.UserCreateInput) (int, error) {
 		Username:       input.Username,
 		Email:          input.Email,
 		HashedPassword: hashedPassword,
+		CreatedAt:      krono.Krono{Time: time.Now()},
 	})
 
 	if err != nil {

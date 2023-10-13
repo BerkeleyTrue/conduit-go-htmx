@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/jmoiron/sqlx"
@@ -14,6 +15,7 @@ import (
 	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/core/services"
+	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"github.com/berkeleytrue/conduit/internal/infra/db"
 )
@@ -35,13 +37,18 @@ var log *slog.Logger = slog.New(slog.NewTextHandler(os.Stdout, nil)).WithGroup("
 
 func generateUser(
 	userService *services.UserService,
+	userRepo domain.UserRepository,
 ) (*UserOutputPlusId, error) {
 	pass := gofakeit.Password(true, true, true, true, false, 10)
+	createdAt := gofakeit.DateRange(
+		time.Now().AddDate(-1, 0, 0),
+		time.Now(),
+	)
 
-	input := domain.UserCreateInput{
-		Username:       gofakeit.Username(),
-		Email:          gofakeit.Email(),
-		HashedPassword: password.HashedPassword(pass),
+	input := services.RegisterParams{
+		Username: gofakeit.Username(),
+		Email:    gofakeit.Email(),
+		Password: password.Password(pass),
 	}
 
 	userId, err := userService.Register(input)
@@ -50,12 +57,13 @@ func generateUser(
 		return nil, fmt.Errorf("error registering user: %w", err)
 	}
 
-	userOutput, err := userService.Update(
+	user, err := userRepo.Update(
 		userId,
-		"",
-		services.UpdateUserInput{
-			Bio:   gofakeit.Sentence(10),
-			Image: gofakeit.ImageURL(200, 200),
+		func(user domain.User) domain.User {
+			user.Bio = gofakeit.Sentence(10)
+			user.Image = gofakeit.ImageURL(200, 200)
+			user.CreatedAt = krono.Krono{Time: createdAt}
+			return user
 		},
 	)
 
@@ -64,12 +72,18 @@ func generateUser(
 	}
 
 	return &UserOutputPlusId{
-		UserOutput: userOutput,
-		userId:     userId,
+		UserOutput: &services.UserOutput{
+			Email:    user.Email,
+			Username: user.Username,
+			Bio:      user.Bio,
+			Image:    user.Image,
+		},
+		userId: userId,
 	}, nil
 }
 
 func seed(
+	userRepo domain.UserRepository,
 	userService *services.UserService,
 	articleService *services.ArticleService,
 	shutdown fx.Shutdowner,
@@ -80,7 +94,7 @@ func seed(
 	users := make([]*UserOutputPlusId, numOfUsers)
 
 	for i := 0; i < numOfUsers; i++ {
-		user, err := generateUser(userService)
+		user, err := generateUser(userService, userRepo)
 
 		if err != nil {
 			panic(err)

@@ -58,6 +58,7 @@ SET
   password = ?,
   bio = ?,
   image = ?,
+  created_at = ?,
   updated_at = ?
 WHERE
   id = ? RETURNING *;

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 )
 
@@ -10,8 +11,8 @@ type (
 	UserCreateInput struct {
 		Username       string
 		Email          string
-		Password       password.Password
 		HashedPassword password.HashedPassword
+		CreatedAt      krono.Krono
 	}
 
 	UserRepository interface {

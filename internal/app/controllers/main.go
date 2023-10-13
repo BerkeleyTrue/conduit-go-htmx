@@ -17,15 +17,6 @@ type (
 		Uri   string
 		Title string
 	}
-	RegisterInput struct {
-		Username string `form:"username"`
-		Email    string `form:"email"`
-		Password string `form:"password"`
-	}
-	LoginInput struct {
-		Email    string `form:"email"`
-		Password string `form:"password"`
-	}
 )
 
 var (

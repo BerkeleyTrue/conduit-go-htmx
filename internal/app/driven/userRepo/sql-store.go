@@ -57,7 +57,7 @@ func (q *Queries) Create(input domain.UserCreateInput) (*domain.User, error) {
 		Password:  string(input.HashedPassword),
 		Bio:       sql.NullString{},
 		Image:     sql.NullString{},
-		CreatedAt: krono.Now().ToString(),
+		CreatedAt: input.CreatedAt.ToString(),
 		UpdatedAt: sql.NullString{},
 	}
 
@@ -143,6 +143,13 @@ func (q *Queries) Update(
 		params.Image.Scan(updates.Image)
 	} else {
 		params.Image = user.Image
+	}
+
+	// for seeding, can not be done directly through the user service
+	if updates.CreatedAt.IsZero() {
+		params.CreatedAt = user.CreatedAt
+	} else {
+		params.CreatedAt = updates.CreatedAt.ToString()
 	}
 
 	params.UpdatedAt = sql.NullString{}
