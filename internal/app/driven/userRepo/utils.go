@@ -3,13 +3,21 @@ package userRepo
 import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
+	"golang.org/x/exp/slog"
 )
 
 func formatToDomain(user User, followers *[]int64) *domain.User {
-	createdAt := krono.Krono{}
-	createdAt.Scan(user.CreatedAt)
-	updatedAt := krono.Krono{}
-	updatedAt.Scan(user.UpdatedAt)
+	createdAt, err := krono.FromString(user.CreatedAt)
+
+	if err != nil {
+		slog.Debug("error parsing createdAt: %s", err)
+	}
+
+	updatedAt, err := krono.FromNullString(user.UpdatedAt)
+
+	if err != nil {
+		slog.Debug("error parsing updatedAt: %s", err)
+	}
 
 	dUser := &domain.User{
 		UserId:    int(user.ID),

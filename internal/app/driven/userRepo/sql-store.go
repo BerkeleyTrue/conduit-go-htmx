@@ -57,7 +57,7 @@ func (q *Queries) Create(input domain.UserCreateInput) (*domain.User, error) {
 		Password:  string(input.HashedPassword),
 		Bio:       sql.NullString{},
 		Image:     sql.NullString{},
-		CreatedAt: krono.Now().String(),
+		CreatedAt: krono.Now().ToString(),
 		UpdatedAt: sql.NullString{},
 	}
 

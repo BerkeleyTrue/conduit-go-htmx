@@ -1,14 +1,18 @@
 package services
 
 import (
+	"os"
+
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
+	"golang.org/x/exp/slog"
 )
 
 type (
 	ArticleService struct {
 		repo domain.ArticleRepository
+		log  *slog.Logger
 	}
 
 	ArticleCreateInput struct {
@@ -55,7 +59,12 @@ func formatArticle(article *domain.Article) ArticleOutput {
 }
 
 func NewArticleService(repo domain.ArticleRepository) *ArticleService {
-	return &ArticleService{repo: repo}
+	return &ArticleService{
+		repo: repo,
+		log: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})).WithGroup("services").WithGroup("article"),
+	}
 }
 
 func (s *ArticleService) Create(userId int, input ArticleCreateInput) (ArticleOutput, error) {
@@ -66,6 +75,8 @@ func (s *ArticleService) Create(userId int, input ArticleCreateInput) (ArticleOu
 		Tags:        input.Tags,
 		AuthorId:    userId,
 	})
+
+	s.log.Debug("created", "article", article)
 
 	if err != nil {
 		return ArticleOutput{}, err

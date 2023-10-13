@@ -66,7 +66,7 @@ func (s *ArticleStore) Create(
 			Description: input.Description,
 			Body:        input.Body,
 			AuthorID:    int64(input.AuthorId),
-			CreatedAt:   krono.Now().String(),
+			CreatedAt:   krono.Now().ToString(),
 			UpdatedAt:   sql.NullString{},
 		}
 
@@ -106,8 +106,6 @@ func (s *ArticleStore) Create(
 	if err != nil {
 		return nil, fmt.Errorf("error getting res article: %w", err)
 	}
-
-	fmt.Printf("%+v\n", article)
 
 	return formatToDomain(article), nil
 }

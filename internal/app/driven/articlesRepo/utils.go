@@ -38,8 +38,7 @@ func formatToDomain(article Article) *domain.Article {
 		fmt.Printf("error parsing createdAt: %s", err)
 	}
 
-	updatedAt := krono.Krono{}
-	err = updatedAt.Scan(article.UpdatedAt)
+	updatedAt, err := krono.FromNullString(article.UpdatedAt)
 
 	if err != nil {
 		fmt.Printf("error parsing createdAt: %s", err)
@@ -64,9 +63,7 @@ func formatRowToDomain(row listRow) *domain.Article {
 		fmt.Printf("error parsing createdAt: %s", err)
 	}
 
-	updatedAt := krono.Krono{}
-
-	err = updatedAt.Scan(row.UpdatedAt)
+	updatedAt, err := krono.FromNullString(row.UpdatedAt)
 
 	if err != nil {
 		fmt.Printf("error parsing createdAt: %s", err)

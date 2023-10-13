@@ -2,7 +2,6 @@ package krono
 
 import (
 	"database/sql"
-	"database/sql/driver"
 	"fmt"
 	"time"
 )
@@ -19,13 +18,13 @@ func (ts *Krono) IsZero() bool {
 	return ts.Time.IsZero()
 }
 
-func (ts Krono) String() string {
+func (ts Krono) ToString() string {
 	return ts.Time.Format(time.RFC3339)
 }
 
 func (ts Krono) ToNullString() sql.NullString {
 	return sql.NullString{
-		String: ts.String(),
+		String: ts.ToString(),
 		Valid:  !ts.IsZero(),
 	}
 }
@@ -40,32 +39,19 @@ func FromString(s string) (Krono, error) {
 	return Krono{Time: t}, nil
 }
 
-// define how to format the Krono to text for sqlite
-func (ts Krono) Value() (driver.Value, error) {
-	return ts.String(), nil
+func FromNullString(s sql.NullString) (Krono, error) {
+	if !s.Valid {
+		return Krono{}, nil
+	}
+
+	return FromString(s.String)
 }
 
-// define a scan method for sql to use
-func (ts *Krono) Scan(v interface{}) error {
-	if v == nil {
-		ts.Time = time.Time{}
-		return nil
-	}
+// Krono implements fmt.Stringer
+func (ts Krono) String() string {
+  if ts.IsZero() {
+    return ""
+  }
 
-	// first cast to string type
-	s, ok := v.(string)
-
-	if !ok {
-		return fmt.Errorf("krono.Scan: unable to cast %v to string", v)
-	}
-
-	t, err := FromString(s)
-
-	if err != nil {
-		return err
-	}
-
-	ts.Time = t.Time
-
-	return nil
+  return ts.Time.Format(time.RFC3339)
 }

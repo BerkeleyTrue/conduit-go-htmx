@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
+	"golang.org/x/exp/slog"
 
 	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/app/driven/articlesRepo"
@@ -28,6 +30,8 @@ type (
 		userId int
 	}
 )
+
+var log *slog.Logger = slog.New(slog.NewTextHandler(os.Stdout, nil)).WithGroup("seed")
 
 func generateUser(
 	userService *services.UserService,
@@ -100,7 +104,7 @@ func seed(
 			)
 
 			if err != nil {
-				fmt.Println(err)
+				log.Error("error", err)
 			}
 		}
 	}
