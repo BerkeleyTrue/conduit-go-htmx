@@ -66,7 +66,7 @@ func (s *ArticleStore) Create(
 			Description: input.Description,
 			Body:        input.Body,
 			AuthorID:    int64(input.AuthorId),
-			CreatedAt:   krono.Now().ToString(),
+			CreatedAt:   input.CreatedAt.ToString(),
 			UpdatedAt:   sql.NullString{},
 		}
 

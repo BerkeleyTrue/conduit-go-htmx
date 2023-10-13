@@ -31,6 +31,7 @@ type (
 		Body        string
 		Tags        []string
 		AuthorId    int
+		CreatedAt   krono.Krono
 	}
 
 	ArticleListInput struct {

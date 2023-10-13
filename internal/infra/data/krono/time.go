@@ -10,6 +10,7 @@ type Krono struct {
 	Time time.Time
 }
 
+// create a new Krono of the current time
 func Now() Krono {
 	return Krono{Time: time.Now()}
 }
@@ -49,9 +50,9 @@ func FromNullString(s sql.NullString) (Krono, error) {
 
 // Krono implements fmt.Stringer
 func (ts Krono) String() string {
-  if ts.IsZero() {
-    return ""
-  }
+	if ts.IsZero() {
+		return ""
+	}
 
-  return ts.Time.Format(time.RFC3339)
+	return ts.Time.Format(time.RFC3339)
 }

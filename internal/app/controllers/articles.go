@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
 
@@ -66,8 +64,6 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("Article: %+v\n", articles[0])
 
 	return ctx.Render("partials/articles", fiber.Map{
 		"Articles": articles,

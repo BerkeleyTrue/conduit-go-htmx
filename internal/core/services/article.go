@@ -82,6 +82,7 @@ func (s *ArticleService) Create(
 		Body:        input.Body,
 		Tags:        input.Tags,
 		AuthorId:    userId,
+		CreatedAt:   krono.Now(),
 	})
 
 	s.log.Debug("created", "article", article)

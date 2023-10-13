@@ -21,15 +21,10 @@ import (
 )
 
 type (
-	Generate struct {
-		userService    *services.UserService
-		articleService *services.ArticleService
-		shutdown       fx.Shutdowner
-	}
-
 	UserOutputPlusId struct {
 		*services.UserOutput
-		userId int
+		userId    int
+		createdAt krono.Krono
 	}
 )
 
@@ -78,14 +73,15 @@ func generateUser(
 			Bio:      user.Bio,
 			Image:    user.Image,
 		},
-		userId: userId,
+		userId:    userId,
+		createdAt: user.CreatedAt,
 	}, nil
 }
 
 func seed(
 	userRepo domain.UserRepository,
 	userService *services.UserService,
-	articleService *services.ArticleService,
+	articleRepo domain.ArticleRepository,
 	shutdown fx.Shutdowner,
 ) {
 	numOfUsers := 30
@@ -105,9 +101,13 @@ func seed(
 
 	for _, user := range users {
 		for i := 0; i < numOfArticles; i++ {
-			_, err := articleService.Create(
-				user.userId,
-				services.ArticleCreateInput{
+			createdAt := krono.Krono{Time: gofakeit.DateRange(
+				user.createdAt.Time,
+				time.Now(),
+			)}
+
+			article, err := articleRepo.Create(
+				domain.ArticleCreateInput{
 					Title:       gofakeit.Sentence(5),
 					Description: gofakeit.Sentence(10),
 					Body:        gofakeit.Sentence(20),
@@ -115,8 +115,12 @@ func seed(
 						gofakeit.HipsterWord(),
 						gofakeit.HipsterWord(),
 					},
+					AuthorId:  user.userId,
+					CreatedAt: createdAt,
 				},
 			)
+
+			fmt.Printf("created article: %v\n", article)
 
 			if err != nil {
 				log.Error("error", err)
