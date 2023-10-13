@@ -11,8 +11,9 @@ import (
 
 type (
 	ArticleService struct {
-		repo domain.ArticleRepository
-		log  *slog.Logger
+		repo        domain.ArticleRepository
+		userService *UserService
+		log         *slog.Logger
 	}
 
 	ArticleCreateInput struct {
@@ -58,16 +59,23 @@ func formatArticle(article *domain.Article) ArticleOutput {
 	}
 }
 
-func NewArticleService(repo domain.ArticleRepository) *ArticleService {
+func NewArticleService(
+	repo domain.ArticleRepository,
+	userService *UserService,
+) *ArticleService {
 	return &ArticleService{
 		repo: repo,
 		log: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})).WithGroup("services").WithGroup("article"),
+		userService: userService,
 	}
 }
 
-func (s *ArticleService) Create(userId int, input ArticleCreateInput) (ArticleOutput, error) {
+func (s *ArticleService) Create(
+	userId int,
+	input ArticleCreateInput,
+) (ArticleOutput, error) {
 	article, err := s.repo.Create(domain.ArticleCreateInput{
 		Title:       input.Title,
 		Description: input.Description,
@@ -85,7 +93,10 @@ func (s *ArticleService) Create(userId int, input ArticleCreateInput) (ArticleOu
 	return formatArticle(article), nil
 }
 
-func (s *ArticleService) List(username string, input domain.ArticleListInput) ([]ArticleOutput, error) {
+func (s *ArticleService) List(
+	userId int,
+	input domain.ArticleListInput,
+) ([]ArticleOutput, error) {
 	// TODO: following
 	// username, ok := maybeUser.Get()
 
@@ -102,7 +113,16 @@ func (s *ArticleService) List(username string, input domain.ArticleListInput) ([
 	outputs := make([]ArticleOutput, len(articles))
 
 	for idx, article := range articles {
-		outputs[idx] = formatArticle(article)
+		_article := formatArticle(article)
+		profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
+
+		if err != nil {
+			s.log.Debug("error getting profile", "error", err)
+		} else {
+			_article.Author = *profile
+		}
+
+		outputs[idx] = _article
 	}
 
 	return outputs, err
@@ -112,7 +132,10 @@ func (s *ArticleService) GetPopularTags() ([]string, error) {
 	return s.repo.GetPopularTags()
 }
 
-func (s *ArticleService) GetBySlug(slug string, userId int) (ArticleOutput, error) {
+func (s *ArticleService) GetBySlug(
+	slug string,
+	userId int,
+) (ArticleOutput, error) {
 	article, err := s.repo.GetBySlug(slug)
 
 	if err != nil {
@@ -132,7 +155,11 @@ func (s *ArticleService) GetIdFromSlug(slug string) (int, error) {
 	return article.ArticleId, nil
 }
 
-func (s *ArticleService) Update(slug string, username string, input ArticleUpdateInput) (ArticleOutput, error) {
+func (s *ArticleService) Update(
+	slug string,
+	username string,
+	input ArticleUpdateInput,
+) (ArticleOutput, error) {
 	article, err := s.repo.Update(slug, func(a domain.Article) domain.Article {
 		if input.Title != "" {
 			a.Title = input.Title
@@ -155,7 +182,10 @@ func (s *ArticleService) Update(slug string, username string, input ArticleUpdat
 	return formatArticle(article), nil
 }
 
-func (s *ArticleService) Favorite(slug string, username string) (ArticleOutput, error) {
+func (s *ArticleService) Favorite(
+	slug string,
+	username string,
+) (ArticleOutput, error) {
 	article, err := s.repo.Update(slug, func(a domain.Article) domain.Article {
 		return a
 	})

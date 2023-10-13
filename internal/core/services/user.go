@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"go.uber.org/fx"
 	"golang.org/x/exp/slog"
 
 	"github.com/berkeleytrue/conduit/internal/core/domain"
@@ -29,11 +28,6 @@ type (
 		Image    string
 	}
 
-	UserIdOrUsername struct {
-		UserId   int
-		Username string
-	}
-
 	// sent to any third party user
 	PublicProfile struct {
 		Username  string
@@ -52,10 +46,8 @@ type (
 )
 
 var (
-	Module = fx.Options(
-		fx.Provide(NewUserService),
-	)
-	ErrNoUser = errors.New("No user found with that email and password")
+	ErrNoUser              = errors.New("No user found with that email and password")
+	ErrInvalidIdOrUsername = errors.New("Invalid userId or username")
 )
 
 func formatUser(user *domain.User) *UserOutput {
@@ -162,7 +154,8 @@ func (s *UserService) GetIdFromUsername(username string) (int, error) {
 }
 
 func (s *UserService) GetProfile(
-	authorIdOrAuthorname UserIdOrUsername,
+	authorId int,
+	authorname string,
 	userId int, // the user who is requesting the profile, if any
 ) (*PublicProfile, error) {
 	var (
@@ -171,12 +164,12 @@ func (s *UserService) GetProfile(
 		_isFollowing bool = false
 	)
 
-	if authorIdOrAuthorname.UserId != 0 {
-		author, err = s.repo.GetByID(authorIdOrAuthorname.UserId)
-	} else if authorIdOrAuthorname.Username != "" {
-		author, err = s.repo.GetByUsername(authorIdOrAuthorname.Username)
+	if authorId != 0 {
+		author, err = s.repo.GetByID(authorId)
+	} else if authorname != "" {
+		author, err = s.repo.GetByUsername(authorname)
 	} else {
-		return nil, errors.New("UserService: Invalid authorId or authorname")
+		return nil, ErrInvalidIdOrUsername
 	}
 
 	if err != nil {
@@ -191,25 +184,25 @@ func (s *UserService) GetProfile(
 }
 
 func (s *UserService) Update(
-	userIdOrUsername UserIdOrUsername,
+	userId int,
+	username string,
 	input UpdateUserInput,
 ) (*UserOutput, error) {
 	now := time.Now()
-	var userId int
 	var err error
 
-	if userIdOrUsername.UserId != 0 {
-		userId = userIdOrUsername.UserId
-	} else if userIdOrUsername.Username != "" {
+	if userId != 0 {
+		if username != "" {
 
-		userId, err = s.GetIdFromUsername(userIdOrUsername.Username)
+			userId, err = s.GetIdFromUsername(username)
 
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
+
+		} else {
+			return nil, ErrNoUser
 		}
-
-	} else {
-		return nil, errors.New("Invalid authorId or authorname")
 	}
 
 	var updater domain.Updater[domain.User] = func(u domain.User) domain.User {
@@ -240,23 +233,23 @@ func (s *UserService) Update(
 
 func (s *UserService) Follow(
 	userId int,
-	authorIdOrAuthorname UserIdOrUsername,
+	authorId int,
+	authorname string,
 ) (*PublicProfile, error) {
 	var (
-		authorId int
-		err      error
+		err error
 	)
 
-	if authorIdOrAuthorname.UserId != 0 {
-		authorId = authorIdOrAuthorname.UserId
-	} else if authorIdOrAuthorname.Username != "" {
-		authorId, err = s.GetIdFromUsername(authorIdOrAuthorname.Username)
+	if authorId != 0 {
+		if authorname != "" {
+			authorId, err = s.GetIdFromUsername(authorname)
 
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, ErrInvalidIdOrUsername
 		}
-	} else {
-		return nil, errors.New("Invalid authorId or authorname")
 	}
 
 	user, err := s.repo.Follow(userId, authorId)
@@ -270,17 +263,19 @@ func (s *UserService) Follow(
 
 func (s *UserService) Unfollow(
 	userId int,
-	authorIdOrAuthorname UserIdOrUsername,
+	authorId int,
+	authorname string,
 ) (*PublicProfile, error) {
 	var (
-		authorId int
-		err      error
+		err error
 	)
 
-	if authorIdOrAuthorname.UserId != 0 {
-		authorId = authorIdOrAuthorname.UserId
-	} else {
-		return nil, errors.New("Invalid authorId or authorname")
+	if authorId == 0 {
+		if authorname != "" {
+			authorId, err = s.GetIdFromUsername(authorname)
+		} else {
+			return nil, ErrInvalidIdOrUsername
+		}
 	}
 
 	user, err := s.repo.Unfollow(userId, authorId)

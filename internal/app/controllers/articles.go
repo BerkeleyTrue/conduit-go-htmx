@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
 
@@ -33,12 +35,6 @@ func (i *GetArticlesInput) validate() error {
 func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 	input := GetArticlesInput{}
 
-	session, err := c.store.Get(ctx)
-
-	if err != nil {
-		return err
-	}
-
 	if err := ctx.QueryParser(&input); err != nil {
 		return err
 	}
@@ -47,18 +43,18 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	username, ok := session.Get("username").(string)
+	userId, ok := ctx.Locals("userId").(int)
 
 	if !ok {
-		username = ""
+		userId = 0
 	}
 
 	if input.limit == 0 {
-    input.limit = 20
-  }
+		input.limit = 20
+	}
 
 	articles, err := c.articleService.List(
-		username,
+		userId,
 		domain.ArticleListInput{
 			Tag:       input.tag,
 			Favorited: input.favorited,
@@ -71,6 +67,8 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	fmt.Printf("Article: %+v\n", articles[0])
+
 	return ctx.Render("partials/articles", fiber.Map{
 		"Articles": articles,
 		// TODO: get total articles count
@@ -82,13 +80,13 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) GetPopularTags(ctx *fiber.Ctx) error {
-  tags, err := c.articleService.GetPopularTags()
+	tags, err := c.articleService.GetPopularTags()
 
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 
-  return ctx.Render("partials/tags", fiber.Map{
-    "Tags": tags,
-  })
+	return ctx.Render("partials/tags", fiber.Map{
+		"Tags": tags,
+	})
 }

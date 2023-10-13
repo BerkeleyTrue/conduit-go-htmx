@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-
-	"github.com/berkeleytrue/conduit/internal/core/services"
 )
 
 func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
@@ -22,9 +20,11 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 		username = ""
 	}
 
-	profile, err := c.userService.GetProfile(services.UserIdOrUsername{
-		Username: authorname,
-	}, userId)
+	profile, err := c.userService.GetProfile(
+		0,
+		authorname,
+		userId,
+	)
 
 	if err != nil {
 		fmt.Println(err)

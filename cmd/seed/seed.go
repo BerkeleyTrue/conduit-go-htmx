@@ -51,7 +51,8 @@ func generateUser(
 	}
 
 	userOutput, err := userService.Update(
-		services.UserIdOrUsername{UserId: userId},
+		userId,
+		"",
 		services.UpdateUserInput{
 			Bio:   gofakeit.Sentence(10),
 			Image: gofakeit.ImageURL(200, 200),

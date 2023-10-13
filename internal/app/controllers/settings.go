@@ -68,9 +68,8 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 		Image:    settingsInput.Image,
 	}
 
-
 	if settingsInput.Password != "" {
-	  fmt.Printf("settings input %+v\n", settingsInput)
+		fmt.Printf("settings input %+v\n", settingsInput)
 
 		if pass, err := password.New(settingsInput.Password); err == nil {
 			updates.Password = pass
@@ -88,9 +87,9 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 
 	// fmt.Printf("settings input %+v\n", settingsInput)
 
-	user, err := c.userService.Update(services.UserIdOrUsername{
-		UserId: ctx.Locals("userId").(int),
-	},
+	user, err := c.userService.Update(
+		ctx.Locals("userId").(int),
+		"",
 		updates,
 	)
 

@@ -19,8 +19,7 @@ var (
 		db.Module,
 		userRepo.Module,
 		articlesRepo.Module,
-		fx.Provide(services.NewUserService),
-		fx.Provide(services.NewArticleService),
+		services.Module,
 		fx.Provide(session.NewSessionStore),
 		fx.Provide(
 			fx.Annotate(

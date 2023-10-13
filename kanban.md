@@ -14,11 +14,17 @@
 
 # Doing
 
+- Move to templ
 - Articles Api
   - [x] Add get route
   - [x] return list of articles
+  - [x] add author details
+  - [ ] move createAt out of repo, into service
+    - This should allow us to manipulate created at during seeding
+  - [ ] Filter articles
+    - [ ] Add tag
+    - [ ] add favorites
   - [ ] Check if user is following article author
-  - [x] Filter articles
 - Add seed data import (use gofakeit)
   - [x] add users
   - [x] add articles
