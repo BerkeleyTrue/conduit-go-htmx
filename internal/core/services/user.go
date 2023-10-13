@@ -46,7 +46,9 @@ type (
 )
 
 var (
-	ErrNoUser              = errors.New("No user found with that email and password")
+	ErrNoUser = errors.New(
+		"No user found with that email and password",
+	)
 	ErrInvalidIdOrUsername = errors.New("Invalid userId or username")
 )
 
@@ -191,7 +193,7 @@ func (s *UserService) Update(
 	now := time.Now()
 	var err error
 
-	if userId != 0 {
+	if userId == 0 {
 		if username != "" {
 
 			userId, err = s.GetIdFromUsername(username)
@@ -201,7 +203,7 @@ func (s *UserService) Update(
 			}
 
 		} else {
-			return nil, ErrNoUser
+			return nil, ErrInvalidIdOrUsername
 		}
 	}
 
@@ -240,7 +242,7 @@ func (s *UserService) Follow(
 		err error
 	)
 
-	if authorId != 0 {
+	if authorId == 0 {
 		if authorname != "" {
 			authorId, err = s.GetIdFromUsername(authorname)
 
