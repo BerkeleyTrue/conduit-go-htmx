@@ -12,3 +12,11 @@ func Some[T comparable](predicate func(T) bool, input []T) bool {
 
 	return false
 }
+
+func Iterate(count int) []int {
+	cnts := make([]int, count)
+	for i := 0; i < count; i++ {
+		cnts[i] = i
+	}
+	return cnts
+}

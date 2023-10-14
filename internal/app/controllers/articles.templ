@@ -1,0 +1,77 @@
+package controllers
+
+import (
+	"github.com/berkeleytrue/conduit/internal/utils"
+	"github.com/berkeleytrue/conduit/internal/core/services"
+	"fmt"
+)
+
+type articlePreiewProps struct {
+	services.ArticleOutput
+}
+
+templ articlePreview(p articlePreiewProps) {
+	<div class="article-preview">
+		<div class="article-meta">
+			<a href="/profile/{ p.Author.Username }">
+				<img
+ 					src={ p.Author.Image }
+				/>
+			</a>
+			<div class="info">
+				<a href={ templ.URL(fmt.Sprintf("/profile/%s", p.Author.Username)) } class="author">
+					{ p.Author.Username }
+				</a>
+				<span class="date">{ p.CreatedAt.ToString() }</span>
+			</div>
+			<button class="btn btn-outline-primary btn-sm pull-xs-right">
+				<i class="ion-heart"></i>
+				{ fmt.Sprintf("%d", p.FavoritesCount) }
+			</button>
+		</div>
+		<a href={ templ.URL(fmt.Sprintf("/article/%s", p.Slug)) } class="preview-link">
+			<h1>{ p.Title }</h1>
+			<p>{ p.Description }</p>
+			<span>Read more...</span>
+			<ul class="tag-list">
+				for _, tag := range p.Tags {
+					<li class="tag-default tag-pill tag-outline">{ tag }</li>
+				}
+			</ul>
+		</a>
+	</div>
+}
+
+type articlesProps struct {
+	articles       []services.ArticleOutput
+	showPagination bool
+	numOfPages     int
+	currentPage    int
+}
+
+templ articleList(p articlesProps) {
+	if len(p.articles) == 0 {
+		<div class="article-preview">No articles are here... yet.</div>
+	} else {
+		for _, article := range p.articles {
+			@articlePreview(articlePreiewProps{
+			  ArticleOutput: article,
+      })
+		}
+	}
+	if p.showPagination {
+		<ul id="pagination" class="pagination" hx-swap-oob>
+			for page := range utils.Iterate(p.numOfPages) {
+				<li
+ 					if p.currentPage == page {
+						class="page-item active"
+					} else {
+						class="page-item active"
+					}
+				>
+					<a class="page-link" href="">{ fmt.Sprintf("%d", page) }</a>
+				</li>
+			}
+		</ul>
+	}
+}

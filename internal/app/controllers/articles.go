@@ -65,14 +65,14 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Render("partials/articles", fiber.Map{
-		"Articles": articles,
+	return RenderComponent(articleList(articlesProps{
+		articles: articles,
 		// TODO: get total articles count
-		"ShowPagination": len(articles) > 20,
-		"NumOfPages":     len(articles) / 20,
+		showPagination: len(articles) > 20,
+		numOfPages:     len(articles) / 20,
 		// TODO: get current page
-		"CurrentPage": 1,
-	})
+		currentPage: 1,
+	}), ctx)
 }
 
 func (c *Controller) GetPopularTags(ctx *fiber.Ctx) error {
