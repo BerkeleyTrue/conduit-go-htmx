@@ -15,11 +15,14 @@
 # Doing
 
 - Move to templ
+  - [ ] Install
+  - [ ] render to page
+  - [ ] create render func
 - Articles Api
   - [x] Add get route
   - [x] return list of articles
   - [x] add author details
-  - [ ] move createAt out of repo, into service
+  - [x] move createAt out of repo, into service
     - This should allow us to manipulate created at during seeding
   - [ ] Filter articles
     - [ ] Add tag

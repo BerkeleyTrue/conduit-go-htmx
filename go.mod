@@ -3,6 +3,7 @@ module github.com/berkeleytrue/conduit
 go 1.20
 
 require (
+	github.com/a-h/templ v0.2.364
 	github.com/brianvoe/gofakeit/v6 v6.23.2
 	github.com/glebarez/go-sqlite v1.21.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -40,10 +41,10 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.49.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.23.0 // indirect
+	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/net v0.16.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect

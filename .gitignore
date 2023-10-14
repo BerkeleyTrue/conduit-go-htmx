@@ -7,3 +7,4 @@ web/public/css/output.css
 conduit.db
 .direnv
 **/*.gen.go
+**/*_templ.go

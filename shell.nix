@@ -2,8 +2,11 @@
   perSystem = {
     pkgs,
     config,
+    inputs',
     ...
   }: let
+    templ = inputs'.templ.packages.default;
+
     seed = pkgs.writeShellScriptBin "seed" ''
       ${pkgs.go}/bin/go run ./cmd/seed
     '';
@@ -11,6 +14,11 @@
       echo "generating"
       ${pkgs.sqlc}/bin/sqlc generate;
     '';
+
+    generate-templ = pkgs.writeShellScriptBin "generate-templ" ''
+      ${templ}/bin/templ generate;
+    '';
+
     # update the vendorSha256 of the default package
     update-vendor-sha = pkgs.writeShellScriptBin "update-vendor-sha" ''
       set -exuo pipefail
@@ -30,8 +38,12 @@
       ${pkgs.fd}/bin/fd -e sql | ${pkgs.entr}/bin/entr ${generate-queries}/bin/generate-queries
     '';
 
+    watch-templ = pkgs.writeShellScriptBin "watch-templ" ''
+      ${pkgs.fd}/bin/fd -e templ | ${pkgs.entr}/bin/entr ${generate-templ}/bin/generate-templ
+    '';
+
     watch-compile = pkgs.writeShellScriptBin "watch-compile" ''
-      ${pkgs.concurrently}/bin/concurrently -n "air,sqlc" "${pkgs.air}/bin/air" "${watch-sql}/bin/watch-sql"
+      ${pkgs.concurrently}/bin/concurrently -n "air,sqlc,templ" "${pkgs.air}/bin/air" "${watch-sql}/bin/watch-sql" "${watch-templ}/bin/watch-templ"
     '';
 
     watch-tests = pkgs.writeShellScriptBin "watch-tests" ''
@@ -45,6 +57,10 @@
           description = "generate sqlc queries";
         }
         {
+          exec = generate-templ;
+          description = "generate templ templates";
+        }
+        {
           exec = seed;
           description = "seed the database";
         }
@@ -53,16 +69,20 @@
           description = "update the vendorSha256 of the default package";
         }
         {
-          exec = watch-compile;
-          description = "watch go files for changes and recompile";
-        }
-        {
           exec = watch-tests;
           description = "watch go files for changes and re-run tests";
         }
         {
           exec = watch-sql;
           description = "watch sql files for changes and re-run sqlc";
+        }
+        {
+          exec = watch-templ;
+          description = "watch templ files for changes and re-run templ";
+        }
+        {
+          exec = watch-compile;
+          description = "watch go files for changes and recompile";
         }
       ];
     };
@@ -80,6 +100,7 @@
           ginkgo # testing framework
           golines # go formatter
           sqlc # sql code generator
+          templ # templ code generator
 
           # prettier
           nodejs_18

@@ -12,6 +12,12 @@
     nix-filter = {
       url = "github:numtide/nix-filter";
     };
+
+    templ = {
+      url = "github:a-h/templ";
+      # nixkgs follows
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}:
