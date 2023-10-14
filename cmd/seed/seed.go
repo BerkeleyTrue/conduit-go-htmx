@@ -30,6 +30,10 @@ type (
 
 var log *slog.Logger = slog.New(slog.NewTextHandler(os.Stdout, nil)).WithGroup("seed")
 
+func genImage() string {
+  return fmt.Sprintf("https://picsum.photos/id/%d/200/200", gofakeit.Number(1, 1000))
+}
+
 func generateUser(
 	userService *services.UserService,
 	userRepo domain.UserRepository,
@@ -56,7 +60,7 @@ func generateUser(
 		userId,
 		func(user domain.User) domain.User {
 			user.Bio = gofakeit.Sentence(10)
-			user.Image = gofakeit.ImageURL(200, 200)
+			user.Image = genImage()
 			user.CreatedAt = krono.Krono{Time: createdAt}
 			return user
 		},
