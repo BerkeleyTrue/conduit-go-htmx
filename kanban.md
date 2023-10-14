@@ -15,9 +15,10 @@
 # Doing
 
 - Move to templ
-  - [ ] Install
-  - [ ] render to page
+  - [x] Install
+  - [x] render to page
   - [ ] create render func
+- Use fastHttp context in sql requests
 - Articles Api
   - [x] Add get route
   - [x] return list of articles

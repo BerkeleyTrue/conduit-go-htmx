@@ -1,0 +1,114 @@
+package controllers
+
+import "github.com/berkeleytrue/conduit/internal/core/services"
+
+type layoutProps struct {
+	title   string
+	page    string
+	uri     string
+	userId  int
+	user    services.UserOutput
+	links   []Link
+	content string
+}
+
+templ layout(p layoutProps) {
+	<!DOCTYPE html>
+	<html lang="en" class="fullscreen" data-theme="catppuccin">
+		<head>
+			<meta charset="utf-8"/>
+			<title>Conduit</title>
+			<!-- Import Ionicon icons & Google Fonts our Bootstrap theme relies on -->
+			<link
+ 				href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"
+ 				rel="stylesheet"
+ 				type="text/css"
+			/>
+			<link
+ 				href="//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic"
+ 				rel="stylesheet"
+ 				type="text/css"
+			/>
+			<link
+ 				rel="icon"
+ 				type="image/x-icon"
+ 				href="https://www.realworld.how/img/favicon.ico"
+			/>
+			<!-- Import the custom Bootstrap 4 theme from our hosted CDN -->
+			<link rel="stylesheet" href="//demo.productionready.io/main.css"/>
+			<script src="https://unpkg.com/htmx.org@1.9.5" integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO" crossorigin="anonymous"></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.11" crossorigin="anonymous"></script>
+		</head>
+		<body class="">
+			@header(headerProps{
+        title: p.title,
+        page: p.page,
+        uri: p.uri,
+        userId: p.userId,
+        user: p.user,
+        links: p.links,
+      })
+			{ children... }
+			@footer()
+		</body>
+	</html>
+}
+
+type headerProps struct {
+	title  string
+	page   string
+	uri    string
+	userId int
+	user   services.UserOutput
+	links  []Link
+}
+
+templ header(p headerProps) {
+	<nav class="navbar navbar-light" hx-boost="true" hx-push-url="true">
+		<div class="container">
+			<a class="navbar-brand" href="/">conduit</a>
+			<ul class="nav navbar-nav pull-xs-right">
+				for _, link := range p.links {
+					<li class="nav-item">
+						<a
+ 							href={ templ.URL(link.Uri) }
+ 							if p.page == p.uri {
+								class="nav-link active"
+							} else {
+								class="nav-link"
+							}
+						>
+							{ p.title }
+						</a>
+					</li>
+				}
+				if p.userId != 0 {
+					<li class="nav-item">
+						<a class="nav-link" href="/profile/{ user.Username }}">
+							if p.user.Image != "" {
+								<img src={ p.user.Image } class="user-pic"/>
+							} else {
+								<img src="https://placehold.co/200" class="user-pic"/>
+							}
+							{ p.user.Username }
+						</a>
+					</li>
+				}
+			</ul>
+		</div>
+	</nav>
+}
+
+templ footer() {
+	<footer>
+		<div class="container">
+			<a href="/" class="logo-font">conduit</a>
+			<span class="attribution">
+				An interactive learning project from
+				<a href="https://thinkster.io">Thinkster</a>
+				. Code &amp; design licensed
+				under MIT.
+			</span>
+		</div>
+	</footer>
+}

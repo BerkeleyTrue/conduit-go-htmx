@@ -1,7 +1,64 @@
 package controllers
 
-templ index() {
-	<div>
-		<div>Hello World</div>
-	</div>
+type indexProps struct {
+	layoutProps
+}
+
+templ index(p indexProps) {
+	@layout(p.layoutProps) {
+		<div class="home-page">
+			<div class="banner">
+				<div class="container">
+					<h1 class="logo-font">conduit</h1>
+					<p>A place to share your knowledge.</p>
+				</div>
+			</div>
+			<div class="container page">
+				<div class="row">
+					<div class="col-md-9">
+						<div class="feed-toggle">
+							<ul class="nav nav-pills outline-active">
+								if p.userId != 0 {
+									<li
+ 										class="nav-item"
+ 										hx-get="/articles/feed?limit=10"
+ 										hx-trigger="load delay:150ms"
+ 										hx-target="#articles"
+									>
+										<a class="nav-link">Your Feed</a>
+									</li>
+									<li
+ 										class="nav-item"
+ 										hx-get="/articles?limit=10"
+ 										hx-target="#articles"
+									>
+										<a class="nav-link active">Global Feed</a>
+									</li>
+								} else {
+									<li
+ 										class="nav-item"
+ 										hx-get="/articles?limit=10"
+ 										hx-trigger="load delay:150ms"
+ 										hx-target="#articles"
+									>
+										<a class="nav-link active">Global Feed</a>
+									</li>
+								}
+							</ul>
+						</div>
+						<div id="articles">
+							<div class="article-preview">Loading articles...</div>
+						</div>
+						<ul id="pagination" class="pagination" hidden></ul>
+					</div>
+					<div class="col-md-3">
+						<div class="sidebar" hx-get="/tags" hx-target="#tags" hx-trigger="load delay:150ms">
+							<p>Popular Tags</p>
+							<div id="tags" class="tag-list">Loading tags...</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
 }

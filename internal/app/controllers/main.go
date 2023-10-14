@@ -62,7 +62,11 @@ func NewController(
 	}
 }
 
-func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler) {
+func RegisterRoutes(
+	app *fiber.App,
+	c *Controller,
+	authMiddleware fiber.Handler,
+) {
 	app.Use(func(ctx *fiber.Ctx) error {
 		userId := ctx.Locals("userId")
 		links := UnAuthedLinks
@@ -97,6 +101,19 @@ func RegisterRoutes(app *fiber.App, c *Controller, authMiddleware fiber.Handler)
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
+	userId := ctx.Locals("userId")
+	links := UnAuthedLinks
 
-	return ctx.Render("index", fiber.Map{}, "layouts/main")
+	if userId != 0 {
+		links = AuthedLinks
+	}
+
+	p := indexProps{
+		layoutProps: layoutProps{
+			title: "Home",
+			page:  ctx.Path(),
+			links: links,
+		},
+	}
+	return RenderComponent(index(p), ctx)
 }
