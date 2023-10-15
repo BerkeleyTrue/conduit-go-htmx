@@ -3,7 +3,7 @@ package infra
 import (
 	"go.uber.org/fx"
 
-	"github.com/berkeleytrue/conduit/internal/app/controllers"
+	"github.com/berkeleytrue/conduit/internal/app/drivers"
 	"github.com/berkeleytrue/conduit/internal/app/driven/articlesRepo"
 	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
 	"github.com/berkeleytrue/conduit/internal/core/services"
@@ -27,13 +27,13 @@ var (
 				fx.ResultTags(`name:"authMiddleware"`),
 			),
 		),
-		fx.Provide(controllers.NewController),
+		fx.Provide(drivers.NewController),
 
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(session.RegisterSessionMiddleware),
 		fx.Invoke(
 			fx.Annotate(
-				controllers.RegisterRoutes,
+				drivers.RegisterRoutes,
 				fx.ParamTags("", "", `name:"authMiddleware"`),
 			),
 		),

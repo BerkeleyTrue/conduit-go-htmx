@@ -1,4 +1,4 @@
-package controllers
+package drivers
 
 import (
 	"github.com/go-ozzo/ozzo-validation/v4"

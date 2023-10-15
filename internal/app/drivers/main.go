@@ -1,4 +1,4 @@
-package controllers
+package drivers
 
 import (
 	"github.com/gofiber/fiber/v2"

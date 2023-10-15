@@ -1,4 +1,4 @@
-package controllers
+package drivers
 
 import (
 	"github.com/a-h/templ"
