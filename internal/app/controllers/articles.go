@@ -82,7 +82,5 @@ func (c *Controller) GetPopularTags(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Render("partials/tags", fiber.Map{
-		"Tags": tags,
-	})
+	return RenderComponent(popularTags(tags), ctx)
 }

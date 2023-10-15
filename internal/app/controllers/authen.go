@@ -53,14 +53,12 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error parsing register input: %w", err)
 	}
 
-	if err := registerInput.validate(); err != nil {
+	if err := registerInput.validate().(validation.Errors); err != nil {
 
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": err,
-		})
+		return RenderComponent(listErrors(err), ctx)
 	}
 
 	pass, err := password.New(registerInput.Password)
@@ -69,9 +67,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": []error{err},
-		})
+		return RenderComponent(listErrors(map[string]error{"password": err}), ctx)
 	}
 
 	userId, err := c.userService.Register(services.RegisterParams{
@@ -126,13 +122,11 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error parsing login input: %w", err)
 	}
 
-	if err := loginInput.validate(); err != nil {
+	if err := loginInput.validate().(validation.Errors); err != nil {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": err,
-		})
+		return RenderComponent(listErrors(err), ctx)
 	}
 
 	userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
@@ -143,9 +137,7 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": map[string]error{"login": err},
-		})
+		return RenderComponent(listErrors(map[string]error{"login": err}), ctx)
 	}
 
 	session, err := c.store.Get(ctx)

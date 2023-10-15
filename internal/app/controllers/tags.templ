@@ -1,0 +1,15 @@
+package controllers
+
+templ tag(tag string) {
+	<a class="tag-default tag-pill">{ tag }</a>
+}
+
+templ popularTags(tags []string) {
+	if len(tags) > 0 {
+		for _, _tag := range tags {
+			@tag(_tag)
+		}
+	} else {
+		<div id="tags" class="tag-list">No tags are here... yet.</div>
+	}
+}

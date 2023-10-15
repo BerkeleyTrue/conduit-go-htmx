@@ -1,0 +1,11 @@
+package controllers
+
+import "fmt"
+
+templ listErrors(errs map[string]error) {
+	<ul id="errors" class="error-messages" hx-swap-oob="true">
+		for key, err := range errs {
+			<li>{ key }: { fmt.Sprintf("%s", err) }</li>
+		}
+	</ul>
+}
