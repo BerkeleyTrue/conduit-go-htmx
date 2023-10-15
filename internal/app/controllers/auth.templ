@@ -1,0 +1,74 @@
+package controllers
+
+type authProps struct {
+  layoutProps
+	isRegister bool
+}
+
+templ auth(p authProps) {
+	<div class="auth-page">
+		<div class="container page">
+			<div class="row">
+				<div class="col-md-6 offset-md-3 col-xs-12">
+					<h1 class="text-xs-center">Sign in</h1>
+					<p class="text-xs-center" hx-boost="true">
+						if p.isRegister {
+							<a href="/login">Have an account?</a>
+						} else {
+							<a href="/register">Need an account?</a>
+						}
+					</p>
+					<ul id="errors" class="error-messages" hidden></ul>
+					<form
+ 						id="authen"
+ 						if p.isRegister {
+							hx-post="/register"
+						} else {
+							hx-post="/login"
+						}
+ 						hx-target="body"
+ 						hx-swap="outerHTML"
+					>
+						if p.isRegister {
+							<fieldset class="form-group">
+								<input
+ 									id="username"
+ 									name="username"
+ 									placeholder="Username"
+ 									class="form-control form-control-lg"
+ 									type="text"
+								/>
+							</fieldset>
+						}
+						<fieldset class="form-group">
+							<input
+ 								id="email"
+ 								name="email"
+ 								placeholder="Email"
+ 								class="form-control form-control-lg"
+ 								type="text"
+							/>
+						</fieldset>
+						<fieldset class="form-group">
+							<input
+ 								id="password"
+ 								name="password"
+ 								placeholder="Password"
+ 								class="form-control form-control-lg"
+ 								type="password"
+							/>
+						</fieldset>
+						<button type="submit" class="btn btn-lg btn-primary pull-xs-right">
+							Sign
+							if p.isRegister {
+								up
+							} else {
+								in
+							}
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

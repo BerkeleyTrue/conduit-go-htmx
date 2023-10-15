@@ -12,15 +12,43 @@ import (
 )
 
 func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
-	return ctx.Render("auth", fiber.Map{
-		"IsRegister": false,
-	}, "layouts/main")
+	userId := ctx.Locals("userId")
+	links := UnAuthedLinks
+
+	if userId != 0 {
+		links = AuthedLinks
+	}
+
+	props := authProps{
+		isRegister: false,
+		layoutProps: layoutProps{
+			title: "Auth",
+			page:  ctx.Path(),
+			links: links,
+		},
+	}
+
+	return RenderComponent(auth(props), ctx)
 }
 
 func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
-	return ctx.Render("auth", fiber.Map{
-		"IsRegister": true,
-	}, "layouts/main")
+	userId := ctx.Locals("userId")
+	links := UnAuthedLinks
+
+	if userId != 0 {
+		links = AuthedLinks
+	}
+
+	props := authProps{
+		isRegister: true,
+		layoutProps: layoutProps{
+			title: "Auth",
+			page:  ctx.Path(),
+			links: links,
+		},
+	}
+
+	return RenderComponent(auth(props), ctx)
 }
 
 type RegisterInput struct {
