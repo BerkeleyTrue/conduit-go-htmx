@@ -17,7 +17,11 @@
 - Move to templ
   - [x] Install
   - [x] render to page
-  - [ ] create render func
+  - [x] create render func
+  - [ ] move settings to templ
+  - [ ] move profile to templ
+  - [ ] move article to templ
+  - [ ] move article edit to templ
 - Use fastHttp context in sql requests
 - Articles Api
   - [x] Add get route
