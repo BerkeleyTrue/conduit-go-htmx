@@ -1,0 +1,95 @@
+package drivers
+
+import "github.com/berkeleytrue/conduit/internal/core/services"
+
+type settingsProps struct {
+	user services.UserOutput
+}
+
+templ settings(p settingsProps) {
+	<div class="settings-page">
+		<div class="container page">
+			<div class="row">
+				<div class="col-md-6 offset-md-3 col-xs-12">
+					<h1 class="text-xs-center">Your Settings</h1>
+					<ul id="errors" class="error-messages" hidden></ul>
+					<form
+ 						_="on submit add @hidden to #errors"
+ 						id="settings"
+ 						hx-post="/settings"
+ 						hx-target="#settings"
+ 						hx-select="#settings"
+ 						hx-swap="outerHTML"
+					>
+						<fieldset>
+							<fieldset class="form-group">
+								<input
+ 									id="image"
+ 									name="image"
+ 									class="form-control"
+ 									type="text"
+ 									placeholder="URL of profile picture"
+ 									value={ p.user.Image }
+								/>
+							</fieldset>
+							<fieldset class="form-group">
+								<input
+ 									id="username"
+ 									name="username"
+ 									placeholder="Your Username"
+ 									class="form-control form-control-lg"
+ 									type="text"
+ 									value={ p.user.Username }
+								/>
+							</fieldset>
+							<fieldset class="form-group">
+								<textarea
+ 									id="bio"
+ 									name="bio"
+ 									placeholder="Short bio about you"
+ 									class="form-control form-control-lg"
+ 									rows="8"
+								>
+									if p.user.Bio != "" {
+										{ p.user.Bio }
+									}
+								</textarea>
+							</fieldset>
+							<fieldset class="form-group">
+								<input
+ 									id="email"
+ 									name="email"
+ 									placeholder="Email"
+ 									class="form-control form-control-lg"
+ 									type="text"
+ 									value={ p.user.Email }
+								/>
+							</fieldset>
+							<fieldset class="form-group">
+								<input
+ 									id="password"
+ 									name="password"
+ 									placeholder="New Password"
+ 									class="form-control form-control-lg"
+ 									type="password"
+								/>
+							</fieldset>
+							<button type="submit" class="btn btn-lg btn-primary pull-xs-right">
+								Update Settings
+							</button>
+						</fieldset>
+					</form>
+					<hr/>
+					<button
+ 						class="btn btn-outline-danger"
+ 						hx-post="/logout"
+ 						hx-target="body"
+ 						hx-swap="outerHTML"
+					>
+						Or click here to logout.
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}

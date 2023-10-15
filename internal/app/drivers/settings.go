@@ -3,7 +3,7 @@ package drivers
 import (
 	"fmt"
 
-	"github.com/go-ozzo/ozzo-validation/v4"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/gofiber/fiber/v2"
 
@@ -22,7 +22,10 @@ type (
 )
 
 func (c *Controller) GetSettings(ctx *fiber.Ctx) error {
-	return ctx.Render("settings", fiber.Map{}, "layouts/main")
+	props := settingsProps{
+		user: ctx.Locals("user").(services.UserOutput),
+	}
+	return RenderComponent(settings(props), ctx)
 }
 
 func (r *SettingsInput) validate() error {
@@ -52,14 +55,12 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error parsing settings input: %w", err)
 	}
 
-	if err := settingsInput.validate(); err != nil {
+	if err := settingsInput.validate().(validation.Errors); err != nil {
 
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": err,
-		})
+		return RenderComponent(listErrors(err), ctx)
 	}
 	updates := services.UpdateUserInput{
 		Username: settingsInput.Username,
@@ -78,14 +79,9 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 			ctx.Response().Header.Add("HX-Push-Url", "false")
 			ctx.Response().Header.Add("HX-Reswap", "none")
 
-			return ctx.Render("partials/auth-errors", fiber.Map{
-				"Errors": map[string]error{"password": err},
-			})
-
+			return RenderComponent(listErrors(map[string]error{"password": err}), ctx)
 		}
 	}
-
-	// fmt.Printf("settings input %+v\n", settingsInput)
 
 	user, err := c.userService.Update(
 		ctx.Locals("userId").(int),
@@ -96,12 +92,10 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 	if err != nil {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
-		return ctx.Render("partials/auth-errors", fiber.Map{
-			"Errors": []error{err},
-		})
+		return RenderComponent(listErrors(map[string]error{"user": err}), ctx)
 	}
 
 	ctx.Locals("user", user)
 
-	return ctx.Render("settings", fiber.Map{})
+	return RenderComponent(settings(settingsProps{user: *user}), ctx)
 }

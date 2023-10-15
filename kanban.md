@@ -18,7 +18,7 @@
   - [x] Install
   - [x] render to page
   - [x] create render func
-  - [ ] move settings to templ
+  - [x] move settings to templ
   - [ ] move profile to templ
   - [ ] move article to templ
   - [ ] move article edit to templ
