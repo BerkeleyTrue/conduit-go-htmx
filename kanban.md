@@ -43,6 +43,7 @@
 
 - Articles Api
   - [ ] Filter articles
+    - [ ] by author
     - [ ] Add tag
     - [ ] add favorites
   - [x] Unfavorite

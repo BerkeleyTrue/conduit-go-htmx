@@ -1,7 +1,7 @@
 package drivers
 
 import (
-	"github.com/go-ozzo/ozzo-validation/v4"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/berkeleytrue/conduit/internal/core/services"
@@ -9,11 +9,11 @@ import (
 
 type (
 	GetArticlesInput struct {
-		author    string `query:"author"`
-		favorited string `query:"favorited"`
-		tag       string `query:"tag"`
-		limit     int    `query:"limit"`
-		offset    int    `query:"offset"`
+		Author    string `query:"author"`
+		Favorited string `query:"favorited"`
+		Tag       string `query:"tag"`
+		Limit     int    `query:"limit"`
+		Offset    int    `query:"offset"`
 	}
 )
 
@@ -21,8 +21,8 @@ func (i *GetArticlesInput) validate() error {
 
 	return validation.ValidateStruct(
 		i,
-		validation.Field(&i.offset, validation.Min(0), validation.Max(10000)),
-		validation.Field(&i.limit, validation.Min(0), validation.Max(10000)),
+		validation.Field(&i.Offset, validation.Min(0), validation.Max(10000)),
+		validation.Field(&i.Limit, validation.Min(0), validation.Max(10000)),
 	)
 }
 
@@ -31,9 +31,9 @@ func (i *GetArticlesInput) validate() error {
 // author=authorname, favorited=authorname, tag=string, limit=int, offset=int
 // is authenticated, check if articles is favorited by user
 func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
-	input := GetArticlesInput{}
+	input := new(GetArticlesInput)
 
-	if err := ctx.QueryParser(&input); err != nil {
+	if err := ctx.QueryParser(input); err != nil {
 		return err
 	}
 
@@ -47,17 +47,18 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		userId = 0
 	}
 
-	if input.limit == 0 {
-		input.limit = 20
+	if input.Limit == 0 {
+		input.Limit = 20
 	}
 
 	articles, err := c.articleService.List(
 		userId,
 		services.ListArticlesInput{
-			Tag:       input.tag,
-			Favorited: input.favorited,
-			Limit:     input.limit,
-			Offset:    input.offset,
+			Tag:        input.Tag,
+			Favorited:  input.Favorited,
+			Limit:      input.Limit,
+			Offset:     input.Offset,
+			Authorname: input.Author,
 		},
 	)
 
