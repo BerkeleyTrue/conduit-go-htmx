@@ -117,6 +117,8 @@ func RegisterRoutes(
 
 	app.Use(authMiddleware)
 
+	app.Get("/editor", c.getEditArticle)
+	app.Get("/editor/:slug", c.getEditArticle)
 	app.Get("/settings", c.GetSettings)
 	app.Post("/settings", c.UpdateSettings)
 	app.Post("/logout", c.Logout)

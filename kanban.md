@@ -1,25 +1,29 @@
 # TODO
 
-- Get new/edit articles page
-  - /editor - new
-  - /editor/slug - edit
 - Get article page
   - [x] /article/slug
-  - delete if owner
-  - comments
-  - delete comment if owner
+  - [ ] delete if owner
+  - [ ] comments
+    - [ ] Load on load
+    - [ ] mark if owner
+  - [ ] delete comment if owner
 - Use fastHttp context in sql requests
 - Comments
-  - create comment on article
-  - delete comment from article
+  - API
+    - create comment on article
+    - delete comment from article
+    - get articles by slug
+    - get by id
+    - get by user?
+  - Repo
+    - create, read, delete
+  - Service
+    - create, read, delete
+    - mark if owner
 - Add seed data import (use gofakeit)
   - [x] add users
   - [x] add articles
   - [ ] add comments
-- Articles Api
-  - [ ] Filter articles
-    - [ ] Add tag
-    - [ ] add favorites
   - [x] Add get route
   - [x] return list of articles
   - [x] add author details
@@ -29,17 +33,21 @@
 - Profile page
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
+- Get new/edit articles page
+  - [x] /editor - new
+  - [ ] /editor/slug - edit
+    - Load article and prefill page
+    - update links to patch
 
 # Doing
 
-- Move to templ
-  - [ ] move article edit to templ
-  - [x] Install
-  - [x] render to page
-  - [x] create render func
-  - [x] move settings to templ
-  - [x] move profile to templ
-  - [x] move article to templ
+- Articles Api
+  - [ ] Filter articles
+    - [ ] Add tag
+    - [ ] add favorites
+  - [x] Unfavorite
+  - [x] Insert tags
+  - [x] Get popular tags
 
 # Done
 
@@ -62,10 +70,14 @@
   - [x] link to settings
   - [x] hide follow if own profile
   - [x] show favorited articles
-- ArticlesRepo
-  - [x] Unfavorite
-  - [x] Insert tags
-  - [x] Get popular tags
 - Home
   - [x] Fix: home page should load articles
   - [x] Load tags
+- Move to templ
+  - [x] move article edit to templ
+  - [x] Install
+  - [x] render to page
+  - [x] create render func
+  - [x] move settings to templ
+  - [x] move profile to templ
+  - [x] move article to templ

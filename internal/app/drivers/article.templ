@@ -40,11 +40,19 @@ templ article(props articleProps) {
 							<span class="counter">(29)</span>
 						</button>
 						if props.isMyArticle {
-							<button class="btn btn-sm btn-outline-secondary">
+							<button
+ 								hx-get={ fmt.Sprintf("/editor/%s", props.Slug) }
+ 								class="btn btn-sm btn-outline-secondary"
+ 								hx-select="body"
+ 								hx-target="body"
+							>
 								<i class="ion-edit"></i>
 								Edit Article
 							</button>
-							<button class="btn btn-sm btn-outline-danger">
+							<button
+ 								hx-delete={ fmt.Sprintf("/articles/%s", props.Slug) }
+ 								class="btn btn-sm btn-outline-danger"
+							>
 								<i class="ion-trash-a"></i>
 								Delete Article
 							</button>
