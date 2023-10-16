@@ -43,7 +43,7 @@ type (
 	}
 )
 
-func formatArticle(article *domain.Article) ArticleOutput {
+func formatArticle(article *domain.Article, profile PublicProfile) ArticleOutput {
 	return ArticleOutput{
 		Slug:        article.Slug,
 		Title:       article.Title,
@@ -56,6 +56,7 @@ func formatArticle(article *domain.Article) ArticleOutput {
 		Favorited: false,
 		// TODO: FavoritesCount
 		FavoritesCount: 0,
+		Author:         profile,
 	}
 }
 
@@ -91,7 +92,13 @@ func (s *ArticleService) Create(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article), nil
+	profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile), nil
 }
 
 func (s *ArticleService) List(
@@ -114,14 +121,14 @@ func (s *ArticleService) List(
 	outputs := make([]ArticleOutput, len(articles))
 
 	for idx, article := range articles {
-		_article := formatArticle(article)
+		var _article ArticleOutput
 		profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
 
 		if err != nil {
 			s.log.Debug("error getting profile", "error", err)
-		} else {
-			_article.Author = *profile
 		}
+
+		_article = formatArticle(article, *profile)
 
 		outputs[idx] = _article
 	}
@@ -143,10 +150,16 @@ func (s *ArticleService) GetBySlug(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article), nil
+	profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile), nil
 }
 
-func (s *ArticleService) GetIdFromSlug(slug string) (int, error) {
+func (s *ArticleService) GetIdFromSlug(slug string, userId int) (int, error) {
 	article, err := s.repo.GetBySlug(slug)
 
 	if err != nil {
@@ -180,7 +193,13 @@ func (s *ArticleService) Update(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article), nil
+	profile, err := s.userService.GetProfile(article.AuthorId, "", 0)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile), nil
 }
 
 func (s *ArticleService) Favorite(
@@ -195,14 +214,15 @@ func (s *ArticleService) Favorite(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article), nil
+	profile, err := s.userService.GetProfile(article.AuthorId, "", 0)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile), nil
 }
 
 func (s *ArticleService) Delete(slug string, username string) error {
 	return s.repo.Delete(slug)
 }
-
-// newtype ArticleService = ArticleService
-//   , favorite :: MySlug -> Username -> Om {} (ArticleServiceErrs ()) ArticleOutput
-//   , unfavorite :: MySlug -> Username -> Om {} (ArticleServiceErrs ()) ArticleOutput
-//   }
