@@ -3,13 +3,12 @@ package drivers
 import "github.com/berkeleytrue/conduit/internal/core/services"
 
 type layoutProps struct {
-	title   string
-	page    string
-	uri     string
-	userId  int
-	user    services.UserOutput
-	links   []Link
-	content string
+	title  string
+	page   string
+	uri    string
+	userId int
+	user   services.UserOutput
+	links  []Link
 }
 
 templ layout(p layoutProps) {

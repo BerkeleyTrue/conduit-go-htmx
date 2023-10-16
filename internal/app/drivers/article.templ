@@ -1,0 +1,142 @@
+package drivers
+
+import "github.com/berkeleytrue/conduit/internal/core/services"
+import "fmt"
+
+type articleProps struct {
+	services.ArticleOutput
+	layoutProps
+	isMyArticle bool
+}
+
+templ article(props articleProps) {
+	@layout(props.layoutProps) {
+		<div class="article-page">
+			<div class="banner">
+				<div class="container">
+					<h1>{ props.Title }</h1>
+					<div class="article-meta">
+						<a href="/profile">
+							<img
+ 								src={ props.Author.Image }
+							/>
+						</a>
+						<div class="info">
+							<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username )) } class="author">
+								{ props.Author.Username }
+							</a>
+							<span class="date">{ props.CreatedAt.ToString() }</span>
+						</div>
+						<button class="btn btn-sm btn-outline-secondary">
+							<i class="ion-plus-round"></i>
+							&nbsp; Follow
+							{ props.Author.Username }
+							<span class="counter">(10)</span>
+						</button>
+						&nbsp;&nbsp;
+						<button class="btn btn-sm btn-outline-primary">
+							<i class="ion-heart"></i>
+							&nbsp; Favorite Post
+							<span class="counter">(29)</span>
+						</button>
+						if props.isMyArticle {
+							<button class="btn btn-sm btn-outline-secondary">
+								<i class="ion-edit"></i>
+								Edit Article
+							</button>
+							<button class="btn btn-sm btn-outline-danger">
+								<i class="ion-trash-a"></i>
+								Delete Article
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+			<div class="container page">
+				<div class="row article-content">
+					<div class="col-md-12">
+						<p>
+							{ props.Description }
+						</p>
+						<h2 id="introducing-ionic">{ props.Title }</h2>
+						<p>{ props.Body }</p>
+						<ul class="tag-list">
+							for _, tag := range props.Tags {
+								<li class="tag-default tag-pill tag-outline">{ tag }</li>
+							}
+						</ul>
+					</div>
+				</div>
+				<hr/>
+				<div class="article-actions">
+					<div class="article-meta">
+						<a href="profile.html"><img src={ props.Author.Image }/></a>
+						<div class="info">
+							<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username)) } class="author">
+								{ props.Author.Username }
+							</a>
+							<span class="date">{ props.CreatedAt.ToString() }</span>
+						</div>
+						<button class="btn btn-sm btn-outline-secondary">
+							<i class="ion-plus-round"></i>
+							&nbsp; Follow
+							{ props.Author.Username }
+						</button>
+						&nbsp;
+						<button class="btn btn-sm btn-outline-primary">
+							<i class="ion-heart"></i>
+							&nbsp; Favorite Article
+							<span class="counter">(29)</span>
+						</button>
+						if props.isMyArticle {
+							<button class="btn btn-sm btn-outline-secondary">
+								<i class="ion-edit"></i>
+								Edit Article
+							</button>
+							<button class="btn btn-sm btn-outline-danger">
+								<i class="ion-trash-a"></i>
+								Delete Article
+							</button>
+						}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-md-8 offset-md-2">
+						if  props.layoutProps.userId != 0 {
+							<form class="card comment-form">
+								<div class="card-block">
+									<textarea
+ 										class="form-control"
+ 										placeholder="Write a comment..."
+ 										rows="3"
+									></textarea>
+								</div>
+								<div class="card-footer">
+									<img
+ 										src={ props.layoutProps.user.Image }
+ 										class="comment-author-img"
+									/>
+									<button class="btn btn-sm btn-primary">Post Comment</button>
+								</div>
+							</form>
+						} else {
+							<p>
+								<a ui-sref="app.login" href="/login">Sign in</a>
+								or
+								<a ui-sref="app.register" href="/register">sign up</a>
+								to add comments on this article.
+							</p>
+						}
+						<div
+ 							id="comments"
+ 							hx-get={ fmt.Sprintf("/comments/%s", props.Slug) }
+ 							hx-trigger="load delay:150ms"
+						>
+							loading comments...
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

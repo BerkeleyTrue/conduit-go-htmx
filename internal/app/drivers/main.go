@@ -75,16 +75,30 @@ func RegisterRoutes(
 	authMiddleware fiber.Handler,
 ) {
 	app.Use(func(ctx *fiber.Ctx) error {
-		userId := ctx.Locals("userId")
+		userId, ok := ctx.Locals("userId").(int)
+
+		if !ok {
+			userId = 0
+		}
 		links := UnAuthedLinks
 
 		if userId != 0 {
 			links = AuthedLinks
 		}
 
-		ctx.Bind(fiber.Map{
-			"Links": links,
-			"Page":  ctx.Path(),
+		user, ok := ctx.Locals("user").(services.UserOutput)
+
+		if !ok {
+			user = services.UserOutput{}
+		}
+
+		ctx.Locals("layoutProps", layoutProps{
+			title:  "Conduit",
+			page:   ctx.Path(),
+			uri:    ctx.OriginalURL(),
+			userId: userId,
+			user:   user,
+			links:  links,
 		})
 
 		return ctx.Next()
@@ -97,6 +111,7 @@ func RegisterRoutes(
 	app.Post("/register", c.Register)
 
 	app.Get("/profile/:username", c.GetProfile)
+	app.Get("/article/:slug", c.getArticle)
 	app.Get("/articles", c.GetArticles)
 	app.Get("/tags", c.GetPopularTags)
 
@@ -108,19 +123,17 @@ func RegisterRoutes(
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
-	userId := ctx.Locals("userId")
-	links := UnAuthedLinks
+	_layoutProps, ok := ctx.Locals("layoutProps").(layoutProps)
 
-	if userId != 0 {
-		links = AuthedLinks
+	if !ok {
+		_layoutProps = layoutProps{}
 	}
+
+	_layoutProps.title = "Home"
 
 	p := indexProps{
-		layoutProps: layoutProps{
-			title: "Home",
-			page:  ctx.Path(),
-			links: links,
-		},
+		layoutProps: _layoutProps,
 	}
+
 	return RenderComponent(index(p), ctx)
 }
