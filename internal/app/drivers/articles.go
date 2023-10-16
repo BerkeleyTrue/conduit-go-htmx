@@ -4,7 +4,7 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/berkeleytrue/conduit/internal/core/domain"
+	"github.com/berkeleytrue/conduit/internal/core/services"
 )
 
 type (
@@ -53,7 +53,7 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 
 	articles, err := c.articleService.List(
 		userId,
-		domain.ArticleListInput{
+		services.ListArticlesInput{
 			Tag:       input.tag,
 			Favorited: input.favorited,
 			Limit:     input.limit,

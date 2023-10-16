@@ -61,14 +61,16 @@ FROM
   articles
   LEFT JOIN article_tags ON articles.id = article_tags.article_id
   LEFT JOIN tags ON article_tags.tag_id = tags.id
+WHERE
+  author_id = coalesce(sqlc.narg(author_id), author_id)
 GROUP BY
   articles.id
 ORDER BY
   articles.created_at DESC
 LIMIT
-  ?
+  sqlc.arg(limit)
 OFFSET
-  ?;
+  sqlc.arg(offset);
 
 -- name: getPopularTags :many
 SELECT

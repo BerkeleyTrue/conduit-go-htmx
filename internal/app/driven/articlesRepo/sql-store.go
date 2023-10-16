@@ -136,10 +136,14 @@ func (s *ArticleStore) List(
 	input domain.ArticleListInput,
 ) ([]*domain.Article, error) {
 	ctx := context.Background()
-	// TODO: add tags, author, favorited
+	// TODO: add tags, favorited
 	params := listParams{
 		Limit:  int64(input.Limit),
 		Offset: int64(input.Offset),
+		AuthorID: sql.NullInt64{
+			Valid: input.AuthorId != 0,
+			Int64: int64(input.AuthorId),
+		},
 	}
 
 	listRows, err := s.list(ctx, params)

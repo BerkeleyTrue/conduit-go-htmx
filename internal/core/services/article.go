@@ -101,10 +101,25 @@ func (s *ArticleService) Create(
 	return formatArticle(article, *profile), nil
 }
 
+type ListArticlesInput struct {
+	Limit      int
+	Offset     int
+	Tag        string
+	Favorited  string
+	Authorname string
+}
+
 func (s *ArticleService) List(
 	userId int,
-	input domain.ArticleListInput,
+	input ListArticlesInput,
 ) ([]ArticleOutput, error) {
+	params := domain.ArticleListInput{
+		Tag:       input.Tag,
+		Limit:     input.Limit,
+		Offset:    input.Offset,
+		Favorited: input.Favorited,
+	}
+
 	// TODO: following
 	// username, ok := maybeUser.Get()
 
@@ -112,7 +127,18 @@ func (s *ArticleService) List(
 	// 	username = ""
 	// }
 	//
-	articles, err := s.repo.List(input)
+	if input.Authorname != "" {
+		authorId, err := s.userService.GetIdFromUsername(input.Authorname)
+
+		if err != nil {
+			return nil, err
+
+		}
+
+		params.AuthorId = authorId
+	}
+
+	articles, err := s.repo.List(params)
 
 	if err != nil {
 		return nil, err
