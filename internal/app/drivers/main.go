@@ -123,11 +123,7 @@ func RegisterRoutes(
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
-	_layoutProps, ok := ctx.Locals("layoutProps").(layoutProps)
-
-	if !ok {
-		_layoutProps = layoutProps{}
-	}
+	_layoutProps := getLayoutProps(ctx)
 
 	_layoutProps.title = "Home"
 
@@ -135,5 +131,5 @@ func (c *Controller) Index(ctx *fiber.Ctx) error {
 		layoutProps: _layoutProps,
 	}
 
-	return RenderComponent(index(p), ctx)
+	return renderComponent(index(p), ctx)
 }

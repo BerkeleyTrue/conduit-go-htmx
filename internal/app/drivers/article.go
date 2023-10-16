@@ -23,14 +23,8 @@ func (c *Controller) getArticle(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/", 303)
 	}
 
-	_layoutProps, ok := ctx.Locals("layoutProps").(layoutProps)
-
-	if !ok {
-		c.log.Debug("Error getting layoutProps")
-		_layoutProps = layoutProps{
-			title: _article.Title,
-		}
-	}
+	_layoutProps := getLayoutProps(ctx)
+	_layoutProps.title = _article.Title
 
 	c.log.Debug("layoutProps", "layoutProps", _layoutProps)
 
@@ -40,5 +34,5 @@ func (c *Controller) getArticle(ctx *fiber.Ctx) error {
 		isMyArticle:   _article.Author.Username == _layoutProps.user.Username,
 	}
 
-	return RenderComponent(article(props), ctx)
+	return renderComponent(article(props), ctx)
 }

@@ -34,10 +34,15 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/", 303)
 	}
 
+	_layoutProps := getLayoutProps(ctx)
+
+	_layoutProps.title = "Profile"
+
 	props := profileProps{
-		Profile:  *_profile,
-		IsMyself: _profile.Username == username,
+		layoutProps: _layoutProps,
+		Profile:     *_profile,
+		IsMyself:    _profile.Username == username,
 	}
 
-	return RenderComponent(profile(props), ctx)
+	return renderComponent(profile(props), ctx)
 }

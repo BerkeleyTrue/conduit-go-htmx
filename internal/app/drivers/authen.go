@@ -12,43 +12,27 @@ import (
 )
 
 func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
-	userId := ctx.Locals("userId")
-	links := UnAuthedLinks
-
-	if userId != 0 {
-		links = AuthedLinks
-	}
+	_layoutProps := getLayoutProps(ctx)
+	_layoutProps.title = "Login"
 
 	props := authProps{
-		isRegister: false,
-		layoutProps: layoutProps{
-			title: "Auth",
-			page:  ctx.Path(),
-			links: links,
-		},
+		isRegister:  false,
+		layoutProps: _layoutProps,
 	}
 
-	return RenderComponent(auth(props), ctx)
+	return renderComponent(auth(props), ctx)
 }
 
 func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
-	userId := ctx.Locals("userId")
-	links := UnAuthedLinks
-
-	if userId != 0 {
-		links = AuthedLinks
-	}
+	_layoutProps := getLayoutProps(ctx)
+	_layoutProps.title = "Register"
 
 	props := authProps{
-		isRegister: true,
-		layoutProps: layoutProps{
-			title: "Auth",
-			page:  ctx.Path(),
-			links: links,
-		},
+		isRegister:  true,
+		layoutProps: _layoutProps,
 	}
 
-	return RenderComponent(auth(props), ctx)
+	return renderComponent(auth(props), ctx)
 }
 
 type RegisterInput struct {
@@ -86,7 +70,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return RenderComponent(listErrors(err), ctx)
+		return renderComponent(listErrors(err), ctx)
 	}
 
 	pass, err := password.New(registerInput.Password)
@@ -95,7 +79,7 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return RenderComponent(listErrors(map[string]error{"password": err}), ctx)
+		return renderComponent(listErrors(map[string]error{"password": err}), ctx)
 	}
 
 	userId, err := c.userService.Register(services.RegisterParams{
@@ -154,7 +138,7 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return RenderComponent(listErrors(err), ctx)
+		return renderComponent(listErrors(err), ctx)
 	}
 
 	userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
@@ -165,7 +149,7 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return RenderComponent(listErrors(map[string]error{"login": err}), ctx)
+		return renderComponent(listErrors(map[string]error{"login": err}), ctx)
 	}
 
 	session, err := c.store.Get(ctx)

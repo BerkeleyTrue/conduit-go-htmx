@@ -65,7 +65,7 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return RenderComponent(articleList(articlesProps{
+	return renderComponent(articleList(articlesProps{
 		articles: articles,
 		// TODO: get total articles count
 		showPagination: len(articles) > 20,
@@ -82,5 +82,5 @@ func (c *Controller) GetPopularTags(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return RenderComponent(popularTags(tags), ctx)
+	return renderComponent(popularTags(tags), ctx)
 }
