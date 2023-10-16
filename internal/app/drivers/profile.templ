@@ -1,0 +1,84 @@
+package drivers
+
+import "github.com/berkeleytrue/conduit/internal/core/services"
+import "fmt"
+
+type profileProps struct {
+	layoutProps
+	Profile  services.PublicProfile
+	IsMyself bool
+	userId   int
+}
+
+templ profile(props profileProps) {
+	@layout(props.layoutProps) {
+		<div class="profile-page">
+			<div class="user-info">
+				<div class="container">
+					<div class="row">
+						<div class="col-xs-12 col-md-10 offset-md-1">
+							<img src={ props.Profile.Image } class="user-img"/>
+							<h4>{ props.Profile.Username }</h4>
+							<p>
+								{ props.Profile.Bio }
+							</p>
+							if !props.IsMyself && props.userId != 0 {
+								<button class="btn btn-sm btn-outline-secondary action-btn">
+									<i class="ion-plus-round"></i>
+									&nbsp; Follow
+									{ props.Profile.Username }
+								</button>
+							}
+							if props.IsMyself {
+								<button
+ 									class="btn btn-sm btn-outline-secondary action-btn"
+ 									hx-get="/settings"
+ 									hx-target="body"
+ 									hx-swap="innerHTML"
+ 									hx-push-url="/settings"
+								>
+									<i class="ion-gear-a"></i>
+									&nbsp; Edit Profile Settings
+								</button>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12 col-md-10 offset-md-1">
+						<div class="articles-toggle">
+							<ul class="nav nav-pills outline-active" role="tablist">
+								<li
+ 									class="nav-item"
+ 									role="tab"
+ 									hx-get={ fmt.Sprintf("/articles?author=%s", props.Profile.Username) }
+ 									hx-trigger="load delay:250ms"
+ 									hx-target="#articles"
+								>
+									<a class="nav-link active">My Articles</a>
+								</li>
+								<li
+ 									_="on click set innerHTML of #articles to &#39;loading...&#39;
+                  on click remove .active from .nav-link
+                  on click add .active to .nav-link in me"
+ 									class="nav-item"
+ 									role="tab"
+ 									hx-get={ fmt.Sprintf("/articles?favorited=%s", props.Profile.Username) }
+ 									hx-target="#articles"
+								>
+									<a class="nav-link">Favorited Articles</a>
+								</li>
+							</ul>
+						</div>
+						<div id="articles">
+							<div class="article-preview">Loading articles...</div>
+						</div>
+						<ul id="pagination" class="pagination" hidden></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

@@ -1,8 +1,6 @@
 package drivers
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,19 +18,26 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 		username = ""
 	}
 
-	profile, err := c.userService.GetProfile(
+	_profile, err := c.userService.GetProfile(
 		0,
 		authorname,
 		userId,
 	)
 
 	if err != nil {
-		fmt.Println(err)
-		return ctx.Status(404).SendString("profile not found")
+		c.log.Debug("Error getting profile", "error", err)
+		return ctx.Redirect("/", 303)
 	}
 
-	return ctx.Render("profile", fiber.Map{
-		"Profile":  profile,
-		"IsMyself": profile.Username == username,
-	}, "layouts/main")
+	if _profile == nil {
+		c.log.Debug("Profile not found", "username", authorname)
+		return ctx.Redirect("/", 303)
+	}
+
+	props := profileProps{
+		Profile:  *_profile,
+		IsMyself: _profile.Username == username,
+	}
+
+	return RenderComponent(profile(props), ctx)
 }

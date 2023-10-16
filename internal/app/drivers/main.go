@@ -1,8 +1,11 @@
 package drivers
 
 import (
+	"os"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"golang.org/x/exp/slog"
 
 	"github.com/berkeleytrue/conduit/internal/core/services"
 )
@@ -12,6 +15,7 @@ type (
 		store          *session.Store
 		userService    *services.UserService
 		articleService *services.ArticleService
+		log            *slog.Logger
 	}
 	Link struct {
 		Uri   string
@@ -59,6 +63,9 @@ func NewController(
 		store:          store,
 		userService:    userService,
 		articleService: articleService,
+		log: slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})).WithGroup("drivers").WithGroup("controller"),
 	}
 }
 

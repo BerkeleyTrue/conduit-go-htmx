@@ -19,7 +19,7 @@
   - [x] render to page
   - [x] create render func
   - [x] move settings to templ
-  - [ ] move profile to templ
+  - [x] move profile to templ
   - [ ] move article to templ
   - [ ] move article edit to templ
 - Use fastHttp context in sql requests
