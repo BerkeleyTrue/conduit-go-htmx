@@ -4,42 +4,42 @@
   - /editor - new
   - /editor/slug - edit
 - Get article page
-  - /article/slug
+  - [x] /article/slug
   - delete if owner
   - comments
   - delete comment if owner
+- Use fastHttp context in sql requests
 - Comments
   - create comment on article
   - delete comment from article
+- Add seed data import (use gofakeit)
+  - [x] add users
+  - [x] add articles
+  - [ ] add comments
+- Articles Api
+  - [ ] Filter articles
+    - [ ] Add tag
+    - [ ] add favorites
+  - [x] Add get route
+  - [x] return list of articles
+  - [x] add author details
+  - [x] Check if user is following article author
+  - [x] move createAt out of repo, into service
+    - This should allow us to manipulate created at during seeding
+- Profile page
+  - [ ] favorite own article?
+  - [ ] unfavorite favorited articles
 
 # Doing
 
 - Move to templ
+  - [ ] move article edit to templ
   - [x] Install
   - [x] render to page
   - [x] create render func
   - [x] move settings to templ
   - [x] move profile to templ
-  - [ ] move article to templ
-  - [ ] move article edit to templ
-- Use fastHttp context in sql requests
-- Articles Api
-  - [x] Add get route
-  - [x] return list of articles
-  - [x] add author details
-  - [x] move createAt out of repo, into service
-    - This should allow us to manipulate created at during seeding
-  - [ ] Filter articles
-    - [ ] Add tag
-    - [ ] add favorites
-  - [ ] Check if user is following article author
-- Add seed data import (use gofakeit)
-  - [x] add users
-  - [x] add articles
-  - [ ] add comments
-- Profile page
-  - [ ] favorite own article?
-  - [ ] unfavorite favorited articles
+  - [x] move article to templ
 
 # Done
 
