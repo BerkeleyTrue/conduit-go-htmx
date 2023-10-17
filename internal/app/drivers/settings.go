@@ -55,12 +55,12 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error parsing settings input: %w", err)
 	}
 
-	if err := settingsInput.validate().(validation.Errors); err != nil {
+	if err := settingsInput.validate(); err != nil {
 
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(err), ctx)
+		return renderComponent(listErrors(err.(validation.Errors)), ctx)
 	}
 	updates := services.UpdateUserInput{
 		Username: settingsInput.Username,

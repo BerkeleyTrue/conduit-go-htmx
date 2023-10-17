@@ -65,12 +65,12 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error parsing register input: %w", err)
 	}
 
-	if err := registerInput.validate().(validation.Errors); err != nil {
+	if err := registerInput.validate(); err != nil {
 
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(err), ctx)
+		return renderComponent(listErrors(err.(validation.Errors)), ctx)
 	}
 
 	pass, err := password.New(registerInput.Password)
@@ -134,11 +134,11 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error parsing login input: %w", err)
 	}
 
-	if err := loginInput.validate().(validation.Errors); err != nil {
+	if err := loginInput.validate(); err != nil {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(err), ctx)
+		return renderComponent(listErrors(err.(validation.Errors)), ctx)
 	}
 
 	userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
