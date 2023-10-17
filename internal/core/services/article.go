@@ -3,10 +3,11 @@ package services
 import (
 	"os"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
-	"golang.org/x/exp/slog"
 )
 
 type (

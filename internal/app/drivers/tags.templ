@@ -1,7 +1,14 @@
 package drivers
 
+import "fmt"
+
 templ tag(tag string) {
-	<a class="tag-default tag-pill">{ tag }</a>
+	<a
+ 		hx-get={ fmt.Sprintf("/articles?tag=%s", tag) }
+ 		hx-target="#articles"
+ 		hx-swap="innerHTML"
+ 		class="tag-default tag-pill"
+	>{ tag }</a>
 }
 
 templ popularTags(tags []string) {

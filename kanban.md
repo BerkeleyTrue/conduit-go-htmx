@@ -43,8 +43,8 @@
 
 - Articles Api
   - [ ] Filter articles
-    - [ ] by author
-    - [ ] Add tag
+    - [x] by author
+    - [x] Add tag
     - [ ] add favorites
   - [x] Unfavorite
   - [x] Insert tags

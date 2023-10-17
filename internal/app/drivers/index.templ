@@ -17,33 +17,52 @@ templ index(p indexProps) {
 				<div class="row">
 					<div class="col-md-9">
 						<div class="feed-toggle">
-							<ul class="nav nav-pills outline-active">
+							<ul id="tabs" class="nav nav-pills outline-active">
 								if p.userId != 0 {
 									<li
+ 										_="on click
+                        remove .active from .nav-link in #tabs
+                        add .active to .nav-link in me
+                        set {hidden: true} on #tag-tab
+                    "
  										class="nav-item"
  										hx-get="/articles/feed?limit=10"
- 										hx-trigger="load delay:150ms"
+ 										hx-trigger="click, load delay:150ms"
  										hx-target="#articles"
 									>
-										<a class="nav-link">Your Feed</a>
-									</li>
-									<li
- 										class="nav-item"
- 										hx-get="/articles?limit=10"
- 										hx-target="#articles"
-									>
-										<a class="nav-link active">Global Feed</a>
-									</li>
-								} else {
-									<li
- 										class="nav-item"
- 										hx-get="/articles?limit=10"
- 										hx-trigger="load delay:150ms"
- 										hx-target="#articles"
-									>
-										<a class="nav-link active">Global Feed</a>
+										<a class="nav-link active">Your Feed</a>
 									</li>
 								}
+								<li
+ 									_="on click
+                      remove .active from .nav-link in #tabs
+                      add .active to .nav-link in me
+                      set {hidden: true} on #tag-tab
+								  "
+ 									class="nav-item"
+ 									hx-get="/articles?limit=10"
+ 									if p.userId == 0 {
+										hx-trigger="click, load delay:150ms"
+									}
+ 									hx-target="#articles"
+								>
+									<a
+ 										if p.userId == 0 {
+											class="nav-link active"
+										} else {
+											class="nav-link"
+										}
+									>
+										Global Feed
+									</a>
+								</li>
+								<li
+ 									id="tag-tab"
+ 									class="nav-item"
+ 									hidden
+								>
+									<a class="nav-link active">#tag</a>
+								</li>
 							</ul>
 						</div>
 						<div id="articles">
@@ -51,7 +70,16 @@ templ index(p indexProps) {
 						</div>
 						<ul id="pagination" class="pagination" hidden></ul>
 					</div>
-					<div class="col-md-3">
+					<div
+ 						_="on click
+ 						    log event.target.innerHTML
+ 						    remove @hidden from #tag-tab
+ 						    remove .active from .nav-link in #tabs
+ 						    put &#39;#&#39; + event.target.innerHTML into &lt;a/&gt; in #tag-tab
+ 						    add .active to &lt;a/&gt; in #tag-tab
+ 						    "
+ 						class="col-md-3"
+					>
 						<div class="sidebar" hx-get="/tags" hx-target="#tags" hx-trigger="load delay:150ms">
 							<p>Popular Tags</p>
 							<div id="tags" class="tag-list">Loading tags...</div>

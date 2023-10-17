@@ -75,13 +75,3 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		currentPage: 1,
 	}), ctx)
 }
-
-func (c *Controller) GetPopularTags(ctx *fiber.Ctx) error {
-	tags, err := c.articleService.GetPopularTags()
-
-	if err != nil {
-		return err
-	}
-
-	return renderComponent(popularTags(tags), ctx)
-}
