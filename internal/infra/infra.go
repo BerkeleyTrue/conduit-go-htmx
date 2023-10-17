@@ -3,9 +3,9 @@ package infra
 import (
 	"go.uber.org/fx"
 
-	"github.com/berkeleytrue/conduit/internal/app/drivers"
 	"github.com/berkeleytrue/conduit/internal/app/driven/articlesRepo"
 	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
+	"github.com/berkeleytrue/conduit/internal/app/drivers"
 	"github.com/berkeleytrue/conduit/internal/core/services"
 	"github.com/berkeleytrue/conduit/internal/infra/db"
 	"github.com/berkeleytrue/conduit/internal/infra/server"
@@ -14,7 +14,6 @@ import (
 
 var (
 	Module = fx.Options(
-		fx.Provide(server.NewEngine),
 		fx.Provide(server.NewServer),
 		db.Module,
 		userRepo.Module,

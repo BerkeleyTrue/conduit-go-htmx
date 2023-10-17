@@ -4,15 +4,13 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html/v2"
 	"go.uber.org/fx"
 
 	"github.com/berkeleytrue/conduit/config"
 )
 
-func NewServer(engine *html.Engine) *fiber.App {
+func NewServer() *fiber.App {
 	app := fiber.New(fiber.Config{
-		Views:             engine,
 		PassLocalsToViews: true,
 	})
 
