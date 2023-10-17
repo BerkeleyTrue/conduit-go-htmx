@@ -74,6 +74,15 @@ WHERE
     )
   )
   AND (sqlc.narg(author_id) IS NULL OR a.author_id = sqlc.narg(author_id))
+  AND (sqlc.narg(favorited) IS NULL OR a.id IN (
+    SELECT
+      f.article_id
+    FROM
+      favorites f
+    WHERE
+      f.user_id = sqlc.narg(favorited)
+    )
+  )
 GROUP BY
   a.id
 ORDER BY

@@ -36,8 +36,8 @@ type (
 
 	ArticleListInput struct {
 		Tag       string
-		AuthorId  int    // authorId
-		Favorited string // authorId
+		AuthorId  int // authorId
+		Favorited int // authorId
 		Limit     int
 		Offset    int
 	}

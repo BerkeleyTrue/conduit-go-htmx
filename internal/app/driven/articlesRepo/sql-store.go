@@ -136,7 +136,6 @@ func (s *ArticleStore) List(
 	input domain.ArticleListInput,
 ) ([]*domain.Article, error) {
 	ctx := context.Background()
-	// TODO: add tags, favorited
 	params := listParams{
 		Limit:  int64(input.Limit),
 		Offset: int64(input.Offset),
@@ -147,6 +146,10 @@ func (s *ArticleStore) List(
 		Tag: sql.NullString{
 			Valid:  input.Tag != "",
 			String: input.Tag,
+		},
+		Favorited: sql.NullInt64{
+			Valid: input.Favorited != 0,
+			Int64: int64(input.Favorited),
 		},
 	}
 

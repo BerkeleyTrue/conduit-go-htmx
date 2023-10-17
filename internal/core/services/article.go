@@ -115,12 +115,11 @@ func (s *ArticleService) List(
 	input ListArticlesInput,
 ) ([]ArticleOutput, error) {
 	params := domain.ArticleListInput{
-		Tag:       input.Tag,
-		Limit:     input.Limit,
-		Offset:    input.Offset,
-		Favorited: input.Favorited,
+		Tag:    input.Tag,
+		Limit:  input.Limit,
+		Offset: input.Offset,
 	}
-	// TODO: following
+
 	if input.Authorname != "" {
 		authorId, err := s.userService.GetIdFromUsername(input.Authorname)
 
@@ -130,6 +129,14 @@ func (s *ArticleService) List(
 		}
 
 		params.AuthorId = authorId
+	}
+
+	if input.Favorited != "" {
+		favoritedId, err := s.userService.GetIdFromUsername(input.Favorited)
+		if err != nil {
+			return nil, err
+		}
+		params.Favorited = favoritedId
 	}
 
 	articles, err := s.repo.List(params)
