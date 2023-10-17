@@ -71,8 +71,8 @@ func formatRowToDomain(row listRow) *domain.Article {
 
 	tags := []string{}
 
-	if row.Tag.Valid {
-		tags = strings.Split(row.Tag.String, ",")
+	if row.Tags != "" {
+		tags = strings.Split(row.Tags, ",")
 	}
 
 	return &domain.Article{

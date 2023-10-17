@@ -56,17 +56,28 @@ LIMIT
 
 -- name: list :many
 SELECT
-  *
+  a.*,
+  GROUP_CONCAT(t.tag, ',') AS tags
 FROM
-  articles
-  LEFT JOIN article_tags ON articles.id = article_tags.article_id
-  LEFT JOIN tags ON article_tags.tag_id = tags.id
+  articles a
+  LEFT JOIN article_tags at ON a.id = at.article_id
+  LEFT JOIN tags t ON at.tag_id = t.id
 WHERE
-  author_id = coalesce(sqlc.narg(author_id), author_id)
+  (sqlc.narg(tag) IS NULL OR a.id IN (
+    SELECT
+      at2.article_id
+    FROM
+      article_tags at2
+      LEFT JOIN tags t2 ON t2.id = at2.tag_id
+    WHERE
+    t2.tag = 	sqlc.narg(tag)
+    )
+  )
+  AND (sqlc.narg(author_id) IS NULL OR a.author_id = sqlc.narg(author_id))
 GROUP BY
-  articles.id
+  a.id
 ORDER BY
-  articles.created_at DESC
+  a.created_at DESC
 LIMIT
   sqlc.arg(limit)
 OFFSET

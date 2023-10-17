@@ -144,18 +144,22 @@ func (s *ArticleStore) List(
 			Valid: input.AuthorId != 0,
 			Int64: int64(input.AuthorId),
 		},
+		Tag: sql.NullString{
+			Valid:  input.Tag != "",
+			String: input.Tag,
+		},
 	}
 
-	listRows, err := s.list(ctx, params)
+	rows, err := s.list(ctx, params)
 
 	if err != nil {
 		fmt.Printf("error getting articles: %v\n", err)
 		return nil, err
 	}
 
-	articles := make([]*domain.Article, len(listRows))
+	articles := make([]*domain.Article, len(rows))
 
-	for idx, row := range listRows {
+	for idx, row := range rows {
 		articles[idx] = formatRowToDomain(row)
 	}
 
