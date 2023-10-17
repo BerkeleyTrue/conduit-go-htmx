@@ -120,14 +120,7 @@ func (s *ArticleService) List(
 		Offset:    input.Offset,
 		Favorited: input.Favorited,
 	}
-
 	// TODO: following
-	// username, ok := maybeUser.Get()
-
-	// if !ok {
-	// 	username = ""
-	// }
-	//
 	if input.Authorname != "" {
 		authorId, err := s.userService.GetIdFromUsername(input.Authorname)
 
