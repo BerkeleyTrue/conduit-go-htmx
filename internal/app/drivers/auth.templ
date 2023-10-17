@@ -29,6 +29,7 @@ templ auth(p authProps) {
 							}
  							hx-target="body"
  							hx-swap="outerHTML"
+ 							_="on submit set { hidden: true } on #errors"
 						>
 							if p.isRegister {
 								<fieldset class="form-group">
