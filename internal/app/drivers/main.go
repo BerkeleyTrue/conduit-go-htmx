@@ -120,6 +120,7 @@ func RegisterRoutes(
 			user:   user,
 			links:  links,
 			isDev:  config.Release == "development",
+			alerts: []alertPackage{},
 		})
 
 		return ctx.Next()

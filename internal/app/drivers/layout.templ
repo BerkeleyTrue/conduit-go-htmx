@@ -69,6 +69,7 @@ type layoutProps struct {
 	user   services.UserOutput
 	links  []Link
 	isDev  bool
+	alerts []alertPackage
 }
 
 templ layout(props layoutProps) {
@@ -105,6 +106,9 @@ templ layout(props layoutProps) {
         userId: props.userId,
         user: props.user,
         links: props.links,
+      })
+			@alerts(alertProps{
+        alerts: props.alerts,
       })
 			{ children... }
 			@footer()

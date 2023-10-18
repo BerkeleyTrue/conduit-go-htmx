@@ -20,3 +20,13 @@ func getLayoutProps(ctx *fiber.Ctx) layoutProps {
 
 	return _layoutProps
 }
+
+func addAlert(class, msg string, _layoutProps layoutProps) layoutProps {
+
+	_layoutProps.alerts = append(_layoutProps.alerts, alertPackage{
+		class: class,
+		msg:   msg,
+	})
+
+	return _layoutProps
+}

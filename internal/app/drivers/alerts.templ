@@ -1,0 +1,55 @@
+package drivers
+
+import "fmt"
+
+type alertPackage struct {
+	msg   string
+	class string
+}
+
+templ alert(alert alertPackage) {
+	<div
+ 		class={ fmt.Sprintf("alert alert-dismissible fade alert-%s", alert.class) }
+ 		role="alert"
+ 		hidden
+	>
+		{ alert.msg }
+		<button
+ 			_="on click remove closest .alert"
+ 			type="button"
+ 			class="close"
+ 			data-dismiss="alert"
+ 			aria-label="Close"
+		>
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+}
+
+type alertProps struct {
+	alerts []alertPackage
+}
+
+templ alerts(props alertProps) {
+	if len(props.alerts) > 0 {
+		<div
+ 			_="
+ 			init wait 1s
+ 			  then set { style: &#39;opacity: 1&#39;, hidden: false } on first .alert in me
+ 			on click wait 0.5s
+ 			  then
+ 			    if my.children is empty then
+ 			      remove me
+ 			    else
+ 			      wait 0.5s
+ 			      set { style: &#39;opacity: 1&#39;, hidden: false } on first .alert in me
+ 			    end
+ 			"
+ 			class="container"
+		>
+			for _, _alert := range props.alerts {
+				@alert(_alert)
+			}
+		</div>
+	}
+}
