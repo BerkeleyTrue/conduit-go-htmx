@@ -1,35 +1,35 @@
 # TODO
 
-- Get article page
-  - [x] /article/slug
-  - [ ] delete if owner
-  - [ ] comments
-    - [ ] Load on load
-    - [ ] mark if owner
-  - [ ] delete comment if owner
 - Use fastHttp context in sql requests
 - Comments
   - API
-    - create comment on article
-    - delete comment from article
-    - get articles by slug
-    - get by id
-    - get by user?
+    - [ ] create comment on article
+    - [ ] delete comment from article
+    - [ ] get articles by slug
+    - [ ] get by id
+    - [ ] get by user?
   - Repo
-    - create, read, delete
+    - [ ] create, read, delete
   - Service
-    - create, read, delete
-    - mark if owner
+    - [ ] create, read, delete
+    - [ ] mark if owner
 - Add seed data import (use gofakeit)
+  - [ ] add comments
   - [x] add users
   - [x] add articles
-  - [ ] add comments
   - [x] Add get route
   - [x] return list of articles
   - [x] add author details
   - [x] Check if user is following article author
   - [x] move createAt out of repo, into service
     - This should allow us to manipulate created at during seeding
+- Get article page
+  - [ ] delete if owner
+  - [ ] comments
+    - [ ] Load on load
+    - [ ] mark if owner
+  - [ ] delete comment if owner
+  - [x] /article/:slug
 - Profile page
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
@@ -40,17 +40,14 @@
     - update links to patch
 - User Api
   - Register should return error if user already exists
+- Refactor for loops to maps
+- Refactor to use strutured errors
 
 # Doing
 
-- Articles Api
-  - [x] Filter articles
-    - [x] by author
-    - [x] Add tag
-    - [x] add favorites
-  - [x] Unfavorite
-  - [x] Insert tags
-  - [x] Get popular tags
+- Views
+  - [ ] add banners
+  - [ ] add error message on htmx 500
 
 # Done
 
@@ -84,3 +81,11 @@
   - [x] move settings to templ
   - [x] move profile to templ
   - [x] move article to templ
+- Articles Api
+  - [x] Filter articles
+    - [x] by author
+    - [x] Add tag
+    - [x] add favorites
+  - [x] Unfavorite
+  - [x] Insert tags
+  - [x] Get popular tags
