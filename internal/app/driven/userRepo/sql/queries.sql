@@ -50,6 +50,15 @@ FROM
 WHERE
   user_id = ?;
 
+
+-- name: getFollowing :many
+SELECT
+  f.user_id
+FROM
+  followers f
+WHERE
+  f.follower_id = sqlc.arg(user_id);
+
 -- name: update :one
 UPDATE users
 SET

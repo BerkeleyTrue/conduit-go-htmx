@@ -33,3 +33,11 @@ func Iterate(count int) []int {
 	}
 	return cnts
 }
+
+func Map[T, U any](mapper func(T) U, input []T) []U {
+	output := make([]U, len(input))
+	for idx, elem := range input {
+		output[idx] = mapper(elem)
+	}
+	return output
+}

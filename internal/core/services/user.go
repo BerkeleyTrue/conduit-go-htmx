@@ -36,14 +36,6 @@ type (
 		Image     string
 		Following bool
 	}
-
-	UpdateUserInput struct {
-		Email    string
-		Username string
-		Image    string
-		Bio      string
-		Password pss.Password
-	}
 )
 
 var (
@@ -191,6 +183,27 @@ func (s *UserService) GetProfile(
 	}
 
 	return formatToPublicProfile(author, _isFollowing), nil
+}
+
+// get all the authors that this user is following
+func (s *UserService) GetFollowing(
+	userId int,
+) ([]int, error) {
+	following, err := s.repo.GetFollowing(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return following, nil
+}
+
+type UpdateUserInput struct {
+	Email    string
+	Username string
+	Image    string
+	Bio      string
+	Password pss.Password
 }
 
 func (s *UserService) Update(

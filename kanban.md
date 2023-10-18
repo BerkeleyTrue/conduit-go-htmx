@@ -38,6 +38,8 @@
   - [ ] /editor/slug - edit
     - Load article and prefill page
     - update links to patch
+- User Api
+  - Register should return error if user already exists
 
 # Doing
 

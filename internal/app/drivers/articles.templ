@@ -48,11 +48,18 @@ type articlesProps struct {
 	numOfPages     int
 	currentPage    int
 	tag            string
+	hasNoFollowing bool
 }
 
 templ articleList(p articlesProps) {
 	if len(p.articles) == 0 {
-		<div class="article-preview">No articles are here... yet.</div>
+		<div class="article-preview">
+			if p.hasNoFollowing {
+				Follow an author to see articles here
+			} else {
+				No articles are here... yet.
+			}
+		</div>
 	} else {
 		for _, article := range p.articles {
 			@articlePreview(articlePreiewProps{

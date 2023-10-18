@@ -16,12 +16,21 @@ type (
 	}
 
 	UserRepository interface {
+	  // Create a new user
 		Create(UserCreateInput) (*User, error)
+	  // Get a user by id
 		GetByID(id int) (*User, error)
+	  // Get a user by email
 		GetByEmail(email string) (*User, error)
+	  // Get a user by username
 		GetByUsername(username string) (*User, error)
+	  // Get authors a user is following
+	  GetFollowing(userId int) ([]int, error)
+	  // Update a user
 		Update(userId int, updater Updater[User]) (*User, error)
+	  // A user follows an author
 		Follow(userId, authorId int) (*User, error)
+	  // A user unfollows an author
 		Unfollow(userId, authorId int) (*User, error)
 	}
 
@@ -35,9 +44,10 @@ type (
 	}
 
 	ArticleListInput struct {
+		AuthorId  int   // authorId
+		Favorited int   // authorId
+		Authors   []int // for user following authors
 		Tag       string
-		AuthorId  int // authorId
-		Favorited int // authorId
 		Limit     int
 		Offset    int
 	}

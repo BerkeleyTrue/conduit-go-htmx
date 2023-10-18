@@ -1,21 +1,21 @@
 package drivers
 
 import (
+	"errors"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/berkeleytrue/conduit/internal/core/services"
 )
 
-type (
-	GetArticlesInput struct {
-		Author    string `query:"author"`
-		Favorited string `query:"favorited"`
-		Tag       string `query:"tag"`
-		Limit     int    `query:"limit"`
-		Offset    int    `query:"offset"`
-	}
-)
+type GetArticlesInput struct {
+	Author    string `query:"author"`
+	Favorited string `query:"favorited"`
+	Tag       string `query:"tag"`
+	Limit     int    `query:"limit"`
+	Offset    int    `query:"offset"`
+}
 
 func (i *GetArticlesInput) validate() error {
 
@@ -63,6 +63,63 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 	)
 
 	if err != nil {
+		return err
+	}
+
+	return renderComponent(articleList(articlesProps{
+		articles: articles,
+		// TODO: get total articles count
+		showPagination: len(articles) > 20,
+		numOfPages:     len(articles) / 20,
+		// TODO: get current page
+		currentPage: 1,
+	}), ctx)
+}
+
+type getFeedParams struct {
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
+}
+
+func (c *Controller) getFeed(ctx *fiber.Ctx) error {
+	input := new(getFeedParams)
+
+	if err := ctx.QueryParser(input); err != nil {
+		return err
+	}
+
+	userId, ok := ctx.Locals("userId").(int)
+
+	if !ok {
+
+		ctx.Response().Header.Add("HX-Push-Url", "false")
+		ctx.Response().Header.Add("HX-Reswap", "none")
+
+		return ctx.Redirect("/login", fiber.StatusSeeOther)
+	}
+
+	if input.Limit == 0 {
+		input.Limit = 20
+	}
+
+	articles, err := c.articleService.List(
+		userId,
+		services.ListArticlesInput{
+			Limit:  input.Limit,
+			Offset: input.Offset,
+			Feed:   true,
+		},
+	)
+
+	if err != nil {
+		if errors.Is(err, services.WarningNoFollowers) {
+			return renderComponent(articleList(articlesProps{
+				currentPage:    1,
+				showPagination: false,
+				articles:       articles,
+				hasNoFollowing: true,
+			}), ctx)
+		}
 		return err
 	}
 

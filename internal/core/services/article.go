@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"os"
 
 	"golang.org/x/exp/slog"
@@ -44,7 +45,10 @@ type (
 	}
 )
 
-func formatArticle(article *domain.Article, profile PublicProfile) ArticleOutput {
+func formatArticle(
+	article *domain.Article,
+	profile PublicProfile,
+) ArticleOutput {
 	return ArticleOutput{
 		Slug:        article.Slug,
 		Title:       article.Title,
@@ -108,35 +112,53 @@ type ListArticlesInput struct {
 	Tag        string
 	Favorited  string
 	Authorname string
+	Feed       bool
 }
 
+var WarningNoFollowers = errors.New("user is not following anyone")
+
+// Get all articles, filtered by authorId, tag, favorited, limit, offset, or by following
 func (s *ArticleService) List(
 	userId int,
 	input ListArticlesInput,
 ) ([]ArticleOutput, error) {
 	params := domain.ArticleListInput{
-		Tag:    input.Tag,
 		Limit:  input.Limit,
 		Offset: input.Offset,
 	}
 
-	if input.Authorname != "" {
-		authorId, err := s.userService.GetIdFromUsername(input.Authorname)
+	if input.Feed {
+		followed, err := s.userService.GetFollowing(userId)
 
 		if err != nil {
 			return nil, err
-
 		}
 
-		params.AuthorId = authorId
-	}
-
-	if input.Favorited != "" {
-		favoritedId, err := s.userService.GetIdFromUsername(input.Favorited)
-		if err != nil {
-			return nil, err
+		if len(followed) == 0 {
+			return nil, WarningNoFollowers
 		}
-		params.Favorited = favoritedId
+
+		params.Authors = followed
+	} else {
+		params.Tag = input.Tag
+		if input.Authorname != "" {
+			authorId, err := s.userService.GetIdFromUsername(input.Authorname)
+
+			if err != nil {
+				return nil, err
+
+			}
+
+			params.AuthorId = authorId
+		}
+
+		if input.Favorited != "" {
+			favoritedId, err := s.userService.GetIdFromUsername(input.Favorited)
+			if err != nil {
+				return nil, err
+			}
+			params.Favorited = favoritedId
+		}
 	}
 
 	articles, err := s.repo.List(params)

@@ -12,6 +12,7 @@ import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/db"
+	"github.com/berkeleytrue/conduit/internal/utils"
 )
 
 type (
@@ -97,6 +98,18 @@ func (q *Queries) GetByUsername(username string) (*domain.User, error) {
 	}
 
 	return formatToDomain(user, nil), nil
+}
+
+func (q *Queries) GetFollowing(userId int) ([]int, error) {
+	following, err := q.getFollowing(context.Background(), int64(userId))
+
+	if err != nil {
+		return nil, fmt.Errorf("sql-store: error getting following: %w", err)
+	}
+
+	return utils.Map(func(userId int64) int {
+		return int(userId)
+	}, following), nil
 }
 
 func (q *Queries) Update(
