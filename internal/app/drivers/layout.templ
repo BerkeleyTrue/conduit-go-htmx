@@ -2,7 +2,7 @@ package drivers
 
 import "github.com/berkeleytrue/conduit/internal/core/services"
 
-type layoutProps struct {
+type headerProps struct {
 	title  string
 	page   string
 	uri    string
@@ -11,7 +11,67 @@ type layoutProps struct {
 	links  []Link
 }
 
-templ layout(p layoutProps) {
+templ header(props headerProps) {
+	<nav class="navbar navbar-light" hx-boost="true" hx-push-url="true">
+		<div class="container">
+			<a class="navbar-brand" href="/">conduit</a>
+			<ul class="nav navbar-nav pull-xs-right">
+				for _, link := range props.links {
+					<li class="nav-item">
+						<a
+ 							href={ templ.URL(link.Uri) }
+ 							if props.page == props.uri {
+								class="nav-link active"
+							} else {
+								class="nav-link"
+							}
+						>
+							{ link.Title }
+						</a>
+					</li>
+				}
+				if props.userId != 0 {
+					<li class="nav-item">
+						<a class="nav-link" href="/profile/{ user.Username }}">
+							if props.user.Image != "" {
+								<img src={ props.user.Image } class="user-pic"/>
+							} else {
+								<img src="https://placehold.co/200" class="user-pic"/>
+							}
+							{ props.user.Username }
+						</a>
+					</li>
+				}
+			</ul>
+		</div>
+	</nav>
+}
+
+templ footer() {
+	<footer>
+		<div class="container">
+			<a href="/" class="logo-font">conduit</a>
+			<span class="attribution">
+				An interactive learning project from
+				<a href="https://thinkster.io">Thinkster</a>
+				. Code &amp; design licensed
+				under MIT.
+			</span>
+		</div>
+	</footer>
+}
+
+type layoutProps struct {
+	title  string
+	page   string
+	uri    string
+	userId int
+	user   services.UserOutput
+	links  []Link
+	isDev  bool
+}
+
+templ layout(props layoutProps) {
 	<!DOCTYPE html>
 	<html lang="en" class="fullscreen" data-theme="catppuccin">
 		<head>
@@ -39,74 +99,18 @@ templ layout(p layoutProps) {
 		</head>
 		<body class="">
 			@header(headerProps{
-        title: p.title,
-        page: p.page,
-        uri: p.uri,
-        userId: p.userId,
-        user: p.user,
-        links: p.links,
+        title: props.title,
+        page: props.page,
+        uri: props.uri,
+        userId: props.userId,
+        user: props.user,
+        links: props.links,
       })
 			{ children... }
 			@footer()
+			if props.isDev {
+				@hotreload()
+			}
 		</body>
 	</html>
-}
-
-type headerProps struct {
-	title  string
-	page   string
-	uri    string
-	userId int
-	user   services.UserOutput
-	links  []Link
-}
-
-templ header(p headerProps) {
-	<nav class="navbar navbar-light" hx-boost="true" hx-push-url="true">
-		<div class="container">
-			<a class="navbar-brand" href="/">conduit</a>
-			<ul class="nav navbar-nav pull-xs-right">
-				for _, link := range p.links {
-					<li class="nav-item">
-						<a
- 							href={ templ.URL(link.Uri) }
- 							if p.page == p.uri {
-								class="nav-link active"
-							} else {
-								class="nav-link"
-							}
-						>
-							{ link.Title }
-						</a>
-					</li>
-				}
-				if p.userId != 0 {
-					<li class="nav-item">
-						<a class="nav-link" href="/profile/{ user.Username }}">
-							if p.user.Image != "" {
-								<img src={ p.user.Image } class="user-pic"/>
-							} else {
-								<img src="https://placehold.co/200" class="user-pic"/>
-							}
-							{ p.user.Username }
-						</a>
-					</li>
-				}
-			</ul>
-		</div>
-	</nav>
-}
-
-templ footer() {
-	<footer>
-		<div class="container">
-			<a href="/" class="logo-font">conduit</a>
-			<span class="attribution">
-				An interactive learning project from
-				<a href="https://thinkster.io">Thinkster</a>
-				. Code &amp; design licensed
-				under MIT.
-			</span>
-		</div>
-	</footer>
 }

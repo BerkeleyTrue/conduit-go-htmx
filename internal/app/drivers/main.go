@@ -5,8 +5,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"go.uber.org/fx"
 	"golang.org/x/exp/slog"
 
+	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/core/services"
 )
 
@@ -16,6 +18,7 @@ type (
 		userService    *services.UserService
 		articleService *services.ArticleService
 		log            *slog.Logger
+		onStart        chan struct{}
 	}
 	Link struct {
 		Uri   string
@@ -52,6 +55,15 @@ var (
 			Title: "Settings",
 		},
 	}
+	Module = fx.Options(
+		fx.Provide(fx.Annotate(
+			NewController,
+			fx.OnStart(func(c *Controller) error {
+				c.onStart <- struct{}{}
+				return nil
+			}),
+		)),
+	)
 )
 
 func NewController(
@@ -59,10 +71,13 @@ func NewController(
 	userService *services.UserService,
 	articleService *services.ArticleService,
 ) *Controller {
+
 	return &Controller{
 		store:          store,
 		userService:    userService,
 		articleService: articleService,
+		onStart:        make(chan struct{}, 1),
+
 		log: slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})).WithGroup("drivers").WithGroup("controller"),
@@ -73,7 +88,12 @@ func RegisterRoutes(
 	app *fiber.App,
 	c *Controller,
 	authMiddleware fiber.Handler,
+	config *config.Config,
 ) {
+	if config.Release == "development" {
+		c.log.Debug("Registering hot reload route")
+		app.Get("/__hotreload", c.getSSE)
+	}
 	app.Use(func(ctx *fiber.Ctx) error {
 		userId, ok := ctx.Locals("userId").(int)
 
@@ -99,6 +119,7 @@ func RegisterRoutes(
 			userId: userId,
 			user:   user,
 			links:  links,
+			isDev:  config.Release == "development",
 		})
 
 		return ctx.Next()

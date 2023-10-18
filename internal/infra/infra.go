@@ -26,7 +26,7 @@ var (
 				fx.ResultTags(`name:"authMiddleware"`),
 			),
 		),
-		fx.Provide(drivers.NewController),
+		drivers.Module,
 
 		fx.Invoke(AddMiddlewares),
 		fx.Invoke(session.RegisterSessionMiddleware),

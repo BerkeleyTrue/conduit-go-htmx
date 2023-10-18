@@ -1,0 +1,39 @@
+package drivers
+
+templ hotreload() {
+	<script>
+      function initHotReload() {
+        if (typeof EventSource !== "undefined") {
+
+          var source = new EventSource("/__hotreload");
+
+          source.onmessage = function(event) {
+            if (event.data === "updated") {
+              console.log('hotreload: updated');
+              source.close();
+              setTimeout(() => {
+                window.location.reload();
+              }, 500);
+            } else if (event.data === "connected") {
+              console.log('hotreload: connected');
+            } else {
+              console.log('hotreload: unknown event', event);
+            }
+          };
+
+          source.onerror = function(event) {
+            console.log('hotreload: err', event.message);
+            source.close();
+            setTimeout(initHotReload, 1000);
+          };
+          window.onbeforeunload = function() {
+            source.close();
+          };
+        } else {
+          console.log("Your browser does not support server-sent events...");
+        }
+      }
+
+      setTimeout(initHotReload, 1000);
+  </script>
+}

@@ -44,10 +44,10 @@
 # Doing
 
 - Articles Api
-  - [ ] Filter articles
+  - [x] Filter articles
     - [x] by author
     - [x] Add tag
-    - [ ] add favorites
+    - [x] add favorites
   - [x] Unfavorite
   - [x] Insert tags
   - [x] Get popular tags
