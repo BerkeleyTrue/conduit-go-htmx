@@ -7,7 +7,6 @@ type profileProps struct {
 	layoutProps
 	Profile  services.PublicProfile
 	IsMyself bool
-	userId   int
 }
 
 templ profile(props profileProps) {
@@ -22,7 +21,7 @@ templ profile(props profileProps) {
 							<p>
 								{ props.Profile.Bio }
 							</p>
-							if !props.IsMyself && props.userId != 0 {
+							if !props.IsMyself && props.layoutProps.userId != 0 {
 								<button class="btn btn-sm btn-outline-secondary action-btn">
 									<i class="ion-plus-round"></i>
 									&nbsp; Follow
