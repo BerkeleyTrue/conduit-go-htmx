@@ -51,10 +51,13 @@ templ profile(props profileProps) {
 						<div class="articles-toggle">
 							<ul class="nav nav-pills outline-active" role="tablist">
 								<li
+ 									_="on click set innerHTML of #articles to &#39;loading...&#39;
+                  on click remove .active from .nav-link
+                  on click add .active to .nav-link in me"
  									class="nav-item"
  									role="tab"
  									hx-get={ fmt.Sprintf("/articles?author=%s", props.Profile.Username) }
- 									hx-trigger="load delay:250ms"
+ 									hx-trigger="click, load delay:250ms"
  									hx-target="#articles"
 								>
 									<a class="nav-link active">My Articles</a>
