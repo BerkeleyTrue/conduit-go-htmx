@@ -3,6 +3,7 @@ package userRepo
 import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
+	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 	"golang.org/x/exp/slog"
 )
 
@@ -22,6 +23,7 @@ func formatToDomain(user User, followers *[]int64) *domain.User {
 	dUser := &domain.User{
 		UserId:    int(user.ID),
 		Username:  user.Username,
+		Password:  password.HashedPassword(user.Password),
 		Email:     user.Email,
 		Bio:       user.Bio.String,
 		Image:     user.Image.String,

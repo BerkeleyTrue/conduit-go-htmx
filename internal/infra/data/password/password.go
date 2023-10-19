@@ -13,12 +13,24 @@ type (
 )
 
 var (
-	passwordTooShort           error = errors.New("Password must be at least 8 characters long")
-	passwordTooLong            error = errors.New("Password must be at most 64 characters long")
-	passwordMissingLowercase   error = errors.New("Password must contain at least one lowercase character")
-	passwordMissingUppercase   error = errors.New("Password must contain at least one uppercase character")
-	passwordMissingNumber      error = errors.New("Password must contain at least one number")
-	passwordMissingSpecialChar error = errors.New("Password must contain at least one special character")
+	passwordTooShort error = errors.New(
+		"Password must be at least 8 characters long",
+	)
+	passwordTooLong error = errors.New(
+		"Password must be at most 64 characters long",
+	)
+	passwordMissingLowercase error = errors.New(
+		"Password must contain at least one lowercase character",
+	)
+	passwordMissingUppercase error = errors.New(
+		"Password must contain at least one uppercase character",
+	)
+	passwordMissingNumber error = errors.New(
+		"Password must contain at least one number",
+	)
+	passwordMissingSpecialChar error = errors.New(
+		"Password must contain at least one special character",
+	)
 )
 
 func New(raw string) (Password, error) {
