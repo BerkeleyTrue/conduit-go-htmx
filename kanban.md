@@ -45,9 +45,8 @@
 
 # Doing
 
-- Views
-  - [ ] add banners
-  - [ ] add error message on htmx 500
+- fix session stored alerts
+- fix login
 
 # Done
 
@@ -89,3 +88,6 @@
   - [x] Unfavorite
   - [x] Insert tags
   - [x] Get popular tags
+- Views
+  - [x] add banners
+  - [x] add error message on htmx 500
