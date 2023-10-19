@@ -8,6 +8,7 @@ import (
 
 type (
 	User struct {
+		// TODO: remove the tags
 		UserId    int                     `json:"userId"    db:"id"`
 		Username  string                  `json:"username"`
 		Email     string                  `json:"email"`

@@ -46,7 +46,6 @@
 # Doing
 
 - fix session stored alerts
-- fix login
 
 # Done
 

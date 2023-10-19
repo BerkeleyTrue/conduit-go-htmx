@@ -3,7 +3,7 @@ package drivers
 import (
 	"fmt"
 
-	"github.com/go-ozzo/ozzo-validation/v4"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/gofiber/fiber/v2"
 
@@ -79,7 +79,10 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		ctx.Response().Header.Add("HX-Push-Url", "false")
 		ctx.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(map[string]error{"password": err}), ctx)
+		return renderComponent(
+			listErrors(map[string]error{"password": err}),
+			ctx,
+		)
 	}
 
 	userId, err := c.userService.Register(services.RegisterParams{
@@ -107,12 +110,10 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error saving session: %w", err)
 	}
 
-	ctx.Response().Header.Add("HX-Push-Url", "/")
-
 	getLayoutProps(ctx).
 		addAlert("success", "Welcome to Conduit!").
 		storeAlerts(ctx)
-	return ctx.Redirect("/", 303)
+	return ctx.Redirect("/", fiber.StatusSeeOther)
 }
 
 type LoginInput struct {
@@ -169,12 +170,10 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error saving session: %w", err)
 	}
 
-	ctx.Response().Header.Add("HX-Push-Url", "/")
-
 	getLayoutProps(ctx).
 		addAlert("success", "Logged in successfully!").
 		storeAlerts(ctx)
-	return ctx.Redirect("/", 303)
+	return ctx.Redirect("/", fiber.StatusSeeOther)
 }
 
 func (c *Controller) Logout(ctx *fiber.Ctx) error {
@@ -187,5 +186,5 @@ func (c *Controller) Logout(ctx *fiber.Ctx) error {
 	session.Destroy()
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
-	return ctx.Redirect("/", 303)
+	return ctx.Redirect("/", fiber.StatusSeeOther)
 }

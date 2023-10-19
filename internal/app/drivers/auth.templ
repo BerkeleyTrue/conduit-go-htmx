@@ -21,6 +21,7 @@ templ auth(p authProps) {
 						</p>
 						<ul id="errors" class="error-messages" hidden></ul>
 						<form
+ 							_="on submit set { hidden: true } on #errors"
  							id="authen"
  							if p.isRegister {
 								hx-post="/register"
@@ -29,7 +30,7 @@ templ auth(p authProps) {
 							}
  							hx-target="body"
  							hx-swap="outerHTML"
- 							_="on submit set { hidden: true } on #errors"
+ 							hx-push-url="true"
 						>
 							if p.isRegister {
 								<fieldset class="form-group">
