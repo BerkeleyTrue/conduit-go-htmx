@@ -27,7 +27,8 @@ func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService
 			return err
 		}
 
-		// ctx.Locals("session", session)
+		ctx.Locals("session", session)
+
 		userId, ok := session.Get("userId").(int)
 
 		if !ok {

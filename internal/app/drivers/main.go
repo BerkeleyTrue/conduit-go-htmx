@@ -112,15 +112,28 @@ func RegisterRoutes(
 			user = services.UserOutput{}
 		}
 
+		alerts := []alertPackage{}
+
+		session, ok := ctx.Locals("session").(*session.Session)
+
+		if ok {
+			_alerts, ok := session.Get("alerts").([]alertPackage)
+
+			if ok {
+				alerts = _alerts
+				session.Delete("alerts")
+			}
+		}
+
 		ctx.Locals("layoutProps", layoutProps{
 			title:  "Conduit",
 			page:   ctx.Path(),
 			uri:    ctx.OriginalURL(),
 			userId: userId,
-			user:   user,
+			user:   *user,
 			links:  links,
 			isDev:  config.Release == "development",
-			alerts: []alertPackage{},
+			alerts: alerts,
 		})
 
 		return ctx.Next()

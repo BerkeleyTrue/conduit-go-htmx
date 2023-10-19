@@ -108,6 +108,10 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
+
+	getLayoutProps(ctx).
+		addAlert("success", "Welcome to Conduit!").
+		storeAlerts(ctx)
 	return ctx.Redirect("/", 303)
 }
 
@@ -166,6 +170,10 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
+
+	getLayoutProps(ctx).
+		addAlert("success", "Logged in successfully!").
+		storeAlerts(ctx)
 	return ctx.Redirect("/", 303)
 }
 
