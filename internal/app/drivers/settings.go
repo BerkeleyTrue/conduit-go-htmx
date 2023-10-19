@@ -23,7 +23,7 @@ type (
 
 func (c *Controller) GetSettings(ctx *fiber.Ctx) error {
 	props := settingsProps{
-		user: ctx.Locals("user").(services.UserOutput),
+		user: *ctx.Locals("user").(*services.UserOutput),
 	}
 	return renderComponent(settings(props), ctx)
 }

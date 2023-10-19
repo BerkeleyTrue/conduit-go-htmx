@@ -106,10 +106,10 @@ func RegisterRoutes(
 			links = AuthedLinks
 		}
 
-		user, ok := ctx.Locals("user").(services.UserOutput)
+		user, ok := ctx.Locals("user").(*services.UserOutput)
 
 		if !ok {
-			user = services.UserOutput{}
+			user = &services.UserOutput{}
 		}
 
 		alerts := []alertPackage{}
