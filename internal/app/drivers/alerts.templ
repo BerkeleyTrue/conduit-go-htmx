@@ -12,10 +12,22 @@ templ alert(alert alertPackage) {
  		class={ fmt.Sprintf("alert alert-dismissible fade alert-%s", alert.class) }
  		role="alert"
  		hidden
+ 		_={ fmt.Sprintf(`
+      on start
+        log 'showing alert'
+        set { hidden: false } on me
+        transition me opacity to 1
+        if %t then
+          wait 4s
+          transition me opacity to 0
+          remove me
+          send removed to #alerts
+        end
+    `, alert.class != "danger") }
 	>
 		{ alert.msg }
 		<button
- 			_="on click remove closest .alert"
+ 			_="on click remove closest .alert then send removed to #alerts"
  			type="button"
  			class="close"
  			data-dismiss="alert"
@@ -34,18 +46,23 @@ templ alerts(props alertProps) {
 	if len(props.alerts) > 0 {
 		<div
  			_="
- 			init wait 1s
- 			  then set { style: &#39;opacity: 1&#39;, hidden: false } on first .alert in me
- 			on click wait 0.5s
- 			  then
- 			    if my.children is empty then
- 			      remove me
- 			    else
- 			      wait 0.5s
- 			      set { style: &#39;opacity: 1&#39;, hidden: false } on first .alert in me
- 			    end
- 			"
- 			class="container"
+        init
+          wait 0.5s
+          send start to first .alert in me
+        on removed
+          log &#39;alert removed&#39;
+          wait 0.5s
+          if my.children is empty then
+            log &#39;alerts empty&#39;
+            set { hidden: true } on me
+          else
+            wait 0.5s
+            log &#39;next alert&#39;
+            send start to first first .alert in me
+          end
+      "
+ 			id="alerts"
+ 			class="fixed"
 		>
 			for _, _alert := range props.alerts {
 				@alert(_alert)

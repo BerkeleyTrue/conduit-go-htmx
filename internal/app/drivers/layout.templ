@@ -97,8 +97,40 @@ templ layout(props layoutProps) {
 			<link rel="stylesheet" href="https://demo.productionready.io/main.css"/>
 			<script src="https://unpkg.com/htmx.org@1.9.5" integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO" crossorigin="anonymous"></script>
 			<script src="https://unpkg.com/hyperscript.org@0.9.11" crossorigin="anonymous"></script>
+			<style>
+				.fixed
+				{
+          position: fixed;
+          top: 0;
+          z-index: 1020;
+          width: 100%;
+        }
+			</style>
 		</head>
-		<body class="">
+		<body
+ 			_="
+		    on every htmx:afterRequest
+		      if event.detail.successful
+		        then set {hidden: true} on #htmx-alert
+		      else if event.detail.failed and event.detail.xhr
+		        then
+		          log `server error: ${event.detail.xhr.status} - ${event.detail.xhr.statusText}`
+		          set {hidden: false, innerText: &#39;Oops, something went wrong with the server...&#39;} on #htmx-alert
+		      else
+		        log `unknown error: ${event.detail}`
+		        set {hidden: false, innerText: &#39;Unexpected error, check your connection and refresh the page&#39;} on #htmx-alert
+		      end
+		  "
+		>
+			<div
+ 				id="htmx-alert"
+ 				class="alert alert-warning fixed"
+ 				role="alert"
+ 				hidden
+			></div>
+			@alerts(alertProps{
+        alerts: props.alerts,
+      })
 			@header(headerProps{
         title: props.title,
         page: props.page,
@@ -106,9 +138,6 @@ templ layout(props layoutProps) {
         userId: props.userId,
         user: props.user,
         links: props.links,
-      })
-			@alerts(alertProps{
-        alerts: props.alerts,
       })
 			{ children... }
 			@footer()
