@@ -11,12 +11,12 @@ import (
 // get SSE messages on connection and on update
 // on update, send message to client, where the client will reload the page
 // see ./hot-reload.templ
-func (c *Controller) getSSE(ctx *fiber.Ctx) error {
-	ctx.Set("Content-Type", "text/event-stream")
-	ctx.Set("Cache-Control", "no-cache")
-	ctx.Set("Connection", "keep-alive")
+func (c *Controller) getSSE(fc *fiber.Ctx) error {
+	fc.Set("Content-Type", "text/event-stream")
+	fc.Set("Cache-Control", "no-cache")
+	fc.Set("Connection", "keep-alive")
 
-	ctx.Context().SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
+	fc.Context().SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 		c.log.Debug("SSE connection established")
 		fmt.Fprintf(w, "data: connected\n\n")
 		err := w.Flush()

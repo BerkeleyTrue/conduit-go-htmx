@@ -4,22 +4,22 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
-	authorname := ctx.Params("username")
-	userId, ok := ctx.Locals("userId").(int)
+func (c *Controller) GetProfile(fc *fiber.Ctx) error {
+	authorname := fc.Params("username")
+	userId, ok := fc.Locals("userId").(int)
 
 	if !ok {
 		userId = 0
 	}
 
-	username, ok := ctx.Locals("username").(string)
+	username, ok := fc.Locals("username").(string)
 
 	if !ok {
 		username = ""
 	}
 
 	_profile, err := c.userService.GetProfile(
-		ctx.Context(),
+		fc.Context(),
 		0,
 		authorname,
 		userId,
@@ -27,15 +27,15 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		c.log.Debug("Error getting profile", "error", err)
-		return ctx.Redirect("/", 303)
+		return fc.Redirect("/", 303)
 	}
 
 	if _profile == nil {
 		c.log.Debug("Profile not found", "username", authorname)
-		return ctx.Redirect("/", 303)
+		return fc.Redirect("/", 303)
 	}
 
-	_layoutProps := getLayoutProps(ctx)
+	_layoutProps := getLayoutProps(fc)
 
 	_layoutProps.title = "Profile"
 
@@ -45,5 +45,5 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 		IsMyself:    _profile.Username == username,
 	}
 
-	return renderComponent(profile(props), ctx)
+	return renderComponent(profile(props), fc)
 }

@@ -2,12 +2,12 @@ package drivers
 
 import "github.com/gofiber/fiber/v2"
 
-func (c *Controller) getEditArticle(ctx *fiber.Ctx) error {
+func (c *Controller) getEditArticle(fc *fiber.Ctx) error {
 	props := editArticleProps{
-		layoutProps: getLayoutProps(ctx),
+		layoutProps: getLayoutProps(fc),
 	}
 
 	props.layoutProps.title = "Edit Article"
 
-	return renderComponent(editArticle(props), ctx)
+	return renderComponent(editArticle(props), fc)
 }

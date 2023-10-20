@@ -21,11 +21,11 @@ type (
 	}
 )
 
-func (c *Controller) GetSettings(ctx *fiber.Ctx) error {
+func (c *Controller) GetSettings(fc *fiber.Ctx) error {
 	props := settingsProps{
-		user: *ctx.Locals("user").(*services.UserOutput),
+		user: *fc.Locals("user").(*services.UserOutput),
 	}
-	return renderComponent(settings(props), ctx)
+	return renderComponent(settings(props), fc)
 }
 
 func (r *SettingsInput) validate() error {
@@ -48,19 +48,19 @@ func (r *SettingsInput) validate() error {
 	)
 }
 
-func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
+func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
 	settingsInput := SettingsInput{}
 
-	if err := ctx.BodyParser(&settingsInput); err != nil {
+	if err := fc.BodyParser(&settingsInput); err != nil {
 		return fmt.Errorf("error parsing settings input: %w", err)
 	}
 
 	if err := settingsInput.validate(); err != nil {
 
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(err.(validation.Errors)), ctx)
+		return renderComponent(listErrors(err.(validation.Errors)), fc)
 	}
 	updates := services.UpdateUserInput{
 		Username: settingsInput.Username,
@@ -76,29 +76,29 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 			updates.Password = pass
 		} else {
 
-			ctx.Response().Header.Add("HX-Push-Url", "false")
-			ctx.Response().Header.Add("HX-Reswap", "none")
+			fc.Response().Header.Add("HX-Push-Url", "false")
+			fc.Response().Header.Add("HX-Reswap", "none")
 
-			return renderComponent(listErrors(map[string]error{"password": err}), ctx)
+			return renderComponent(listErrors(map[string]error{"password": err}), fc)
 		}
 	}
 
 	user, err := c.userService.Update(
-		ctx.Context(),
-		ctx.Locals("userId").(int),
+		fc.Context(),
+		fc.Locals("userId").(int),
 		"",
 		updates,
 	)
 
 	if err != nil {
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
-		return renderComponent(listErrors(map[string]error{"user": err}), ctx)
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+		return renderComponent(listErrors(map[string]error{"user": err}), fc)
 	}
 
-	ctx.Locals("user", user)
+	fc.Locals("user", user)
 
-	_layoutProps := getLayoutProps(ctx)
+	_layoutProps := getLayoutProps(fc)
 
 	_layoutProps.title = "Settings"
 
@@ -106,5 +106,5 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 		layoutProps: _layoutProps,
 		user:        *user,
 	}
-	return renderComponent(settings(props), ctx)
+	return renderComponent(settings(props), fc)
 }

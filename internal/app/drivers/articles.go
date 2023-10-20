@@ -1,6 +1,7 @@
 package drivers
 
 import (
+	"context"
 	"errors"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -30,10 +31,10 @@ func (i *GetArticlesInput) validate() error {
 // optionally filtered by query parameters
 // author=authorname, favorited=authorname, tag=string, limit=int, offset=int
 // is authenticated, check if articles is favorited by user
-func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
+func (c *Controller) GetArticles(fc *fiber.Ctx) error {
 	input := new(GetArticlesInput)
 
-	if err := ctx.QueryParser(input); err != nil {
+	if err := fc.QueryParser(input); err != nil {
 		return err
 	}
 
@@ -41,7 +42,7 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	userId, ok := ctx.Locals("userId").(int)
+	userId, ok := fc.Locals("userId").(int)
 
 	if !ok {
 		userId = 0
@@ -74,7 +75,7 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 		numOfPages:     len(articles) / 20,
 		// TODO: get current page
 		currentPage: 1,
-	}), ctx)
+	}), fc)
 }
 
 type getFeedParams struct {
@@ -82,21 +83,21 @@ type getFeedParams struct {
 	Offset int `query:"offset"`
 }
 
-func (c *Controller) getFeed(ctx *fiber.Ctx) error {
+func (c *Controller) getFeed(fc *fiber.Ctx) error {
 	input := new(getFeedParams)
 
-	if err := ctx.QueryParser(input); err != nil {
+	if err := fc.QueryParser(input); err != nil {
 		return err
 	}
 
-	userId, ok := ctx.Locals("userId").(int)
+	userId, ok := fc.Locals("userId").(int)
 
 	if !ok {
 
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
 
-		return ctx.Redirect("/login", fiber.StatusSeeOther)
+		return fc.Redirect("/login", fiber.StatusSeeOther)
 	}
 
 	if input.Limit == 0 {
@@ -104,7 +105,7 @@ func (c *Controller) getFeed(ctx *fiber.Ctx) error {
 	}
 
 	articles, err := c.articleService.List(
-		ctx.Context(),
+		fc.Context(),
 		userId,
 		services.ListArticlesInput{
 			Limit:  input.Limit,
@@ -120,7 +121,7 @@ func (c *Controller) getFeed(ctx *fiber.Ctx) error {
 				showPagination: false,
 				articles:       articles,
 				hasNoFollowing: true,
-			}), ctx)
+			}), fc)
 		}
 		return err
 	}
@@ -132,5 +133,5 @@ func (c *Controller) getFeed(ctx *fiber.Ctx) error {
 		numOfPages:     len(articles) / 20,
 		// TODO: get current page
 		currentPage: 1,
-	}), ctx)
+	}), fc)
 }

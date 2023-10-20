@@ -27,8 +27,8 @@ const (
 )
 
 // AddFlash adds a flash message to the session
-func AddFlash(ctx *fiber.Ctx, _class class, message string) error {
-	session, ok := ctx.Locals("session").(*session.Session)
+func AddFlash(fc *fiber.Ctx, _class class, message string) error {
+	session, ok := fc.Locals("session").(*session.Session)
 
 	if !ok {
 		return fmt.Errorf("session not found")
@@ -47,8 +47,8 @@ func AddFlash(ctx *fiber.Ctx, _class class, message string) error {
 }
 
 // GetFlashes returns all flashes in the session and clears them
-func GetFlashes(ctx *fiber.Ctx) ([]Flash, error) {
-	session, ok := ctx.Locals("session").(*session.Session)
+func GetFlashes(fc *fiber.Ctx) ([]Flash, error) {
+	session, ok := fc.Locals("session").(*session.Session)
 
 	if !ok {
 		return nil, fmt.Errorf("session not found")

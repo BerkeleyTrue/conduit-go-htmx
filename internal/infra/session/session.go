@@ -22,8 +22,8 @@ func NewSessionStore(cfg *config.Config) *session.Store {
 }
 
 // SaveUser saves the user id in the session
-func SaveUser(ctx *fiber.Ctx, userId int) error {
-	session, ok := ctx.Locals("session").(*session.Session)
+func SaveUser(fc *fiber.Ctx, userId int) error {
+	session, ok := fc.Locals("session").(*session.Session)
 
 	if !ok {
 		return fmt.Errorf("session not found")
@@ -35,8 +35,8 @@ func SaveUser(ctx *fiber.Ctx, userId int) error {
 }
 
 // Logout destroys the session
-func Logout(ctx *fiber.Ctx) error {
-	session, ok := ctx.Locals("session").(*session.Session)
+func Logout(fc *fiber.Ctx) error {
+	session, ok := fc.Locals("session").(*session.Session)
 
 	if !ok {
 		return fmt.Errorf("session not found")
@@ -52,33 +52,33 @@ func RegisterSessionMiddleware(
 ) {
 	store.RegisterType(flashMap{})
 
-	app.Use(func(ctx *fiber.Ctx) error {
-		session, err := store.Get(ctx)
+	app.Use(func(fc *fiber.Ctx) error {
+		session, err := store.Get(fc)
 
 		if err != nil {
 			return err
 		}
 
-		ctx.Locals("session", session)
+		fc.Locals("session", session)
 
 		userId, ok := session.Get("userId").(int)
 
 		if !ok {
-			ctx.Locals("userId", 0)
+			fc.Locals("userId", 0)
 		} else {
-			user, err := userService.GetUser(ctx.Context(), userId)
+			user, err := userService.GetUser(fc.Context(), userId)
 
 			if err != nil {
 				session.Destroy()
-				return ctx.Status(fiber.StatusForbidden).Redirect("/login")
+				return fc.Status(fiber.StatusForbidden).Redirect("/login")
 			}
 
-			ctx.Locals("userId", userId)
-			ctx.Locals("user", user)
-			ctx.Locals("username", user.Username)
+			fc.Locals("userId", userId)
+			fc.Locals("user", user)
+			fc.Locals("username", user.Username)
 		}
 
-		err = ctx.Next()
+		err = fc.Next()
 
 		if err != nil {
 			return err
@@ -94,8 +94,8 @@ func NewAuthMiddleware(
 	store *session.Store,
 	userService *services.UserService,
 ) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		session, err := store.Get(ctx)
+	return func(fc *fiber.Ctx) error {
+		session, err := store.Get(fc)
 
 		if err != nil {
 			return err
@@ -104,20 +104,20 @@ func NewAuthMiddleware(
 		userId, ok := session.Get("userId").(int)
 
 		if !ok || userId == 0 {
-			return ctx.Redirect("/login", fiber.StatusSeeOther)
+			return fc.Redirect("/login", fiber.StatusSeeOther)
 		}
 
-		user, err := userService.GetUser(ctx.Context(), userId)
+		user, err := userService.GetUser(fc.Context(), userId)
 
 		if err != nil {
 			session.Destroy()
-			return ctx.Redirect("/login", fiber.StatusSeeOther)
+			return fc.Redirect("/login", fiber.StatusSeeOther)
 		}
 
-		ctx.Locals("user", user)
-		ctx.Locals("userId", userId)
-		ctx.Locals("username", user.Username)
+		fc.Locals("user", user)
+		fc.Locals("userId", userId)
+		fc.Locals("username", user.Username)
 
-		return ctx.Next()
+		return fc.Next()
 	}
 }

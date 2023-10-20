@@ -6,24 +6,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (c *Controller) getArticle(ctx *fiber.Ctx) error {
-	slug := ctx.Params("slug")
-	userId, ok := ctx.Locals("userId").(int)
+func (c *Controller) getArticle(fc *fiber.Ctx) error {
+	slug := fc.Params("slug")
+	userId, ok := fc.Locals("userId").(int)
 
 	if !ok {
 		userId = 0
 	}
 
-	_article, err := c.articleService.GetBySlug(ctx.Context(), slug, userId)
+	_article, err := c.articleService.GetBySlug(fc.Context(), slug, userId)
 
 	fmt.Printf("%v\n", _article)
 
 	if err != nil {
 		c.log.Debug("Error getting article", "error", err)
-		return ctx.Redirect("/", 303)
+		return fc.Redirect("/", 303)
 	}
 
-	_layoutProps := getLayoutProps(ctx)
+	_layoutProps := getLayoutProps(fc)
 	_layoutProps.title = _article.Title
 
 	c.log.Debug("layoutProps", "layoutProps", _layoutProps)
@@ -34,5 +34,5 @@ func (c *Controller) getArticle(ctx *fiber.Ctx) error {
 		isMyArticle:   _article.Author.Username == _layoutProps.user.Username,
 	}
 
-	return renderComponent(article(props), ctx)
+	return renderComponent(article(props), fc)
 }

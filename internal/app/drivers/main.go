@@ -91,8 +91,8 @@ func RegisterRoutes(
 		c.log.Debug("Registering hot reload route")
 		app.Get("/__hotreload", c.getSSE)
 	}
-	app.Use(func(ctx *fiber.Ctx) error {
-		userId, ok := ctx.Locals("userId").(int)
+	app.Use(func(fc *fiber.Ctx) error {
+		userId, ok := fc.Locals("userId").(int)
 
 		if !ok {
 			userId = 0
@@ -103,23 +103,23 @@ func RegisterRoutes(
 			links = AuthedLinks
 		}
 
-		user, ok := ctx.Locals("user").(*services.UserOutput)
+		user, ok := fc.Locals("user").(*services.UserOutput)
 
 		if !ok {
 			user = &services.UserOutput{}
 		}
 
-		ctx.Locals("layoutProps", layoutProps{
+		fc.Locals("layoutProps", layoutProps{
 			title:  "Conduit",
-			page:   ctx.Path(),
-			uri:    ctx.OriginalURL(),
+			page:   fc.Path(),
+			uri:    fc.OriginalURL(),
 			userId: userId,
 			user:   *user,
 			links:  links,
 			isDev:  config.Release == "development",
 		})
 
-		return ctx.Next()
+		return fc.Next()
 	})
 
 	app.Get("/", c.Index)
@@ -143,14 +143,14 @@ func RegisterRoutes(
 	app.Post("/logout", c.Logout)
 }
 
-func (c *Controller) Index(ctx *fiber.Ctx) error {
-	flashes, err := session.GetFlashes(ctx)
+func (c *Controller) Index(fc *fiber.Ctx) error {
+	flashes, err := session.GetFlashes(fc)
 
 	if err != nil {
 		return err
 	}
 
-	_layoutProps := getLayoutProps(ctx)
+	_layoutProps := getLayoutProps(fc)
 
 	_layoutProps.title = "Home"
 	_layoutProps.flashes = flashes
@@ -159,5 +159,5 @@ func (c *Controller) Index(ctx *fiber.Ctx) error {
 		layoutProps: _layoutProps,
 	}
 
-	return renderComponent(index(p), ctx)
+	return renderComponent(index(p), fc)
 }

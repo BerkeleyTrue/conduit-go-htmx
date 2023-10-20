@@ -12,8 +12,8 @@ import (
 	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
 
-func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
-	_layoutProps := getLayoutProps(ctx)
+func (c *Controller) GetLogin(fc *fiber.Ctx) error {
+	_layoutProps := getLayoutProps(fc)
 	_layoutProps.title = "Login"
 
 	props := authProps{
@@ -21,11 +21,11 @@ func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
 		layoutProps: _layoutProps,
 	}
 
-	return renderComponent(auth(props), ctx)
+	return renderComponent(auth(props), fc)
 }
 
-func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
-	_layoutProps := getLayoutProps(ctx)
+func (c *Controller) GetRegister(fc *fiber.Ctx) error {
+	_layoutProps := getLayoutProps(fc)
 	_layoutProps.title = "Register"
 
 	props := authProps{
@@ -33,7 +33,7 @@ func (c *Controller) GetRegister(ctx *fiber.Ctx) error {
 		layoutProps: _layoutProps,
 	}
 
-	return renderComponent(auth(props), ctx)
+	return renderComponent(auth(props), fc)
 }
 
 type RegisterInput struct {
@@ -59,35 +59,35 @@ func (r *RegisterInput) validate() error {
 	)
 }
 
-func (c *Controller) Register(ctx *fiber.Ctx) error {
+func (c *Controller) Register(fc *fiber.Ctx) error {
 	registerInput := RegisterInput{}
 
-	if err := ctx.BodyParser(&registerInput); err != nil {
+	if err := fc.BodyParser(&registerInput); err != nil {
 		return fmt.Errorf("error parsing register input: %w", err)
 	}
 
 	if err := registerInput.validate(); err != nil {
 
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(err.(validation.Errors)), ctx)
+		return renderComponent(listErrors(err.(validation.Errors)), fc)
 	}
 
 	pass, err := password.New(registerInput.Password)
 
 	if err != nil {
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
 
 		return renderComponent(
 			listErrors(map[string]error{"password": err}),
-			ctx,
+			fc,
 		)
 	}
 
 	userId, err := c.userService.Register(
-		ctx.Context(),
+		fc.Context(),
 		services.RegisterParams{
 			Username: registerInput.Username,
 			Email:    registerInput.Email,
@@ -99,19 +99,19 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error registering user: %w", err)
 	}
 
-	err = session.SaveUser(ctx, userId)
+	err = session.SaveUser(fc, userId)
 
 	if err != nil {
 		return fmt.Errorf("error saving user: %w", err)
 	}
 
-	err = session.AddFlash(ctx, "success", "Welcome to Conduit!")
+	err = session.AddFlash(fc, "success", "Welcome to Conduit!")
 
 	if err != nil {
 		c.log.Debug("error adding flash", "error", err)
 	}
 
-	return ctx.Redirect("/", fiber.StatusSeeOther)
+	return fc.Redirect("/", fiber.StatusSeeOther)
 }
 
 type LoginInput struct {
@@ -131,21 +131,21 @@ func (i *LoginInput) validate() error {
 	)
 }
 
-func (c *Controller) Login(ctx *fiber.Ctx) error {
+func (c *Controller) Login(fc *fiber.Ctx) error {
 	loginInput := LoginInput{}
-	if err := ctx.BodyParser(&loginInput); err != nil {
+	if err := fc.BodyParser(&loginInput); err != nil {
 		return fmt.Errorf("error parsing login input: %w", err)
 	}
 
 	if err := loginInput.validate(); err != nil {
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(err.(validation.Errors)), ctx)
+		return renderComponent(listErrors(err.(validation.Errors)), fc)
 	}
 
 	userId, err := c.userService.Login(
-		ctx.Context(),
+		fc.Context(),
 		loginInput.Email,
 		loginInput.Password,
 	)
@@ -153,34 +153,34 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Printf("error logging in: %+v\n", err)
 
-		ctx.Response().Header.Add("HX-Push-Url", "false")
-		ctx.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
 
-		return renderComponent(listErrors(map[string]error{"login": err}), ctx)
+		return renderComponent(listErrors(map[string]error{"login": err}), fc)
 	}
 
-	err = session.SaveUser(ctx, userId)
+	err = session.SaveUser(fc, userId)
 
 	if err != nil {
 		return fmt.Errorf("error saving session: %w", err)
 	}
 
-	err = session.AddFlash(ctx, session.Success, "Logged in successfully!")
+	err = session.AddFlash(fc, session.Success, "Logged in successfully!")
 
 	if err != nil {
 		c.log.Debug("error adding flash", "error", err)
 	}
 
-	return ctx.Redirect("/", fiber.StatusSeeOther)
+	return fc.Redirect("/", fiber.StatusSeeOther)
 }
 
-func (c *Controller) Logout(ctx *fiber.Ctx) error {
-	err := session.Logout(ctx)
+func (c *Controller) Logout(fc *fiber.Ctx) error {
+	err := session.Logout(fc)
 
 	if err != nil {
 		return fmt.Errorf("error logging out: %w", err)
 	}
 
-	ctx.Response().Header.Add("HX-Push-Url", "/")
-	return ctx.Redirect("/", fiber.StatusSeeOther)
+	fc.Response().Header.Add("HX-Push-Url", "/")
+	return fc.Redirect("/", fiber.StatusSeeOther)
 }
