@@ -137,7 +137,7 @@ templ article(props articleProps) {
 						}
 						<div
  							id="comments"
- 							hx-get={ fmt.Sprintf("/comments/%s", props.Slug) }
+ 							hx-get={ fmt.Sprintf("/articles/%s/comments", props.Slug) }
  							hx-trigger="load delay:150ms"
 						>
 							loading comments...

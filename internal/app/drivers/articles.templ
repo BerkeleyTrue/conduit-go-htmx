@@ -29,7 +29,7 @@ templ articlePreview(p articlePreiewProps) {
 				{ fmt.Sprintf("%d", p.FavoritesCount) }
 			</button>
 		</div>
-		<a href={ templ.URL(fmt.Sprintf("/article/%s", p.Slug)) } class="preview-link">
+		<a href={ templ.URL(fmt.Sprintf("/articles/%s", p.Slug)) } class="preview-link">
 			<h1>{ p.Title }</h1>
 			<p>{ p.Description }</p>
 			<span>Read more...</span>

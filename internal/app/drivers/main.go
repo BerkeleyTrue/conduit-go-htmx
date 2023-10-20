@@ -16,6 +16,7 @@ type (
 	Controller struct {
 		userService    *services.UserService
 		articleService *services.ArticleService
+		commentService *services.CommentService
 		log            *slog.Logger
 		onStart        chan struct{}
 	}
@@ -68,11 +69,13 @@ var (
 func NewController(
 	userService *services.UserService,
 	articleService *services.ArticleService,
+	commentService *services.CommentService,
 ) *Controller {
 
 	return &Controller{
 		userService:    userService,
 		articleService: articleService,
+		commentService: commentService,
 		onStart:        make(chan struct{}, 1),
 
 		log: slog.New(slog.NewTextHandler(os.Stdin, &slog.HandlerOptions{
@@ -129,13 +132,15 @@ func RegisterRoutes(
 	app.Post("/register", c.Register)
 
 	app.Get("/profile/:username", c.GetProfile)
-	app.Get("/article/:slug", c.getArticle)
-	app.Get("/articles", c.GetArticles)
 	app.Get("/tags", c.GetPopularTags)
+
+	app.Get("/articles/feed", authMiddleware, c.getFeed)
+	app.Get("/articles/:slug", c.getArticle)
+	app.Get("/articles/:slug/comments", c.getComments)
+	app.Get("/articles", c.getArticles)
 
 	app.Use(authMiddleware)
 
-	app.Get("/articles/feed", c.getFeed)
 	app.Get("/editor", c.getEditArticle)
 	app.Get("/editor/:slug", c.getEditArticle)
 	app.Get("/settings", c.GetSettings)

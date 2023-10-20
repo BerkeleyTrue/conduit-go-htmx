@@ -10,7 +10,7 @@ import (
 	"github.com/berkeleytrue/conduit/internal/core/services"
 )
 
-type GetArticlesInput struct {
+type getArticlesInput struct {
 	Author    string `query:"author"`
 	Favorited string `query:"favorited"`
 	Tag       string `query:"tag"`
@@ -18,7 +18,7 @@ type GetArticlesInput struct {
 	Offset    int    `query:"offset"`
 }
 
-func (i *GetArticlesInput) validate() error {
+func (i *getArticlesInput) validate() error {
 
 	return validation.ValidateStruct(
 		i,
@@ -30,10 +30,10 @@ func (i *GetArticlesInput) validate() error {
 // get a list of articles,
 // optionally filtered by query parameters
 // author=authorname, favorited=authorname, tag=string, limit=int, offset=int
-// is authenticated, check if articles is favorited by user
-func (c *Controller) GetArticles(fc *fiber.Ctx) error {
+// if is authenticated, check if articles is favorited by user
+func (c *Controller) getArticles(fc *fiber.Ctx) error {
 	ctx := context.Background()
-	input := new(GetArticlesInput)
+	input := new(getArticlesInput)
 
 	if err := fc.QueryParser(input); err != nil {
 		return err

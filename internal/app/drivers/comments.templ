@@ -1,0 +1,40 @@
+package drivers
+
+import "github.com/berkeleytrue/conduit/internal/core/services"
+import "fmt"
+
+type commentProps struct {
+	services.CommentOutput
+}
+
+templ commentComp(props commentProps) {
+	<div class="card">
+		<div class="card-block">
+			<p class="card-text">
+				{ props.Body }
+			</p>
+		</div>
+		<div class="card-footer">
+			<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username)) } class="comment-author">
+				<img src={ props.Author.Image } class="comment-author-img"/>
+			</a>
+			&nbsp;
+			<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username)) } class="comment-author">
+				{ props.Author.Username }
+			</a>
+			<span class="date-posted">{ props.CreatedAt.ToString() }</span>
+		</div>
+	</div>
+}
+
+type commentsProps struct {
+	comments []*services.CommentOutput
+}
+
+templ commentsComp(props commentsProps) {
+	<div>
+		for _, comment := range props.comments {
+			@commentComp(commentProps{ *comment })
+		}
+	</div>
+}
