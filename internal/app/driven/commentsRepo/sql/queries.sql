@@ -5,6 +5,14 @@ INSERT INTO
 VALUES
   (?, ?, ?, ?) RETURNING *;
 
+-- name: getById :one
+SELECT
+  *
+FROM
+  comments
+WHERE
+  id = ?;
+
 -- name: getByArticleId :many
 SELECT
   *

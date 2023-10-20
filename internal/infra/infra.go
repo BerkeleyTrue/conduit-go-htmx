@@ -4,6 +4,7 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/berkeleytrue/conduit/internal/app/driven/articlesRepo"
+	"github.com/berkeleytrue/conduit/internal/app/driven/commentsRepo"
 	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
 	"github.com/berkeleytrue/conduit/internal/app/drivers"
 	"github.com/berkeleytrue/conduit/internal/core/services"
@@ -18,6 +19,7 @@ var (
 		db.Module,
 		userRepo.Module,
 		articlesRepo.Module,
+		commentsRepo.Module,
 		services.Module,
 		fx.Provide(session.NewSessionStore),
 		fx.Provide(

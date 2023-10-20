@@ -11,13 +11,13 @@ func formatToDomain(user User, followers *[]int64) *domain.User {
 	createdAt, err := krono.FromString(user.CreatedAt)
 
 	if err != nil {
-		slog.Debug("error parsing createdAt: %s", err)
+		slog.Debug("error parsing createdAt", "error", err)
 	}
 
 	updatedAt, err := krono.FromNullString(user.UpdatedAt)
 
 	if err != nil {
-		slog.Debug("error parsing updatedAt: %s", err)
+		slog.Debug("error parsing updatedAt", "error", err)
 	}
 
 	dUser := &domain.User{

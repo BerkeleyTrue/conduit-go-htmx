@@ -129,6 +129,7 @@ func (s *ArticleStore) GetBySlug(
 	return formatToDomain(article), nil
 }
 
+// TODO: get number of favorites per article
 func (s *ArticleStore) List(ctx context.Context, input domain.ArticleListInput) ([]*domain.Article, error) {
 	params := listParams{
 		Limit:  int64(input.Limit),

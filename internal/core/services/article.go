@@ -46,6 +46,8 @@ type (
 	}
 )
 
+// TODO: add favorites count
+// TODO: Favorited
 func formatArticle(
 	article *domain.Article,
 	profile PublicProfile,
@@ -218,7 +220,6 @@ func (s *ArticleService) GetBySlug(
 func (s *ArticleService) GetIdFromSlug(
 	ctx context.Context,
 	slug string,
-	userId int,
 ) (int, error) {
 	article, err := s.repo.GetBySlug(ctx, slug)
 

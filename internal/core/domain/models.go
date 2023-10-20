@@ -32,11 +32,10 @@ type (
 	}
 
 	Comment struct {
-		CommentId string
-		AuthorId  string
-		ArticleId string
+		CommentId int
+		AuthorId  int
+		ArticleId int
 		Body      string
-		CreatedAt string
-		UpdatedAt string
+		CreatedAt krono.Krono
 	}
 )

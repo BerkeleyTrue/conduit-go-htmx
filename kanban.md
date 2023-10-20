@@ -40,9 +40,16 @@
     - [ ] get by id
     - [ ] get by user?
   - Repo
-    - [ ] create, read, delete
+    - [x] create
+    - [x] read
+      - [x] by id
+      - [x] by author
+      - [x] by article
+    - [x] delete
   - Service
-    - [ ] create, read, delete
+    - [x] create
+    - [ ] read
+    - [ ] delete
     - [ ] mark if owner
 
 # Done

@@ -74,9 +74,9 @@ type (
 
 	CommentRepository interface {
 		Create(ctx context.Context, input CommentCreateInput) (*Comment, error)
-		GetById(ctx context.Context, commentId string) (*Comment, error)
-		GetByArticleId(ctx context.Context, articleId string) ([]*Comment, error)
-		Update(ctx context.Context, commentId string, updater Updater[Comment]) (*Comment, error)
-		Delete(ctx context.Context, commentId string) error
+		GetById(ctx context.Context, commentId int) (*Comment, error)
+		GetByArticleId(ctx context.Context, articleId int) ([]*Comment, error)
+		GetByAuthorId(ctx context.Context, authorId int) ([]*Comment, error)
+		Delete(ctx context.Context, commentId int) error
 	}
 )
