@@ -170,16 +170,14 @@ func (s *ArticleService) List(
 	outputs := make([]ArticleOutput, len(articles))
 
 	for idx, article := range articles {
-		var _article ArticleOutput
 		profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
 
 		if err != nil {
 			s.log.Debug("error getting profile", "error", err)
+			continue
 		}
 
-		_article = formatArticle(article, *profile)
-
-		outputs[idx] = _article
+		outputs[idx] = formatArticle(article, *profile)
 	}
 
 	return outputs, err
