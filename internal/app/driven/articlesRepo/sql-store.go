@@ -53,10 +53,7 @@ func registerArticleSchema(db *sqlx.DB) error {
 	return nil
 }
 
-func (s *ArticleStore) Create(
-	input domain.ArticleCreateInput,
-) (*domain.Article, error) {
-	ctx := context.Background()
+func (s *ArticleStore) Create(ctx context.Context, input domain.ArticleCreateInput) (*domain.Article, error) {
 	slug := slug.NewSlug(input.Title)
 
 	err := s.CreateTx(ctx, func(q *Queries) error {
@@ -110,8 +107,7 @@ func (s *ArticleStore) Create(
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) GetById(articleId int) (*domain.Article, error) {
-	ctx := context.Background()
+func (s *ArticleStore) GetById(ctx context.Context, articleId int) (*domain.Article, error) {
 	article, err := s.getById(ctx, int64(articleId))
 
 	if err != nil {
@@ -121,8 +117,9 @@ func (s *ArticleStore) GetById(articleId int) (*domain.Article, error) {
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) GetBySlug(mySlug string) (*domain.Article, error) {
-	ctx := context.Background()
+func (s *ArticleStore) GetBySlug(
+	ctx context.Context,
+	mySlug string) (*domain.Article, error) {
 	article, err := s.getBySlug(ctx, mySlug)
 
 	if err != nil {
@@ -132,10 +129,7 @@ func (s *ArticleStore) GetBySlug(mySlug string) (*domain.Article, error) {
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) List(
-	input domain.ArticleListInput,
-) ([]*domain.Article, error) {
-	ctx := context.Background()
+func (s *ArticleStore) List(ctx context.Context, input domain.ArticleListInput) ([]*domain.Article, error) {
 	params := listParams{
 		Limit:  int64(input.Limit),
 		Offset: int64(input.Offset),
@@ -169,10 +163,10 @@ func (s *ArticleStore) List(
 	return articles, nil
 }
 
-func (s *ArticleStore) GetPopularTags() ([]string, error) {
+func (s *ArticleStore) GetPopularTags(ctx context.Context) ([]string, error) {
 	var tags []string
 
-	tags, err := s.getPopularTags(context.Background())
+	tags, err := s.getPopularTags(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting tags: %w", err)
@@ -183,10 +177,10 @@ func (s *ArticleStore) GetPopularTags() ([]string, error) {
 
 // TODO: update tags
 func (s *ArticleStore) Update(
+	ctx context.Context,
 	slug string,
 	updater domain.Updater[domain.Article],
 ) (*domain.Article, error) {
-	ctx := context.Background()
 	article, err := s.getBySlug(ctx, slug)
 
 	if err != nil {
@@ -227,8 +221,7 @@ func (s *ArticleStore) Update(
 	return formatToDomain(updatedArticle), nil
 }
 
-func (s *ArticleStore) Favorite(slug string, userId int) (*domain.Article, error) {
-	ctx := context.Background()
+func (s *ArticleStore) Favorite(ctx context.Context, slug string, userId int) (*domain.Article, error) {
 
 	article, err := s.getBySlug(ctx, slug)
 
@@ -248,8 +241,7 @@ func (s *ArticleStore) Favorite(slug string, userId int) (*domain.Article, error
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) Unfavorite(slug string, userId int) (*domain.Article, error) {
-	ctx := context.Background()
+func (s *ArticleStore) Unfavorite(ctx context.Context, slug string, userId int) (*domain.Article, error) {
 	article, err := s.getBySlug(ctx, slug)
 
 	if err != nil {
@@ -268,8 +260,8 @@ func (s *ArticleStore) Unfavorite(slug string, userId int) (*domain.Article, err
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) Delete(slug string) error {
-	_, err := s.delete(context.Background(), slug)
+func (s *ArticleStore) Delete(ctx context.Context, slug string) error {
+	_, err := s.delete(ctx, slug)
 
 	if err != nil {
 		return fmt.Errorf("sql-store: error deleting article: %w", err)

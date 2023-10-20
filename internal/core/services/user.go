@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -87,14 +88,14 @@ type RegisterParams struct {
 	Password password.Password
 }
 
-func (s *UserService) Register(input RegisterParams) (int, error) {
+func (s *UserService) Register(ctx context.Context, input RegisterParams) (int, error) {
 	hashedPassword, err := pss.HashPassword(input.Password)
 
 	if err != nil {
 		return 0, err
 	}
 
-	user, err := s.repo.Create(domain.UserCreateInput{
+	user, err := s.repo.Create(ctx, domain.UserCreateInput{
 		Username:       input.Username,
 		Email:          input.Email,
 		HashedPassword: hashedPassword,
@@ -110,8 +111,8 @@ func (s *UserService) Register(input RegisterParams) (int, error) {
 	return user.UserId, nil
 }
 
-func (s *UserService) Login(email, rawPass string) (int, error) {
-	user, err := s.repo.GetByEmail(email)
+func (s *UserService) Login(ctx context.Context, email, rawPass string) (int, error) {
+	user, err := s.repo.GetByEmail(ctx, email)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -135,8 +136,8 @@ func (s *UserService) Login(email, rawPass string) (int, error) {
 	return user.UserId, nil
 }
 
-func (s *UserService) GetUser(userId int) (*UserOutput, error) {
-	user, err := s.repo.GetByID(userId)
+func (s *UserService) GetUser(ctx context.Context, userId int) (*UserOutput, error) {
+	user, err := s.repo.GetByID(ctx, userId)
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting user: %w", err)
@@ -145,8 +146,8 @@ func (s *UserService) GetUser(userId int) (*UserOutput, error) {
 	return formatUser(user), nil
 }
 
-func (s *UserService) GetIdFromUsername(username string) (int, error) {
-	user, err := s.repo.GetByUsername(username)
+func (s *UserService) GetIdFromUsername(ctx context.Context, username string) (int, error) {
+	user, err := s.repo.GetByUsername(ctx, username)
 
 	if err != nil {
 		return 0, fmt.Errorf("error getting user: %w", err)
@@ -156,6 +157,7 @@ func (s *UserService) GetIdFromUsername(username string) (int, error) {
 }
 
 func (s *UserService) GetProfile(
+	ctx context.Context,
 	authorId int,
 	authorname string,
 	userId int, // the user who is requesting the profile, if any
@@ -167,9 +169,9 @@ func (s *UserService) GetProfile(
 	)
 
 	if authorId != 0 {
-		author, err = s.repo.GetByID(authorId)
+		author, err = s.repo.GetByID(ctx, authorId)
 	} else if authorname != "" {
-		author, err = s.repo.GetByUsername(authorname)
+		author, err = s.repo.GetByUsername(ctx, authorname)
 	} else {
 		return nil, ErrInvalidIdOrUsername
 	}
@@ -187,9 +189,10 @@ func (s *UserService) GetProfile(
 
 // get all the authors that this user is following
 func (s *UserService) GetFollowing(
+	ctx context.Context,
 	userId int,
 ) ([]int, error) {
-	following, err := s.repo.GetFollowing(userId)
+	following, err := s.repo.GetFollowing(ctx, userId)
 
 	if err != nil {
 		return nil, err
@@ -207,6 +210,7 @@ type UpdateUserInput struct {
 }
 
 func (s *UserService) Update(
+	ctx context.Context,
 	userId int,
 	username string,
 	input UpdateUserInput,
@@ -217,7 +221,7 @@ func (s *UserService) Update(
 	if userId == 0 {
 		if username != "" {
 
-			userId, err = s.GetIdFromUsername(username)
+			userId, err = s.GetIdFromUsername(ctx, username)
 
 			if err != nil {
 				return nil, err
@@ -245,7 +249,7 @@ func (s *UserService) Update(
 		return u
 	}
 
-	user, err := s.repo.Update(userId, updater)
+	user, err := s.repo.Update(ctx, userId, updater)
 
 	if err != nil {
 		return nil, err
@@ -255,6 +259,7 @@ func (s *UserService) Update(
 }
 
 func (s *UserService) Follow(
+	ctx context.Context,
 	userId int,
 	authorId int,
 	authorname string,
@@ -265,7 +270,7 @@ func (s *UserService) Follow(
 
 	if authorId == 0 {
 		if authorname != "" {
-			authorId, err = s.GetIdFromUsername(authorname)
+			authorId, err = s.GetIdFromUsername(ctx, authorname)
 
 			if err != nil {
 				return nil, err
@@ -275,7 +280,7 @@ func (s *UserService) Follow(
 		}
 	}
 
-	user, err := s.repo.Follow(userId, authorId)
+	user, err := s.repo.Follow(ctx, userId, authorId)
 
 	if err != nil {
 		return nil, err
@@ -285,6 +290,7 @@ func (s *UserService) Follow(
 }
 
 func (s *UserService) Unfollow(
+	ctx context.Context,
 	userId int,
 	authorId int,
 	authorname string,
@@ -295,13 +301,13 @@ func (s *UserService) Unfollow(
 
 	if authorId == 0 {
 		if authorname != "" {
-			authorId, err = s.GetIdFromUsername(authorname)
+			authorId, err = s.GetIdFromUsername(ctx, authorname)
 		} else {
 			return nil, ErrInvalidIdOrUsername
 		}
 	}
 
-	user, err := s.repo.Unfollow(userId, authorId)
+	user, err := s.repo.Unfollow(ctx, userId, authorId)
 
 	if err != nil {
 		return nil, err

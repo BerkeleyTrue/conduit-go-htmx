@@ -86,11 +86,14 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		)
 	}
 
-	userId, err := c.userService.Register(services.RegisterParams{
-		Username: registerInput.Username,
-		Email:    registerInput.Email,
-		Password: pass,
-	})
+	userId, err := c.userService.Register(
+		ctx.Context(),
+		services.RegisterParams{
+			Username: registerInput.Username,
+			Email:    registerInput.Email,
+			Password: pass,
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("error registering user: %w", err)
@@ -141,7 +144,11 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		return renderComponent(listErrors(err.(validation.Errors)), ctx)
 	}
 
-	userId, err := c.userService.Login(loginInput.Email, loginInput.Password)
+	userId, err := c.userService.Login(
+		ctx.Context(),
+		loginInput.Email,
+		loginInput.Password,
+	)
 
 	if err != nil {
 		fmt.Printf("error logging in: %+v\n", err)

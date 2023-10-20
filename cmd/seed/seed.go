@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -31,13 +32,15 @@ type (
 var log *slog.Logger = slog.New(slog.NewTextHandler(os.Stdout, nil)).WithGroup("seed")
 
 func genImage() string {
-  return fmt.Sprintf("https://picsum.photos/id/%d/200/200", gofakeit.Number(1, 1000))
+	return fmt.Sprintf("https://picsum.photos/id/%d/200/200", gofakeit.Number(1, 1000))
 }
 
 func generateUser(
 	userService *services.UserService,
 	userRepo domain.UserRepository,
+
 ) (*UserOutputPlusId, error) {
+	ctx := context.Background()
 	pass := gofakeit.Password(true, true, true, true, false, 10)
 	createdAt := gofakeit.DateRange(
 		time.Now().AddDate(-1, 0, 0),
@@ -50,13 +53,14 @@ func generateUser(
 		Password: password.Password(pass),
 	}
 
-	userId, err := userService.Register(input)
+	userId, err := userService.Register(ctx, input)
 
 	if err != nil {
 		return nil, fmt.Errorf("error registering user: %w", err)
 	}
 
 	user, err := userRepo.Update(
+		ctx,
 		userId,
 		func(user domain.User) domain.User {
 			user.Bio = gofakeit.Sentence(10)
@@ -88,6 +92,7 @@ func seed(
 	articleRepo domain.ArticleRepository,
 	shutdown fx.Shutdowner,
 ) {
+	ctx := context.Background()
 	numOfUsers := 30
 	numOfArticles := 20
 
@@ -111,6 +116,7 @@ func seed(
 			)}
 
 			article, err := articleRepo.Create(
+				ctx,
 				domain.ArticleCreateInput{
 					Title:       gofakeit.Sentence(5),
 					Description: gofakeit.Sentence(10),

@@ -84,6 +84,7 @@ func (c *Controller) UpdateSettings(ctx *fiber.Ctx) error {
 	}
 
 	user, err := c.userService.Update(
+		ctx.Context(),
 		ctx.Locals("userId").(int),
 		"",
 		updates,

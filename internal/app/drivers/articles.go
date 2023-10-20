@@ -52,6 +52,7 @@ func (c *Controller) GetArticles(ctx *fiber.Ctx) error {
 	}
 
 	articles, err := c.articleService.List(
+		ctx.Context(),
 		userId,
 		services.ListArticlesInput{
 			Tag:        input.Tag,
@@ -103,6 +104,7 @@ func (c *Controller) getFeed(ctx *fiber.Ctx) error {
 	}
 
 	articles, err := c.articleService.List(
+		ctx.Context(),
 		userId,
 		services.ListArticlesInput{
 			Limit:  input.Limit,

@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"context"
+
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
 )
@@ -16,22 +18,22 @@ type (
 	}
 
 	UserRepository interface {
-	  // Create a new user
-		Create(UserCreateInput) (*User, error)
-	  // Get a user by id
-		GetByID(id int) (*User, error)
-	  // Get a user by email
-		GetByEmail(email string) (*User, error)
-	  // Get a user by username
-		GetByUsername(username string) (*User, error)
-	  // Get authors a user is following
-	  GetFollowing(userId int) ([]int, error)
-	  // Update a user
-		Update(userId int, updater Updater[User]) (*User, error)
-	  // A user follows an author
-		Follow(userId, authorId int) (*User, error)
-	  // A user unfollows an author
-		Unfollow(userId, authorId int) (*User, error)
+		// Create a new user
+		Create(ctx context.Context, input UserCreateInput) (*User, error)
+		// Get a user by id
+		GetByID(ctx context.Context, id int) (*User, error)
+		// Get a user by email
+		GetByEmail(ctx context.Context, email string) (*User, error)
+		// Get a user by username
+		GetByUsername(ctx context.Context, username string) (*User, error)
+		// Get authors a user is following
+		GetFollowing(ctx context.Context, userId int) ([]int, error)
+		// Update a user
+		Update(ctx context.Context, userId int, updater Updater[User]) (*User, error)
+		// A user follows an author
+		Follow(ctx context.Context, userId, authorId int) (*User, error)
+		// A user unfollows an author
+		Unfollow(ctx context.Context, userId, authorId int) (*User, error)
 	}
 
 	ArticleCreateInput struct {
@@ -53,15 +55,15 @@ type (
 	}
 
 	ArticleRepository interface {
-		Create(input ArticleCreateInput) (*Article, error)
-		GetById(articleId int) (*Article, error)
-		GetBySlug(mySlug string) (*Article, error)
-		List(input ArticleListInput) ([]*Article, error)
-		GetPopularTags() ([]string, error)
-		Update(slug string, updater Updater[Article]) (*Article, error)
-		Favorite(slug string, userId int) (*Article, error)
-		Unfavorite(slug string, userId int) (*Article, error)
-		Delete(slug string) error
+		Create(ctx context.Context, input ArticleCreateInput) (*Article, error)
+		GetById(ctx context.Context, articleId int) (*Article, error)
+		GetBySlug(ctx context.Context, mySlug string) (*Article, error)
+		List(ctx context.Context, input ArticleListInput) ([]*Article, error)
+		GetPopularTags(ctx context.Context) ([]string, error)
+		Update(ctx context.Context, slug string, updater Updater[Article]) (*Article, error)
+		Favorite(ctx context.Context, slug string, userId int) (*Article, error)
+		Unfavorite(ctx context.Context, slug string, userId int) (*Article, error)
+		Delete(ctx context.Context, slug string) error
 	}
 
 	CommentCreateInput struct {
@@ -71,10 +73,10 @@ type (
 	}
 
 	CommentRepository interface {
-		Create(input CommentCreateInput) (*Comment, error)
-		GetById(commentId string) (*Comment, error)
-		GetByArticleId(articleId string) ([]*Comment, error)
-		Update(commentId string, updater Updater[Comment]) (*Comment, error)
-		Delete(commentId string) error
+		Create(ctx context.Context, input CommentCreateInput) (*Comment, error)
+		GetById(ctx context.Context, commentId string) (*Comment, error)
+		GetByArticleId(ctx context.Context, articleId string) ([]*Comment, error)
+		Update(ctx context.Context, commentId string, updater Updater[Comment]) (*Comment, error)
+		Delete(ctx context.Context, commentId string) error
 	}
 )

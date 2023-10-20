@@ -66,7 +66,7 @@ func RegisterSessionMiddleware(
 		if !ok {
 			ctx.Locals("userId", 0)
 		} else {
-			user, err := userService.GetUser(userId)
+			user, err := userService.GetUser(ctx.Context(), userId)
 
 			if err != nil {
 				session.Destroy()
@@ -107,7 +107,7 @@ func NewAuthMiddleware(
 			return ctx.Redirect("/login", fiber.StatusSeeOther)
 		}
 
-		user, err := userService.GetUser(userId)
+		user, err := userService.GetUser(ctx.Context(), userId)
 
 		if err != nil {
 			session.Destroy()

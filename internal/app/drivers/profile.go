@@ -19,6 +19,7 @@ func (c *Controller) GetProfile(ctx *fiber.Ctx) error {
 	}
 
 	_profile, err := c.userService.GetProfile(
+		ctx.Context(),
 		0,
 		authorname,
 		userId,

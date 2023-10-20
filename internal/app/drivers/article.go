@@ -14,7 +14,7 @@ func (c *Controller) getArticle(ctx *fiber.Ctx) error {
 		userId = 0
 	}
 
-	_article, err := c.articleService.GetBySlug(slug, userId)
+	_article, err := c.articleService.GetBySlug(ctx.Context(), slug, userId)
 
 	fmt.Printf("%v\n", _article)
 

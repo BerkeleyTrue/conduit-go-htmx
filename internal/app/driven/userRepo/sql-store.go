@@ -50,8 +50,7 @@ func registerUserSchema(db *sqlx.DB) error {
 	return nil
 }
 
-func (q *Queries) Create(input domain.UserCreateInput) (*domain.User, error) {
-	ctx := context.Background()
+func (q *Queries) Create(ctx context.Context, input domain.UserCreateInput) (*domain.User, error) {
 	params := createParams{
 		Username:  input.Username,
 		Email:     input.Email,
@@ -71,8 +70,8 @@ func (q *Queries) Create(input domain.UserCreateInput) (*domain.User, error) {
 	return formatToDomain(user, nil), err
 }
 
-func (q *Queries) GetByID(id int) (*domain.User, error) {
-	user, err := q.getById(context.Background(), int64(id))
+func (q *Queries) GetByID(ctx context.Context, id int) (*domain.User, error) {
+	user, err := q.getById(ctx, int64(id))
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
@@ -81,8 +80,8 @@ func (q *Queries) GetByID(id int) (*domain.User, error) {
 	return formatToDomain(user, nil), nil
 }
 
-func (q *Queries) GetByEmail(email string) (*domain.User, error) {
-	user, err := q.getByEmail(context.Background(), email)
+func (q *Queries) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	user, err := q.getByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
@@ -90,8 +89,8 @@ func (q *Queries) GetByEmail(email string) (*domain.User, error) {
 	return formatToDomain(user, nil), nil
 }
 
-func (q *Queries) GetByUsername(username string) (*domain.User, error) {
-	user, err := q.getByUsername(context.Background(), username)
+func (q *Queries) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+	user, err := q.getByUsername(ctx, username)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
@@ -100,8 +99,8 @@ func (q *Queries) GetByUsername(username string) (*domain.User, error) {
 	return formatToDomain(user, nil), nil
 }
 
-func (q *Queries) GetFollowing(userId int) ([]int, error) {
-	following, err := q.getFollowing(context.Background(), int64(userId))
+func (q *Queries) GetFollowing(ctx context.Context, userId int) ([]int, error) {
+	following, err := q.getFollowing(ctx, int64(userId))
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting following: %w", err)
@@ -113,10 +112,10 @@ func (q *Queries) GetFollowing(userId int) ([]int, error) {
 }
 
 func (q *Queries) Update(
+	ctx context.Context,
 	userId int,
 	updater domain.Updater[domain.User],
 ) (*domain.User, error) {
-	ctx := context.Background()
 	user, err := q.getById(ctx, int64(userId))
 
 	if err != nil {
@@ -177,8 +176,7 @@ func (q *Queries) Update(
 	return formatToDomain(user, nil), nil
 }
 
-func (q *Queries) Follow(userId, authorId int) (*domain.User, error) {
-	ctx := context.Background()
+func (q *Queries) Follow(ctx context.Context, userId, authorId int) (*domain.User, error) {
 	_, err := q.follow(ctx, followParams{UserID: int64(userId), FollowerID: int64(authorId)})
 
 	if err != nil {
@@ -200,8 +198,7 @@ func (q *Queries) Follow(userId, authorId int) (*domain.User, error) {
 	return formatToDomain(author, &followers), nil
 }
 
-func (q *Queries) Unfollow(userId, authorId int) (*domain.User, error) {
-	ctx := context.Background()
+func (q *Queries) Unfollow(ctx context.Context, userId, authorId int) (*domain.User, error) {
 	_, err := q.unfollow(ctx, unfollowParams{UserID: int64(userId), FollowerID: int64(authorId)})
 
 	if err != nil {

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"os"
 
@@ -79,10 +80,11 @@ func NewArticleService(
 }
 
 func (s *ArticleService) Create(
+	ctx context.Context,
 	userId int,
 	input ArticleCreateInput,
 ) (ArticleOutput, error) {
-	article, err := s.repo.Create(domain.ArticleCreateInput{
+	article, err := s.repo.Create(ctx, domain.ArticleCreateInput{
 		Title:       input.Title,
 		Description: input.Description,
 		Body:        input.Body,
@@ -97,7 +99,7 @@ func (s *ArticleService) Create(
 		return ArticleOutput{}, err
 	}
 
-	profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
+	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", userId)
 
 	if err != nil {
 		return ArticleOutput{}, err
@@ -119,6 +121,7 @@ var WarningNoFollowers = errors.New("user is not following anyone")
 
 // Get all articles, filtered by authorId, tag, favorited, limit, offset, or by following
 func (s *ArticleService) List(
+	ctx context.Context,
 	userId int,
 	input ListArticlesInput,
 ) ([]ArticleOutput, error) {
@@ -128,7 +131,7 @@ func (s *ArticleService) List(
 	}
 
 	if input.Feed {
-		followed, err := s.userService.GetFollowing(userId)
+		followed, err := s.userService.GetFollowing(ctx, userId)
 
 		if err != nil {
 			return nil, err
@@ -142,7 +145,7 @@ func (s *ArticleService) List(
 	} else {
 		params.Tag = input.Tag
 		if input.Authorname != "" {
-			authorId, err := s.userService.GetIdFromUsername(input.Authorname)
+			authorId, err := s.userService.GetIdFromUsername(ctx, input.Authorname)
 
 			if err != nil {
 				return nil, err
@@ -153,7 +156,7 @@ func (s *ArticleService) List(
 		}
 
 		if input.Favorited != "" {
-			favoritedId, err := s.userService.GetIdFromUsername(input.Favorited)
+			favoritedId, err := s.userService.GetIdFromUsername(ctx, input.Favorited)
 			if err != nil {
 				return nil, err
 			}
@@ -161,7 +164,7 @@ func (s *ArticleService) List(
 		}
 	}
 
-	articles, err := s.repo.List(params)
+	articles, err := s.repo.List(ctx, params)
 
 	if err != nil {
 		return nil, err
@@ -170,7 +173,12 @@ func (s *ArticleService) List(
 	outputs := make([]ArticleOutput, len(articles))
 
 	for idx, article := range articles {
-		profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
+		profile, err := s.userService.GetProfile(
+			ctx,
+			article.AuthorId,
+			"",
+			userId,
+		)
 
 		if err != nil {
 			s.log.Debug("error getting profile", "error", err)
@@ -183,21 +191,22 @@ func (s *ArticleService) List(
 	return outputs, err
 }
 
-func (s *ArticleService) GetPopularTags() ([]string, error) {
-	return s.repo.GetPopularTags()
+func (s *ArticleService) GetPopularTags(ctx context.Context) ([]string, error) {
+	return s.repo.GetPopularTags(ctx)
 }
 
 func (s *ArticleService) GetBySlug(
+	ctx context.Context,
 	slug string,
 	userId int,
 ) (ArticleOutput, error) {
-	article, err := s.repo.GetBySlug(slug)
+	article, err := s.repo.GetBySlug(ctx, slug)
 
 	if err != nil {
 		return ArticleOutput{}, err
 	}
 
-	profile, err := s.userService.GetProfile(article.AuthorId, "", userId)
+	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", userId)
 
 	if err != nil {
 		return ArticleOutput{}, err
@@ -206,8 +215,12 @@ func (s *ArticleService) GetBySlug(
 	return formatArticle(article, *profile), nil
 }
 
-func (s *ArticleService) GetIdFromSlug(slug string, userId int) (int, error) {
-	article, err := s.repo.GetBySlug(slug)
+func (s *ArticleService) GetIdFromSlug(
+	ctx context.Context,
+	slug string,
+	userId int,
+) (int, error) {
+	article, err := s.repo.GetBySlug(ctx, slug)
 
 	if err != nil {
 		return 0, err
@@ -217,30 +230,35 @@ func (s *ArticleService) GetIdFromSlug(slug string, userId int) (int, error) {
 }
 
 func (s *ArticleService) Update(
+	ctx context.Context,
 	slug string,
 	username string,
 	input ArticleUpdateInput,
 ) (ArticleOutput, error) {
-	article, err := s.repo.Update(slug, func(a domain.Article) domain.Article {
-		if input.Title != "" {
-			a.Title = input.Title
-		}
+	article, err := s.repo.Update(
+		ctx,
+		slug,
+		func(a domain.Article) domain.Article {
+			if input.Title != "" {
+				a.Title = input.Title
+			}
 
-		if input.Description != "" {
-			a.Description = input.Description
-		}
+			if input.Description != "" {
+				a.Description = input.Description
+			}
 
-		if input.Body != "" {
-			a.Body = input.Body
-		}
-		return a
-	})
+			if input.Body != "" {
+				a.Body = input.Body
+			}
+			return a
+		},
+	)
 
 	if err != nil {
 		return ArticleOutput{}, err
 	}
 
-	profile, err := s.userService.GetProfile(article.AuthorId, "", 0)
+	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", 0)
 
 	if err != nil {
 		return ArticleOutput{}, err
@@ -250,18 +268,23 @@ func (s *ArticleService) Update(
 }
 
 func (s *ArticleService) Favorite(
+	ctx context.Context,
 	slug string,
 	username string,
 ) (ArticleOutput, error) {
-	article, err := s.repo.Update(slug, func(a domain.Article) domain.Article {
-		return a
-	})
+	article, err := s.repo.Update(
+		ctx,
+		slug,
+		func(a domain.Article) domain.Article {
+			return a
+		},
+	)
 
 	if err != nil {
 		return ArticleOutput{}, err
 	}
 
-	profile, err := s.userService.GetProfile(article.AuthorId, "", 0)
+	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", 0)
 
 	if err != nil {
 		return ArticleOutput{}, err
@@ -270,6 +293,9 @@ func (s *ArticleService) Favorite(
 	return formatArticle(article, *profile), nil
 }
 
-func (s *ArticleService) Delete(slug string, username string) error {
-	return s.repo.Delete(slug)
+func (s *ArticleService) Delete(
+	ctx context.Context,
+	slug string,
+) error {
+	return s.repo.Delete(ctx, slug)
 }
