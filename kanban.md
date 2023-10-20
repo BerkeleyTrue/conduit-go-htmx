@@ -1,17 +1,5 @@
 # TODO
 
-- Comments
-  - API
-    - [ ] create comment on article
-    - [ ] delete comment from article
-    - [ ] get articles by slug
-    - [ ] get by id
-    - [ ] get by user?
-  - Repo
-    - [ ] create, read, delete
-  - Service
-    - [ ] create, read, delete
-    - [ ] mark if owner
 - Add seed data import (use gofakeit)
   - [ ] add comments
   - [x] add users
@@ -44,7 +32,18 @@
 
 # Doing
 
-- Use fastHttp context in sql requests
+- Comments
+  - API
+    - [ ] create comment on article
+    - [ ] delete comment from article
+    - [ ] get articles by slug
+    - [ ] get by id
+    - [ ] get by user?
+  - Repo
+    - [ ] create, read, delete
+  - Service
+    - [ ] create, read, delete
+    - [ ] mark if owner
 
 # Done
 
@@ -90,3 +89,4 @@
   - [x] add banners
   - [x] add error message on htmx 500
 - fix session stored alerts
+- Use fastHttp context in sql requests (this caused a lot of disk io issues with sqlite 🤷)
