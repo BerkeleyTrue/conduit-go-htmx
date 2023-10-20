@@ -19,3 +19,13 @@ sql:
         output_files_suffix: ".gen"
         output_db_file_name: "db.gen"
         output_models_file_name: "models.gen"
+
+  - engine: "sqlite"
+    schema: "internal/app/driven/commentsRepo/sql/schema.sql"
+    queries: "internal/app/driven/commentsRepo/sql/queries.sql"
+    gen:
+      go:
+        out: "internal/app/driven/commentsRepo"
+        output_files_suffix: ".gen"
+        output_db_file_name: "db.gen"
+        output_models_file_name: "models.gen"
