@@ -1,6 +1,8 @@
 package session
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/sqlite3"
@@ -19,7 +21,37 @@ func NewSessionStore(cfg *config.Config) *session.Store {
 	})
 }
 
-func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService *services.UserService) {
+// SaveUser saves the user id in the session
+func SaveUser(ctx *fiber.Ctx, userId int) error {
+	session, ok := ctx.Locals("session").(*session.Session)
+
+	if !ok {
+		return fmt.Errorf("session not found")
+	}
+
+	session.Set("userId", userId)
+
+	return nil
+}
+
+// Logout destroys the session
+func Logout(ctx *fiber.Ctx) error {
+	session, ok := ctx.Locals("session").(*session.Session)
+
+	if !ok {
+		return fmt.Errorf("session not found")
+	}
+
+	return session.Destroy()
+}
+
+func RegisterSessionMiddleware(
+	app *fiber.App,
+	store *session.Store,
+	userService *services.UserService,
+) {
+	store.RegisterType(flashMap{})
+
 	app.Use(func(ctx *fiber.Ctx) error {
 		session, err := store.Get(ctx)
 
@@ -46,11 +78,22 @@ func RegisterSessionMiddleware(app *fiber.App, store *session.Store, userService
 			ctx.Locals("username", user.Username)
 		}
 
-		return ctx.Next()
+		err = ctx.Next()
+
+		if err != nil {
+			return err
+		}
+
+		// Persist session data to the storage after request
+		return session.Save()
 	})
 }
 
-func NewAuthMiddleware(app *fiber.App, store *session.Store, userService *services.UserService) fiber.Handler {
+func NewAuthMiddleware(
+	app *fiber.App,
+	store *session.Store,
+	userService *services.UserService,
+) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		session, err := store.Get(ctx)
 

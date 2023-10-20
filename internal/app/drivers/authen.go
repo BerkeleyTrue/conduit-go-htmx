@@ -9,6 +9,7 @@ import (
 
 	"github.com/berkeleytrue/conduit/internal/core/services"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
 
 func (c *Controller) GetLogin(ctx *fiber.Ctx) error {
@@ -95,24 +96,18 @@ func (c *Controller) Register(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error registering user: %w", err)
 	}
 
-	// fmt.Printf("register success: %+v\n", registerInput)
-
-	session, err := c.store.Get(ctx)
+	err = session.SaveUser(ctx, userId)
 
 	if err != nil {
-		return fmt.Errorf("error getting session: %w", err)
+		return fmt.Errorf("error saving user: %w", err)
 	}
 
-	session.Set("userId", userId)
-	err = session.Save()
+	err = session.AddFlash(ctx, "success", "Welcome to Conduit!")
 
 	if err != nil {
-		return fmt.Errorf("error saving session: %w", err)
+		c.log.Debug("error adding flash", "error", err)
 	}
 
-	getLayoutProps(ctx).
-		addAlert("success", "Welcome to Conduit!").
-		storeAlerts(ctx)
 	return ctx.Redirect("/", fiber.StatusSeeOther)
 }
 
@@ -157,33 +152,27 @@ func (c *Controller) Login(ctx *fiber.Ctx) error {
 		return renderComponent(listErrors(map[string]error{"login": err}), ctx)
 	}
 
-	session, err := c.store.Get(ctx)
-
-	if err != nil {
-		return fmt.Errorf("error getting session: %w", err)
-	}
-
-	session.Set("userId", userId)
-	err = session.Save()
+	err = session.SaveUser(ctx, userId)
 
 	if err != nil {
 		return fmt.Errorf("error saving session: %w", err)
 	}
 
-	getLayoutProps(ctx).
-		addAlert("success", "Logged in successfully!").
-		storeAlerts(ctx)
+	err = session.AddFlash(ctx, session.Success, "Logged in successfully!")
+
+	if err != nil {
+		c.log.Debug("error adding flash", "error", err)
+	}
+
 	return ctx.Redirect("/", fiber.StatusSeeOther)
 }
 
 func (c *Controller) Logout(ctx *fiber.Ctx) error {
-	session, err := c.store.Get(ctx)
+	err := session.Logout(ctx)
 
 	if err != nil {
-		return fmt.Errorf("error getting session: %w", err)
+		return fmt.Errorf("error logging out: %w", err)
 	}
-
-	session.Destroy()
 
 	ctx.Response().Header.Add("HX-Push-Url", "/")
 	return ctx.Redirect("/", fiber.StatusSeeOther)

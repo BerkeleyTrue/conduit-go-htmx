@@ -2,8 +2,8 @@ package drivers
 
 import (
 	"github.com/a-h/templ"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 func renderComponent(comp templ.Component, ctx *fiber.Ctx) error {
@@ -22,22 +22,11 @@ func getLayoutProps(ctx *fiber.Ctx) layoutProps {
 	return _layoutProps
 }
 
-func (lp layoutProps) addAlert(class, msg string) layoutProps {
+func (lp layoutProps) addFlashes(ctx *fiber.Ctx) layoutProps {
+	flashes, err := session.GetFlashes(ctx)
 
-	lp.alerts = append(lp.alerts, alertPackage{
-		class: class,
-		msg:   msg,
-	})
-
-	return lp
-}
-
-func (lp layoutProps) storeAlerts(ctx *fiber.Ctx) layoutProps {
-
-	session, ok := ctx.Locals("session").(*session.Session)
-
-	if ok {
-		session.Set("alerts", lp.alerts)
+	if err == nil {
+		lp.flashes = flashes
 	}
 	return lp
 }

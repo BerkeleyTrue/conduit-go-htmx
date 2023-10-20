@@ -2,6 +2,7 @@ package drivers
 
 import "github.com/berkeleytrue/conduit/internal/core/services"
 import "fmt"
+import "github.com/berkeleytrue/conduit/internal/infra/session"
 
 type headerProps struct {
 	title  string
@@ -63,14 +64,14 @@ templ footer() {
 }
 
 type layoutProps struct {
-	title  string
-	page   string
-	uri    string
-	userId int
-	user   services.UserOutput
-	links  []Link
-	isDev  bool
-	alerts []alertPackage
+	title   string
+	page    string
+	uri     string
+	userId  int
+	user    services.UserOutput
+	links   []Link
+	isDev   bool
+	flashes []session.Flash
 }
 
 templ layout(props layoutProps) {
@@ -130,7 +131,7 @@ templ layout(props layoutProps) {
  				hidden
 			></div>
 			@alerts(alertProps{
-        alerts: props.alerts,
+        flashes: props.flashes,
       })
 			@header(headerProps{
         title: props.title,

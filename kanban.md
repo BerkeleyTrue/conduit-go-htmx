@@ -1,6 +1,5 @@
 # TODO
 
-- Use fastHttp context in sql requests
 - Comments
   - API
     - [ ] create comment on article
@@ -45,7 +44,7 @@
 
 # Doing
 
-- fix session stored alerts
+- Use fastHttp context in sql requests
 
 # Done
 
@@ -90,3 +89,4 @@
 - Views
   - [x] add banners
   - [x] add error message on htmx 500
+- fix session stored alerts

@@ -1,15 +1,11 @@
 package drivers
 
 import "fmt"
+import "github.com/berkeleytrue/conduit/internal/infra/session"
 
-type alertPackage struct {
-	msg   string
-	class string
-}
-
-templ alert(alert alertPackage) {
+templ alert(class, msg string) {
 	<div
- 		class={ fmt.Sprintf("alert alert-dismissible fade alert-%s", alert.class) }
+ 		Class={ fmt.Sprintf("alert alert-dismissible fade alert-%s", class) }
  		role="alert"
  		hidden
  		_={ fmt.Sprintf(`
@@ -23,9 +19,9 @@ templ alert(alert alertPackage) {
           remove me
           send removed to #alerts
         end
-    `, alert.class != "danger") }
+    `, class != "danger") }
 	>
-		{ alert.msg }
+		{ msg }
 		<button
  			_="on click remove closest .alert then send removed to #alerts"
  			type="button"
@@ -39,11 +35,11 @@ templ alert(alert alertPackage) {
 }
 
 type alertProps struct {
-	alerts []alertPackage
+	flashes []session.Flash
 }
 
 templ alerts(props alertProps) {
-	if len(props.alerts) > 0 {
+	if len(props.flashes) > 0 {
 		<div
  			_="
         init
@@ -64,8 +60,8 @@ templ alerts(props alertProps) {
  			id="alerts"
  			class="fixed"
 		>
-			for _, _alert := range props.alerts {
-				@alert(_alert)
+			for _, _alert := range props.flashes {
+				@alert(_alert.Class, _alert.Message)
 			}
 		</div>
 	}

@@ -4,17 +4,16 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"go.uber.org/fx"
 	"golang.org/x/exp/slog"
 
 	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/core/services"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
 
 type (
 	Controller struct {
-		store          *session.Store
 		userService    *services.UserService
 		articleService *services.ArticleService
 		log            *slog.Logger
@@ -67,13 +66,11 @@ var (
 )
 
 func NewController(
-	store *session.Store,
 	userService *services.UserService,
 	articleService *services.ArticleService,
 ) *Controller {
 
 	return &Controller{
-		store:          store,
 		userService:    userService,
 		articleService: articleService,
 		onStart:        make(chan struct{}, 1),
@@ -112,19 +109,6 @@ func RegisterRoutes(
 			user = &services.UserOutput{}
 		}
 
-		alerts := []alertPackage{}
-
-		session, ok := ctx.Locals("session").(*session.Session)
-
-		if ok {
-			_alerts, ok := session.Get("alerts").([]alertPackage)
-
-			if ok {
-				alerts = _alerts
-				session.Delete("alerts")
-			}
-		}
-
 		ctx.Locals("layoutProps", layoutProps{
 			title:  "Conduit",
 			page:   ctx.Path(),
@@ -133,7 +117,6 @@ func RegisterRoutes(
 			user:   *user,
 			links:  links,
 			isDev:  config.Release == "development",
-			alerts: alerts,
 		})
 
 		return ctx.Next()
@@ -161,9 +144,16 @@ func RegisterRoutes(
 }
 
 func (c *Controller) Index(ctx *fiber.Ctx) error {
+	flashes, err := session.GetFlashes(ctx)
+
+	if err != nil {
+		return err
+	}
+
 	_layoutProps := getLayoutProps(ctx)
 
 	_layoutProps.title = "Home"
+	_layoutProps.flashes = flashes
 
 	p := indexProps{
 		layoutProps: _layoutProps,
