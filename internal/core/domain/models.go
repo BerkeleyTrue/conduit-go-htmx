@@ -8,36 +8,35 @@ import (
 
 type (
 	User struct {
-		// TODO: remove the tags
-		UserId    int                     `json:"userId"    db:"id"`
-		Username  string                  `json:"username"`
-		Email     string                  `json:"email"`
-		Password  password.HashedPassword `json:"password"`
-		Followers []int                   `json:"following"`
-		Bio       string                  `json:"bio"`
-		Image     string                  `json:"image"`
-		CreatedAt krono.Krono             `json:"createdAt" db:"created_at"`
-		UpdatedAt krono.Krono             `json:"updatedAt" db:"updated_at"`
+		UserId    int
+		Username  string
+		Email     string
+		Password  password.HashedPassword
+		Followers []int
+		Bio       string
+		Image     string
+		CreatedAt krono.Krono
+		UpdatedAt krono.Krono
 	}
 
 	Article struct {
-		ArticleId   int         `json:"articleId" db:"id"`
-		AuthorId    int         `json:"authorId"  db:"author_id"`
-		Title       string      `json:"title" db:"title"`
-		Slug        slug.Slug   `json:"slug"  db:"slug"`
-		Description string      `json:"description" db:"description"`
-		Body        string      `json:"body"        db:"body"`
-		Tags        []string    `json:"Tags"`
-		CreatedAt   krono.Krono `json:"createdAt" db:"created_at"`
-		UpdatedAt   krono.Krono `json:"updatedAt" db:"updated_at"`
+		ArticleId   int
+		AuthorId    int
+		Title       string
+		Slug        slug.Slug
+		Description string
+		Body        string
+		Tags        []string
+		CreatedAt   krono.Krono
+		UpdatedAt   krono.Krono
 	}
 
 	Comment struct {
-		CommentId string `json:"commentId"`
-		AuthorId  string `json:"authorId"`
-		ArticleId string `json:"articleId"`
-		Body      string `json:"body"`
-		CreatedAt string `json:"createdAt"`
-		UpdatedAt string `json:"updatedAt"`
+		CommentId string
+		AuthorId  string
+		ArticleId string
+		Body      string
+		CreatedAt string
+		UpdatedAt string
 	}
 )
