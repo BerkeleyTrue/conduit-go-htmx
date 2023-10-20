@@ -1,6 +1,7 @@
 package drivers
 
 import (
+	"context"
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -49,6 +50,7 @@ func (r *SettingsInput) validate() error {
 }
 
 func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	settingsInput := SettingsInput{}
 
 	if err := fc.BodyParser(&settingsInput); err != nil {
@@ -84,7 +86,7 @@ func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
 	}
 
 	user, err := c.userService.Update(
-		fc.Context(),
+		ctx,
 		fc.Locals("userId").(int),
 		"",
 		updates,

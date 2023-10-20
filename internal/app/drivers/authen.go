@@ -1,6 +1,7 @@
 package drivers
 
 import (
+	"context"
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -60,6 +61,7 @@ func (r *RegisterInput) validate() error {
 }
 
 func (c *Controller) Register(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	registerInput := RegisterInput{}
 
 	if err := fc.BodyParser(&registerInput); err != nil {
@@ -87,7 +89,7 @@ func (c *Controller) Register(fc *fiber.Ctx) error {
 	}
 
 	userId, err := c.userService.Register(
-		fc.Context(),
+		ctx,
 		services.RegisterParams{
 			Username: registerInput.Username,
 			Email:    registerInput.Email,
@@ -132,6 +134,7 @@ func (i *LoginInput) validate() error {
 }
 
 func (c *Controller) Login(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	loginInput := LoginInput{}
 	if err := fc.BodyParser(&loginInput); err != nil {
 		return fmt.Errorf("error parsing login input: %w", err)
@@ -145,7 +148,7 @@ func (c *Controller) Login(fc *fiber.Ctx) error {
 	}
 
 	userId, err := c.userService.Login(
-		fc.Context(),
+		ctx,
 		loginInput.Email,
 		loginInput.Password,
 	)

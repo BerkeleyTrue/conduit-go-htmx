@@ -1,12 +1,14 @@
 package drivers
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (c *Controller) getArticle(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	slug := fc.Params("slug")
 	userId, ok := fc.Locals("userId").(int)
 
@@ -14,7 +16,7 @@ func (c *Controller) getArticle(fc *fiber.Ctx) error {
 		userId = 0
 	}
 
-	_article, err := c.articleService.GetBySlug(fc.Context(), slug, userId)
+	_article, err := c.articleService.GetBySlug(ctx, slug, userId)
 
 	fmt.Printf("%v\n", _article)
 

@@ -1,10 +1,13 @@
 package drivers
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func (c *Controller) GetProfile(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	authorname := fc.Params("username")
 	userId, ok := fc.Locals("userId").(int)
 
@@ -19,7 +22,7 @@ func (c *Controller) GetProfile(fc *fiber.Ctx) error {
 	}
 
 	_profile, err := c.userService.GetProfile(
-		fc.Context(),
+		ctx,
 		0,
 		authorname,
 		userId,

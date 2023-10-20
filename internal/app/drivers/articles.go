@@ -32,6 +32,7 @@ func (i *GetArticlesInput) validate() error {
 // author=authorname, favorited=authorname, tag=string, limit=int, offset=int
 // is authenticated, check if articles is favorited by user
 func (c *Controller) GetArticles(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	input := new(GetArticlesInput)
 
 	if err := fc.QueryParser(input); err != nil {
@@ -53,7 +54,7 @@ func (c *Controller) GetArticles(fc *fiber.Ctx) error {
 	}
 
 	articles, err := c.articleService.List(
-		ctx.Context(),
+		ctx,
 		userId,
 		services.ListArticlesInput{
 			Tag:        input.Tag,
@@ -84,6 +85,7 @@ type getFeedParams struct {
 }
 
 func (c *Controller) getFeed(fc *fiber.Ctx) error {
+	ctx := context.Background()
 	input := new(getFeedParams)
 
 	if err := fc.QueryParser(input); err != nil {
@@ -105,7 +107,7 @@ func (c *Controller) getFeed(fc *fiber.Ctx) error {
 	}
 
 	articles, err := c.articleService.List(
-		fc.Context(),
+		ctx,
 		userId,
 		services.ListArticlesInput{
 			Limit:  input.Limit,

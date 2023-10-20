@@ -1,9 +1,13 @@
 package drivers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"context"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func (c *Controller) GetPopularTags(fc *fiber.Ctx) error {
-	tags, err := c.articleService.GetPopularTags(fc.Context())
+	tags, err := c.articleService.GetPopularTags(context.Background())
 
 	if err != nil {
 		return err
