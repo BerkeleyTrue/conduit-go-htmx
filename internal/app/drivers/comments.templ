@@ -23,6 +23,11 @@ templ commentComp(props commentProps) {
 				{ props.Author.Username }
 			</a>
 			<span class="date-posted">{ props.CreatedAt.ToString() }</span>
+			if props.IsAuthor {
+				<span class="mod-options">
+					<i class="ion-trash-a"></i>
+				</span>
+			}
 		</div>
 	</div>
 }

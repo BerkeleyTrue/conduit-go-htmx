@@ -23,6 +23,7 @@ type (
 		Body      string
 		CreatedAt krono.Krono
 		Author    PublicProfile
+		IsAuthor  bool
 	}
 )
 
@@ -44,12 +45,14 @@ func newCommentService(
 func formatToCommentOutput(
 	comment *domain.Comment,
 	profile *PublicProfile,
+	userId int,
 ) *CommentOutput {
 	return &CommentOutput{
 		Id:        comment.CommentId,
 		Body:      comment.Body,
 		CreatedAt: comment.CreatedAt,
 		Author:    *profile,
+		IsAuthor:  comment.AuthorId == userId,
 	}
 }
 
@@ -87,7 +90,7 @@ func (s *CommentService) Create(
 		return nil, errors.New("no user found with that id")
 	}
 
-	return formatToCommentOutput(comment, profile), nil
+	return formatToCommentOutput(comment, profile, comment.AuthorId), nil
 }
 
 func (s *CommentService) GetBySlug(
@@ -124,7 +127,7 @@ func (s *CommentService) GetBySlug(
 
 		commentsOut = append(
 			commentsOut,
-			formatToCommentOutput(comment, profile),
+			formatToCommentOutput(comment, profile, userId),
 		)
 	}
 
