@@ -177,7 +177,14 @@ func (q *Queries) Update(
 }
 
 func (q *Queries) Follow(ctx context.Context, userId, authorId int) (*domain.User, error) {
-	_, err := q.follow(ctx, followParams{UserID: int64(userId), FollowerID: int64(authorId)})
+	_, err := q.follow(
+		ctx,
+		followParams{
+			UserID:     int64(userId),
+			FollowerID: int64(authorId),
+			CreatedAt:  krono.Now().ToString(),
+		},
+	)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error following author: %w", err)

@@ -50,14 +50,13 @@ FROM
 WHERE
   user_id = ?;
 
-
 -- name: getFollowing :many
 SELECT
   f.user_id
 FROM
   followers f
 WHERE
-  f.follower_id = sqlc.arg(user_id);
+  f.follower_id = sqlc.arg (user_id);
 
 -- name: update :one
 UPDATE users
@@ -74,9 +73,9 @@ WHERE
 
 -- name: follow :execrows
 INSERT INTO
-  followers (user_id, follower_id)
+  followers (user_id, follower_id, created_at)
 VALUES
-  (?, ?);
+  (?, ?, ?);
 
 -- name: unfollow :execrows
 DELETE FROM followers
