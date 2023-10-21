@@ -1,15 +1,5 @@
 # TODO
 
-- Add seed data import (use gofakeit)
-  - [ ] add comments
-  - [x] add users
-  - [x] add articles
-  - [x] Add get route
-  - [x] return list of articles
-  - [x] add author details
-  - [x] Check if user is following article author
-  - [x] move createAt out of repo, into service
-    - This should allow us to manipulate created at during seeding
 - Get article page
   - [ ] delete if owner
   - [ ] comments
@@ -36,7 +26,7 @@
   - API
     - [ ] create comment on article
     - [ ] delete comment from article
-    - [ ] get articles by slug
+    - [x] get articles by slug
     - [ ] get by id
     - [ ] get by user?
   - Repo
@@ -97,3 +87,13 @@
   - [x] add error message on htmx 500
 - fix session stored alerts
 - Use fastHttp context in sql requests (this caused a lot of disk io issues with sqlite 🤷)
+- Add seed data import (use gofakeit)
+  - [x] add comments
+  - [x] add users
+  - [x] add articles
+  - [x] Add get route
+  - [x] return list of articles
+  - [x] add author details
+  - [x] Check if user is following article author
+  - [x] move createAt out of repo, into service
+    - This should allow us to manipulate created at during seeding
