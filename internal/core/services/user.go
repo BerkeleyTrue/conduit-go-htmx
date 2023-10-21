@@ -63,10 +63,16 @@ func isFollowing(author *domain.User, userId int) bool {
 }
 
 func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
+	image := author.Image
+
+	if image == "" {
+		image = "https://static.productionready.io/images/smiley-cyrus.jpg"
+	}
+
 	return &PublicProfile{
 		Username:  author.Username,
 		Bio:       author.Bio,
-		Image:     author.Image,
+		Image:     image,
 		Following: following,
 	}
 }
