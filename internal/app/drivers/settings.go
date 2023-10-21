@@ -10,6 +10,7 @@ import (
 
 	"github.com/berkeleytrue/conduit/internal/core/services"
 	"github.com/berkeleytrue/conduit/internal/infra/data/password"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
 
 type (
@@ -24,8 +25,18 @@ type (
 
 func (c *Controller) GetSettings(fc *fiber.Ctx) error {
 	props := settingsProps{
-		user: *fc.Locals("user").(*services.UserOutput),
+		layoutProps: getLayoutProps(fc),
+		user:        *fc.Locals("user").(*services.UserOutput),
 	}
+	props.layoutProps.title = "Settings"
+	flashes, err := session.GetFlashes(fc)
+
+	if err != nil {
+		c.log.Debug("Error getting flashes", "error", err)
+	} else {
+		props.layoutProps.flashes = flashes
+	}
+
 	return renderComponent(settings(props), fc)
 }
 
@@ -49,6 +60,7 @@ func (r *SettingsInput) validate() error {
 	)
 }
 
+// TODO: add flash on success
 func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
 	ctx := context.Background()
 	settingsInput := SettingsInput{}
@@ -108,5 +120,6 @@ func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
 		layoutProps: _layoutProps,
 		user:        *user,
 	}
+
 	return renderComponent(settings(props), fc)
 }

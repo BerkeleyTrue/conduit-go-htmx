@@ -2,7 +2,6 @@ package drivers
 
 import (
 	"github.com/a-h/templ"
-	"github.com/berkeleytrue/conduit/internal/infra/session"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,13 +19,4 @@ func getLayoutProps(fc *fiber.Ctx) layoutProps {
 	}
 
 	return _layoutProps
-}
-
-func (lp layoutProps) addFlashes(fc *fiber.Ctx) layoutProps {
-	flashes, err := session.GetFlashes(fc)
-
-	if err == nil {
-		lp.flashes = flashes
-	}
-	return lp
 }
