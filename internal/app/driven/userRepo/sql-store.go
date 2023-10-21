@@ -180,8 +180,8 @@ func (q *Queries) Follow(ctx context.Context, userId, authorId int) (*domain.Use
 	_, err := q.follow(
 		ctx,
 		followParams{
-			UserID:     int64(userId),
-			FollowerID: int64(authorId),
+			AuthorID:   int64(authorId),
+			FollowerID: int64(userId),
 			CreatedAt:  krono.Now().ToString(),
 		},
 	)
@@ -206,7 +206,10 @@ func (q *Queries) Follow(ctx context.Context, userId, authorId int) (*domain.Use
 }
 
 func (q *Queries) Unfollow(ctx context.Context, userId, authorId int) (*domain.User, error) {
-	_, err := q.unfollow(ctx, unfollowParams{UserID: int64(userId), FollowerID: int64(authorId)})
+	_, err := q.unfollow(ctx, unfollowParams{
+		FollowerID: int64(userId),
+		AuthorID:   int64(authorId),
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error unfollowing author: %w", err)

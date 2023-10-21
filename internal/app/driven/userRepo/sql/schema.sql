@@ -13,10 +13,10 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS followers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
     follower_id INTEGER NOT NULL,
     created_at TEXT NOT NULL,
-    UNIQUE (user_id, follower_id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
+    UNIQUE (author_id, follower_id),
+    FOREIGN KEY (author_id) REFERENCES users (id),
     FOREIGN KEY (follower_id) REFERENCES users (id)
   );
