@@ -78,6 +78,6 @@ type (
 		GetById(ctx context.Context, commentId int) (*Comment, error)
 		GetByArticleId(ctx context.Context, articleId int) ([]*Comment, error)
 		GetByAuthorId(ctx context.Context, authorId int) ([]*Comment, error)
-		Delete(ctx context.Context, commentId int) error
+		Delete(ctx context.Context, commentId, userId int) error
 	}
 )

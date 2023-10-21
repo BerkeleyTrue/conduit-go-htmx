@@ -136,10 +136,11 @@ func RegisterRoutes(
 
 	// auth required
 	app.Get("/articles/feed", authMiddleware, c.getFeed)
+	app.Get("/articles", c.getArticles)
 
 	app.Get("/articles/:slug", c.getArticle)
 	app.Get("/articles/:slug/comments", c.getComments)
-	app.Get("/articles", c.getArticles)
+	app.Delete("/articles/:slug/comments/:id", authMiddleware, c.deleteComment)
 
 	app.Use(authMiddleware)
 

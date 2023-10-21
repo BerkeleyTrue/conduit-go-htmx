@@ -130,6 +130,9 @@ func (r *CommentStore) GetByAuthorId(ctx context.Context, authorId int) ([]*doma
 	}, comments), nil
 }
 
-func (r *CommentStore) Delete(ctx context.Context, commentId int) error {
-	return r.delete(ctx, int64(commentId))
+func (r *CommentStore) Delete(ctx context.Context, commentId, userId int) error {
+	return r.delete(ctx, deleteParams{
+		ID:       int64(commentId),
+		AuthorID: int64(userId),
+	})
 }

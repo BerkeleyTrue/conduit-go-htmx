@@ -131,3 +131,11 @@ func (s *CommentService) GetBySlug(
 	return commentsOut, nil
 
 }
+
+func (s *CommentService) Delete(
+	ctx context.Context,
+	commentId int,
+	userId int,
+) error {
+	return s.repo.Delete(ctx, commentId, userId)
+}

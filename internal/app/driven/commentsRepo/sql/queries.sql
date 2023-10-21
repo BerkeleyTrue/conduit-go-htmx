@@ -32,4 +32,5 @@ WHERE
 -- name: delete :exec
 DELETE FROM comments
 WHERE
-  id = ?;
+  id = ?
+  AND author_id = ?;
