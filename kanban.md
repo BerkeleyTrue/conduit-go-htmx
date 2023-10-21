@@ -10,6 +10,7 @@
     - update links to patch
 - User Api
   - Register should return error if user already exists
+  - feed should show following author articles...
 - Update dates in templates
 - Refactor to use strutured errors
   - repo's should return raw error

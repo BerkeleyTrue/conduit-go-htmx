@@ -2,7 +2,6 @@ package drivers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,8 +16,6 @@ func (c *Controller) getArticle(fc *fiber.Ctx) error {
 	}
 
 	_article, err := c.articleService.GetBySlug(ctx, slug, userId)
-
-	fmt.Printf("%v\n", _article)
 
 	if err != nil {
 		c.log.Debug("Error getting article", "error", err)

@@ -302,7 +302,6 @@ func (s *UserService) Follow(
 	user, err := s.repo.Follow(ctx, userId, authorId)
 
 	if err != nil {
-
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			user, err = s.repo.GetByID(ctx, authorId)
 			if err != nil {

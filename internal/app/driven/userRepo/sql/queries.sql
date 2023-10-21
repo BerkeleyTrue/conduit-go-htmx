@@ -14,31 +14,49 @@ VALUES
 
 -- name: getById :one
 SELECT
-  *
+  u.*,
+  CAST(
+    COALESCE(GROUP_CONCAT (f.follower_id, ','), '') AS TEXT
+  ) AS followers
 FROM
-  users
+  users u
+  LEFT JOIN followers f ON f.author_id = u.id
 WHERE
-  id = ?
+  u.id = ?
+GROUP BY
+  u.id
 LIMIT
   1;
 
 -- name: getByEmail :one
 SELECT
-  *
+  u.*,
+  CAST(
+    COALESCE(GROUP_CONCAT (f.follower_id, ','), '') AS TEXT
+  ) AS followers
 FROM
-  users
+  users u
+  LEFT JOIN followers f ON f.author_id = u.id
 WHERE
-  email = ?
+  u.email = ?
+GROUP BY
+  u.id
 LIMIT
   1;
 
 -- name: getByUsername :one
 SELECT
-  *
+  u.*,
+  CAST(
+    COALESCE(GROUP_CONCAT (f.follower_id, ','), '') AS TEXT
+  ) AS followers
 FROM
-  users
+  users u
+  LEFT JOIN followers f ON f.author_id = u.id
 WHERE
-  username = ?
+  u.username = ?
+GROUP BY
+  u.id
 LIMIT
   1;
 

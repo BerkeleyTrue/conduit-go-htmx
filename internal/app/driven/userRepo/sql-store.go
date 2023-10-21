@@ -77,7 +77,7 @@ func (q *Queries) GetByID(ctx context.Context, id int) (*domain.User, error) {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	return formatToDomain(user, nil), nil
+	return formatFromRowToDomain(&user, nil, nil), nil
 }
 
 func (q *Queries) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
@@ -86,7 +86,7 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (*domain.User, e
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	return formatToDomain(user, nil), nil
+	return formatFromRowToDomain(nil, &user, nil), nil
 }
 
 func (q *Queries) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
@@ -96,7 +96,7 @@ func (q *Queries) GetByUsername(ctx context.Context, username string) (*domain.U
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	return formatToDomain(user, nil), nil
+	return formatFromRowToDomain(nil, nil, &user), nil
 }
 
 func (q *Queries) GetFollowing(ctx context.Context, userId int) ([]int, error) {
@@ -116,50 +116,51 @@ func (q *Queries) Update(
 	userId int,
 	updater domain.Updater[domain.User],
 ) (*domain.User, error) {
-	user, err := q.getById(ctx, int64(userId))
+	userRow, err := q.getById(ctx, int64(userId))
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting user: %w", err)
 	}
 
-	updates := updater(*(formatToDomain(user, nil)))
-	params := updateParams{ID: user.ID}
+	updates := updater(*formatFromRowToDomain(&userRow, nil, nil))
+
+	params := updateParams{ID: userRow.ID}
 
 	if updates.Username != "" {
 		params.Username = updates.Username
 	} else {
-		params.Username = user.Username
+		params.Username = userRow.Username
 	}
 
 	if updates.Email != "" {
 		params.Email = updates.Email
 	} else {
-		params.Email = user.Email
+		params.Email = userRow.Email
 	}
 
 	if updates.Password != "" {
 		params.Password = string(updates.Password)
 	} else {
-		params.Password = user.Password
+		params.Password = userRow.Password
 	}
 
 	if updates.Bio != "" {
 		params.Bio = sql.NullString{}
 		params.Bio.Scan(updates.Bio)
 	} else {
-		params.Bio = user.Bio
+		params.Bio = userRow.Bio
 	}
 
 	if updates.Image != "" {
 		params.Image = sql.NullString{}
 		params.Image.Scan(updates.Image)
 	} else {
-		params.Image = user.Image
+		params.Image = userRow.Image
 	}
 
 	// for seeding, can not be done directly through the user service
 	if updates.CreatedAt.IsZero() {
-		params.CreatedAt = user.CreatedAt
+		params.CreatedAt = userRow.CreatedAt
 	} else {
 		params.CreatedAt = updates.CreatedAt.ToString()
 	}
@@ -167,13 +168,13 @@ func (q *Queries) Update(
 	params.UpdatedAt = sql.NullString{}
 	params.UpdatedAt.Scan(krono.Now())
 
-	user, err = q.update(ctx, params)
+	user, err := q.update(ctx, params)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error updating user: %w", err)
 	}
 
-	return formatToDomain(user, nil), nil
+	return formatToDomain(user, formatStringToFollowers(userRow.Followers)), nil
 }
 
 func (q *Queries) Follow(ctx context.Context, userId, authorId int) (*domain.User, error) {
@@ -196,13 +197,7 @@ func (q *Queries) Follow(ctx context.Context, userId, authorId int) (*domain.Use
 		return nil, fmt.Errorf("sql-store: error getting author: %w", err)
 	}
 
-	followers, err := q.getFollowers(ctx, int64(authorId))
-
-	if err != nil {
-		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
-	}
-
-	return formatToDomain(author, &followers), nil
+	return formatFromRowToDomain(&author, nil, nil), nil
 }
 
 func (q *Queries) Unfollow(ctx context.Context, userId, authorId int) (*domain.User, error) {
@@ -221,11 +216,5 @@ func (q *Queries) Unfollow(ctx context.Context, userId, authorId int) (*domain.U
 		return nil, fmt.Errorf("sql-store: error getting author: %w", err)
 	}
 
-	followers, err := q.getFollowers(ctx, int64(authorId))
-
-	if err != nil {
-		return nil, fmt.Errorf("sql-store: error getting followers: %w", err)
-	}
-
-	return formatToDomain(author, &followers), nil
+	return formatFromRowToDomain(&author, nil, nil), nil
 }

@@ -84,8 +84,6 @@ func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
 	}
 
 	if settingsInput.Password != "" {
-		fmt.Printf("settings input %+v\n", settingsInput)
-
 		if pass, err := password.New(settingsInput.Password); err == nil {
 			updates.Password = pass
 		} else {
