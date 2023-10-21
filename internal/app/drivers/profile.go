@@ -50,3 +50,32 @@ func (c *Controller) GetProfile(fc *fiber.Ctx) error {
 
 	return renderComponent(profile(props), fc)
 }
+
+func (c *Controller) follow(fc *fiber.Ctx) error {
+	ctx := context.Background()
+	authorname := fc.Params("username")
+	userId, ok := fc.Locals("userId").(int)
+
+	if !ok {
+		return fiber.ErrUnauthorized
+	}
+
+	_, err := c.userService.Follow(
+		ctx,
+		userId,
+		0,
+		authorname,
+	)
+
+	if err != nil {
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+
+		return renderComponent(listErrors(map[string]error{"follow": err}), fc)
+	}
+
+	return renderComponent(followButton(
+		true,
+		authorname,
+	), fc)
+}

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/exp/slog"
@@ -32,9 +33,9 @@ type (
 
 	// sent to any third party user
 	PublicProfile struct {
-		Username  string
-		Bio       string
-		Image     string
+		Username    string
+		Bio         string
+		Image       string
 		IsFollowing bool
 	}
 )
@@ -70,9 +71,9 @@ func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
 	}
 
 	return &PublicProfile{
-		Username:  author.Username,
-		Bio:       author.Bio,
-		Image:     image,
+		Username:    author.Username,
+		Bio:         author.Bio,
+		Image:       image,
 		IsFollowing: following,
 	}
 }
@@ -94,7 +95,10 @@ type RegisterParams struct {
 	Password password.Password
 }
 
-func (s *UserService) Register(ctx context.Context, input RegisterParams) (int, error) {
+func (s *UserService) Register(
+	ctx context.Context,
+	input RegisterParams,
+) (int, error) {
 	hashedPassword, err := pss.HashPassword(input.Password)
 
 	if err != nil {
@@ -117,7 +121,10 @@ func (s *UserService) Register(ctx context.Context, input RegisterParams) (int, 
 	return user.UserId, nil
 }
 
-func (s *UserService) Login(ctx context.Context, email, rawPass string) (int, error) {
+func (s *UserService) Login(
+	ctx context.Context,
+	email, rawPass string,
+) (int, error) {
 	user, err := s.repo.GetByEmail(ctx, email)
 
 	if err != nil {
@@ -142,7 +149,10 @@ func (s *UserService) Login(ctx context.Context, email, rawPass string) (int, er
 	return user.UserId, nil
 }
 
-func (s *UserService) GetUser(ctx context.Context, userId int) (*UserOutput, error) {
+func (s *UserService) GetUser(
+	ctx context.Context,
+	userId int,
+) (*UserOutput, error) {
 	user, err := s.repo.GetByID(ctx, userId)
 
 	if err != nil {
@@ -152,7 +162,10 @@ func (s *UserService) GetUser(ctx context.Context, userId int) (*UserOutput, err
 	return formatUser(user), nil
 }
 
-func (s *UserService) GetIdFromUsername(ctx context.Context, username string) (int, error) {
+func (s *UserService) GetIdFromUsername(
+	ctx context.Context,
+	username string,
+) (int, error) {
 	user, err := s.repo.GetByUsername(ctx, username)
 
 	if err != nil {
@@ -289,7 +302,15 @@ func (s *UserService) Follow(
 	user, err := s.repo.Follow(ctx, userId, authorId)
 
 	if err != nil {
-		return nil, err
+
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			user, err = s.repo.GetByID(ctx, authorId)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 
 	return formatToPublicProfile(user, true), nil

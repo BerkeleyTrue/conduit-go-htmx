@@ -22,11 +22,7 @@ templ profile(props profileProps) {
 								{ props.Profile.Bio }
 							</p>
 							if !props.IsMyself && props.layoutProps.userId != 0 {
-								<button class="btn btn-sm btn-outline-secondary action-btn">
-									<i class="ion-plus-round"></i>
-									&nbsp; Follow
-									{ props.Profile.Username }
-								</button>
+								@followButton(props.Profile.IsFollowing, props.Profile.Username)
 							}
 							if props.IsMyself {
 								<button

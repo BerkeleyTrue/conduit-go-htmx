@@ -3,26 +3,31 @@ package drivers
 import "github.com/berkeleytrue/conduit/internal/core/services"
 import "fmt"
 
+templ followButton(isFollowing bool, username string) {
+	<button
+ 		if isFollowing {
+			hx-delete={ fmt.Sprintf("/profiles/%s/follow", username) }
+		} else {
+			hx-post={ fmt.Sprintf("/profiles/%s/follow", username) }
+		}
+ 		class="btn btn-sm btn-outline-secondary"
+ 		hx-swap="outerHTML"
+	>
+		<i class="ion-plus-round"></i>
+		&nbsp;
+		if isFollowing {
+			Unfollow
+		} else {
+			Follow
+		}
+		{ username }
+		<span class="counter">(?)</span>
+	</button>
+}
+
 templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug string) {
 	if !isMyArticle {
-		<button
- 			if isFollowing {
-				hx-delete={ fmt.Sprintf("/profiles/%s/follow", username) }
-			} else {
-				hx-post={ fmt.Sprintf("/profiles/%s/follow", username) }
-			}
- 			class="btn btn-sm btn-outline-secondary"
-		>
-			<i class="ion-plus-round"></i>
-			&nbsp; 
-			if isFollowing {
-				Unfollow
-			} else {
-				Follow
-			}
-			{ username }
-			<span class="counter">(?)</span>
-		</button>
+		@followButton(isFollowing, username)
 		&nbsp;&nbsp;
 		<button
  			if isFavorited {
@@ -33,7 +38,7 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
  			class="btn btn-sm btn-outline-primary"
 		>
 			<i class="ion-heart"></i>
-			&nbsp; 
+			&nbsp;
 			if isFavorited {
 				Unfavorite
 			} else {
