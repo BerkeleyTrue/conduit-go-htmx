@@ -13,13 +13,13 @@ type articlePreiewProps struct {
 templ articlePreview(p articlePreiewProps) {
 	<div class="article-preview">
 		<div class="article-meta">
-			<a href="/profile/{ p.Author.Username }">
+			<a href={ templ.URL(fmt.Sprintf("/profiles/%s", p.Author.Username)) }>
 				<img
  					src={ p.Author.Image }
 				/>
 			</a>
 			<div class="info">
-				<a href={ templ.URL(fmt.Sprintf("/profile/%s", p.Author.Username)) } class="author">
+				<a href={ templ.URL(fmt.Sprintf("/profiles/%s", p.Author.Username)) } class="author">
 					{ p.Author.Username }
 				</a>
 				<span class="date">{ p.CreatedAt.ToString() }</span>

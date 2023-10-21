@@ -34,7 +34,7 @@ templ header(props headerProps) {
 				}
 				if props.userId != 0 {
 					<li class="nav-item">
-						<a class="nav-link" href={ templ.URL(fmt.Sprintf("/profile/%s", props.user.Username)) }>
+						<a class="nav-link" href={ templ.URL(fmt.Sprintf("/profiles/%s", props.user.Username)) }>
 							if props.user.Image != "" {
 								<img src={ props.user.Image } class="user-pic"/>
 							} else {

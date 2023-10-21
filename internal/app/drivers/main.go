@@ -136,7 +136,6 @@ func RegisterRoutes(
 	app.Get("/register", c.GetRegister)
 	app.Post("/register", c.Register)
 
-	// TODO: update links
 	app.Get("/profiles/:username", c.GetProfile)
 	app.Get("/tags", c.GetPopularTags)
 

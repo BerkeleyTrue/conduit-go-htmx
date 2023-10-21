@@ -16,11 +16,11 @@ templ commentComp(props commentProps) {
 			</p>
 		</div>
 		<div class="card-footer">
-			<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username)) } class="comment-author">
+			<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username)) } class="comment-author">
 				<img src={ props.Author.Image } class="comment-author-img"/>
 			</a>
 			&nbsp;
-			<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username)) } class="comment-author">
+			<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username)) } class="comment-author">
 				{ props.Author.Username }
 			</a>
 			<span class="date-posted">{ props.CreatedAt.ToString() }</span>

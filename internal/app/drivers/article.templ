@@ -75,13 +75,13 @@ templ article(props articleProps) {
 				<div class="container">
 					<h1>{ props.Title }</h1>
 					<div class="article-meta">
-						<a href="/profile">
+						<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username )) }>
 							<img
  								src={ props.Author.Image }
 							/>
 						</a>
 						<div class="info">
-							<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username )) } class="author">
+							<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username )) } class="author">
 								{ props.Author.Username }
 							</a>
 							<span class="date">{ props.CreatedAt.ToString() }</span>
@@ -110,7 +110,7 @@ templ article(props articleProps) {
 					<div class="article-meta">
 						<a href="profile.html"><img src={ props.Author.Image }/></a>
 						<div class="info">
-							<a href={ templ.URL(fmt.Sprintf("/profile/%s", props.Author.Username)) } class="author">
+							<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username)) } class="author">
 								{ props.Author.Username }
 							</a>
 							<span class="date">{ props.CreatedAt.ToString() }</span>
