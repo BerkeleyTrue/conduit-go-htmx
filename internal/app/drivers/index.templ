@@ -71,18 +71,23 @@ templ index(p indexProps) {
 						<ul id="pagination" class="pagination" hidden></ul>
 					</div>
 					<div
- 						_="on click
- 						    log event.target.innerHTML
- 						    remove @hidden from #tag-tab
- 						    remove .active from .nav-link in #tabs
- 						    put &#39;#&#39; + event.target.innerHTML into &lt;a/&gt; in #tag-tab
- 						    add .active to &lt;a/&gt; in #tag-tab
- 						    "
  						class="col-md-3"
 					>
 						<div class="sidebar" hx-get="/tags" hx-target="#tags" hx-trigger="load delay:150ms">
 							<p>Popular Tags</p>
-							<div id="tags" class="tag-list">Loading tags...</div>
+							<div
+ 								id="tags"
+ 								_="
+ 								on click
+                  if event.target.tagName == &#39;A&#39;
+                    -- log event.target
+                    remove @hidden from #tag-tab
+                    remove .active from .nav-link in #tabs
+                    put &#39;#&#39; + event.target.innerHTML into &lt;a/&gt; in #tag-tab
+                    add .active to &lt;a/&gt; in #tag-tab
+ 						    "
+ 								class="tag-list"
+							>Loading tags...</div>
 						</div>
 					</div>
 				</div>
