@@ -19,13 +19,6 @@ type (
 		log         *slog.Logger
 	}
 
-	ArticleCreateInput struct {
-		Title       string
-		Description string
-		Body        string
-		Tags        []string
-	}
-
 	ArticleOutput struct {
 		Slug           slug.Slug
 		Title          string
@@ -34,15 +27,9 @@ type (
 		Tags           []string
 		CreatedAt      krono.Krono
 		UpdatedAt      krono.Krono
-		Favorited      bool
+		IsFavorited    bool
 		FavoritesCount int
 		Author         PublicProfile
-	}
-
-	ArticleUpdateInput struct {
-		Title       string
-		Description string
-		Body        string
 	}
 )
 
@@ -61,7 +48,7 @@ func formatArticle(
 		CreatedAt:   article.CreatedAt,
 		UpdatedAt:   article.UpdatedAt,
 		// TODO: Favorited
-		Favorited: false,
+		IsFavorited: false,
 		// TODO: FavoritesCount
 		FavoritesCount: 0,
 		Author:         profile,
@@ -79,6 +66,13 @@ func newArticleService(
 		})).WithGroup("services").WithGroup("article"),
 		userService: userService,
 	}
+}
+
+type ArticleCreateInput struct {
+	Title       string
+	Description string
+	Body        string
+	Tags        []string
 }
 
 func (s *ArticleService) Create(
@@ -228,6 +222,12 @@ func (s *ArticleService) GetIdFromSlug(
 	}
 
 	return article.ArticleId, nil
+}
+
+type ArticleUpdateInput struct {
+	Title       string
+	Description string
+	Body        string
 }
 
 func (s *ArticleService) Update(

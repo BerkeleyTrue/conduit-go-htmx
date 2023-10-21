@@ -35,7 +35,7 @@ type (
 		Username  string
 		Bio       string
 		Image     string
-		Following bool
+		IsFollowing bool
 	}
 )
 
@@ -73,7 +73,7 @@ func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
 		Username:  author.Username,
 		Bio:       author.Bio,
 		Image:     image,
-		Following: following,
+		IsFollowing: following,
 	}
 }
 

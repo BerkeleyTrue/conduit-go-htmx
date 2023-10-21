@@ -8,7 +8,7 @@ func (p PublicProfile) String() string {
 		p.Username,
 		p.Bio,
 		p.Image,
-		p.Following,
+		p.IsFollowing,
 	)
 }
 
@@ -22,7 +22,7 @@ func (a ArticleOutput) String() string {
 		a.Tags,
 		a.CreatedAt,
 		a.UpdatedAt,
-		a.Favorited,
+		a.IsFavorited,
 		a.FavoritesCount,
 		a.Author,
 	)

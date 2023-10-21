@@ -1,6 +1,7 @@
 package drivers
 
 import (
+	"errors"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -57,7 +58,7 @@ var (
 	}
 	Module = fx.Options(
 		fx.Provide(fx.Annotate(
-			NewController,
+			newController,
 			fx.OnStart(func(c *Controller) error {
 				c.onStart <- struct{}{}
 				return nil
@@ -66,7 +67,11 @@ var (
 	)
 )
 
-func NewController(
+func notImplementedHandler(fc *fiber.Ctx) error {
+	return errors.New("not implemented")
+}
+
+func newController(
 	userService *services.UserService,
 	articleService *services.ArticleService,
 	commentService *services.CommentService,
@@ -131,7 +136,8 @@ func RegisterRoutes(
 	app.Get("/register", c.GetRegister)
 	app.Post("/register", c.Register)
 
-	app.Get("/profile/:username", c.GetProfile)
+	// TODO: update links
+	app.Get("/profiles/:username", c.GetProfile)
 	app.Get("/tags", c.GetPopularTags)
 
 	// auth required
@@ -145,6 +151,12 @@ func RegisterRoutes(
 
 	app.Post("/articles/:slug/comments", c.createComment)
 	app.Delete("/articles/:slug/comments/:id", c.deleteComment)
+
+	app.Post("/articles/:slug/favorite", notImplementedHandler)
+	app.Delete("/articles/:slug/favorite", notImplementedHandler)
+
+	app.Post("/profiles/:username/follow", notImplementedHandler)
+	app.Delete("/profiles/:username/follow", notImplementedHandler)
 
 	app.Get("/editor", c.getEditArticle)
 	app.Get("/editor/:slug", c.getEditArticle)

@@ -10,6 +10,7 @@
     - update links to patch
 - User Api
   - Register should return error if user already exists
+- Update dates in templates
 - Refactor to use strutured errors
   - repo's should return raw error
   - services should return user facing errors
@@ -19,10 +20,12 @@
 
 - Get article page
   - [ ] delete if owner
-  - [ ] comments
-    - [ ] Load on load
-    - [ ] mark if owner
-  - [ ] delete comment if owner
+  - [ ] Follow/Unfollow author
+  - [ ] Favorite/Unfavorite article
+  - [x] comments
+    - [x] Get on load
+    - [x] mark if owner
+  - [x] delete comment if owner
   - [x] /article/:slug
 
 # Done
