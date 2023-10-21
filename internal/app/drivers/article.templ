@@ -111,9 +111,16 @@ templ article(props articleProps) {
 				<div class="row">
 					<div class="col-xs-12 col-md-8 offset-md-2">
 						if  props.layoutProps.userId != 0 {
-							<form class="card comment-form">
+							<form
+ 								_="on htmx:afterRequest[detail.successful] call me.reset()"
+ 								hx-post={ fmt.Sprintf("/articles/%s/comments", props.Slug) }
+ 								hx-target="#comments"
+ 								hx-swap="beforeend"
+ 								class="card comment-form"
+							>
 								<div class="card-block">
 									<textarea
+ 										name="body"
  										class="form-control"
  										placeholder="Write a comment..."
  										rows="3"

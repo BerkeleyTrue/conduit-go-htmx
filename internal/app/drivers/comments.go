@@ -3,8 +3,68 @@ package drivers
 import (
 	"context"
 
+	"github.com/berkeleytrue/conduit/internal/core/services"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
 )
+
+type createCommentInput struct {
+	Body string `json:"body"`
+}
+
+func (i *createCommentInput) validate() error {
+	return validation.ValidateStruct(
+		i,
+		validation.Field(
+			&i.Body,
+			validation.Required,
+			validation.Length(1, 254),
+		),
+	)
+}
+
+func (c *Controller) createComment(fc *fiber.Ctx) error {
+	ctx := context.Background()
+	slug := fc.Params("slug")
+	input := createCommentInput{}
+
+	userId, ok := fc.Locals("userId").(int)
+
+	if !ok {
+		return fiber.ErrUnauthorized
+	}
+
+	if err := fc.BodyParser(&input); err != nil {
+		return err
+	}
+
+	if err := input.validate(); err != nil {
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+
+		return renderComponent(listErrors(err.(validation.Errors)), fc)
+	}
+
+	comment, err := c.commentService.Create(ctx, services.CommentCreateInput{
+		ArticleSlug: slug,
+		Body:        input.Body,
+		AuthorId:    userId,
+	})
+
+	if err != nil {
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+
+		return renderComponent(listErrors(map[string]error{"comment": err}), fc)
+	}
+
+	session.AddFlash(fc, session.Success, "Comment created successfully!")
+
+	return renderComponent(commentComp(commentProps{
+		CommentOutput: *comment,
+	}), fc)
+}
 
 func (c *Controller) getComments(fc *fiber.Ctx) error {
 	ctx := context.Background()

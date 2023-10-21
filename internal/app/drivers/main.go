@@ -140,12 +140,15 @@ func RegisterRoutes(
 
 	app.Get("/articles/:slug", c.getArticle)
 	app.Get("/articles/:slug/comments", c.getComments)
-	app.Delete("/articles/:slug/comments/:id", authMiddleware, c.deleteComment)
 
 	app.Use(authMiddleware)
 
+	app.Post("/articles/:slug/comments", c.createComment)
+	app.Delete("/articles/:slug/comments/:id", c.deleteComment)
+
 	app.Get("/editor", c.getEditArticle)
 	app.Get("/editor/:slug", c.getEditArticle)
+
 	app.Get("/settings", c.GetSettings)
 	app.Post("/settings", c.UpdateSettings)
 	app.Post("/logout", c.Logout)
