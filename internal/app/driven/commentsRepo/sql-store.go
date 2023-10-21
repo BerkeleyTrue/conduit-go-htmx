@@ -72,6 +72,10 @@ func (r *CommentStore) Create(
 ) (*domain.Comment, error) {
 	now := krono.Now().ToString()
 
+	if !input.CreatedAt.IsZero() {
+		now = input.CreatedAt.ToString()
+	}
+
 	comment, err := r.create(ctx, createParams{
 		Body:      input.Body,
 		ArticleID: int64(input.ArticleId),

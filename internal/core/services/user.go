@@ -71,7 +71,7 @@ func formatToPublicProfile(author *domain.User, following bool) *PublicProfile {
 	}
 }
 
-func NewUserService(repo domain.UserRepository) *UserService {
+func newUserService(repo domain.UserRepository) *UserService {
 	logger := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	})

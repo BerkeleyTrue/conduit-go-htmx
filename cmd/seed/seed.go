@@ -13,6 +13,7 @@ import (
 
 	"github.com/berkeleytrue/conduit/config"
 	"github.com/berkeleytrue/conduit/internal/app/driven/articlesRepo"
+	"github.com/berkeleytrue/conduit/internal/app/driven/commentsRepo"
 	"github.com/berkeleytrue/conduit/internal/app/driven/userRepo"
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/core/services"
@@ -38,7 +39,6 @@ func genImage() string {
 func generateUser(
 	userService *services.UserService,
 	userRepo domain.UserRepository,
-
 ) (*UserOutputPlusId, error) {
 	ctx := context.Background()
 	pass := gofakeit.Password(true, true, true, true, false, 10)
@@ -90,6 +90,7 @@ func seed(
 	userRepo domain.UserRepository,
 	userService *services.UserService,
 	articleRepo domain.ArticleRepository,
+	commentRepo domain.CommentRepository,
 	shutdown fx.Shutdowner,
 ) {
 	ctx := context.Background()
@@ -109,6 +110,7 @@ func seed(
 	}
 
 	for _, user := range users {
+
 		for i := 0; i < numOfArticles; i++ {
 			createdAt := krono.Krono{Time: gofakeit.DateRange(
 				user.createdAt.Time,
@@ -130,7 +132,39 @@ func seed(
 				},
 			)
 
+			if err != nil {
+				fmt.Println("error", err)
+				continue
+			}
+
 			fmt.Printf("created article: %v\n", article)
+
+			for _, user := range users {
+				startAt := user.createdAt.Time
+
+				if startAt.Before(article.CreatedAt.Time) {
+					startAt = article.CreatedAt.Time
+				}
+
+				commentCreatedAt := krono.Krono{Time: gofakeit.DateRange(
+					startAt,
+					time.Now(),
+				)}
+
+				_, err := commentRepo.Create(
+					ctx,
+					domain.CommentCreateInput{
+						Body:      gofakeit.Sentence(10),
+						ArticleId: article.ArticleId,
+						AuthorId:  user.userId,
+						CreatedAt: commentCreatedAt,
+					},
+				)
+
+				if err != nil {
+					log.Error("error", err)
+				}
+			}
 
 			if err != nil {
 				log.Error("error", err)
@@ -166,11 +200,11 @@ func main() {
 
 		userRepo.Module,
 		articlesRepo.Module,
+		commentsRepo.Module,
 
 		fx.Invoke(clearDb),
 
-		fx.Provide(services.NewUserService),
-		fx.Provide(services.NewArticleService),
+		services.Module,
 
 		fx.Invoke(seed),
 	)

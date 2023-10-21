@@ -134,7 +134,9 @@ func RegisterRoutes(
 	app.Get("/profile/:username", c.GetProfile)
 	app.Get("/tags", c.GetPopularTags)
 
+	// auth required
 	app.Get("/articles/feed", authMiddleware, c.getFeed)
+
 	app.Get("/articles/:slug", c.getArticle)
 	app.Get("/articles/:slug/comments", c.getComments)
 	app.Get("/articles", c.getArticles)

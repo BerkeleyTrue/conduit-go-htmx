@@ -70,6 +70,7 @@ type (
 		Body      string
 		AuthorId  int // UserId
 		ArticleId int // ArticleId
+		CreatedAt krono.Krono
 	}
 
 	CommentRepository interface {

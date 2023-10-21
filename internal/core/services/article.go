@@ -68,7 +68,7 @@ func formatArticle(
 	}
 }
 
-func NewArticleService(
+func newArticleService(
 	repo domain.ArticleRepository,
 	userService *UserService,
 ) *ArticleService {
