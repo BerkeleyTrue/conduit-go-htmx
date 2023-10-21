@@ -5,6 +5,7 @@ import "fmt"
 
 type commentProps struct {
 	services.CommentOutput
+	slug string
 }
 
 templ commentComp(props commentProps) {
@@ -24,7 +25,11 @@ templ commentComp(props commentProps) {
 			</a>
 			<span class="date-posted">{ props.CreatedAt.ToString() }</span>
 			if props.IsAuthor {
-				<span class="mod-options">
+				<span
+ 					_="on htmx:afterRequest[detail.successful] remove the closest .card"
+ 					hx-delete={ fmt.Sprintf("/articles/%s/comments/%d", props.slug, props.Id) }
+ 					class="mod-options"
+				>
 					<i class="ion-trash-a"></i>
 				</span>
 			}
@@ -34,12 +39,13 @@ templ commentComp(props commentProps) {
 
 type commentsProps struct {
 	comments []*services.CommentOutput
+	slug     string
 }
 
 templ commentsComp(props commentsProps) {
 	<div>
 		for _, comment := range props.comments {
-			@commentComp(commentProps{ *comment })
+			@commentComp(commentProps{ CommentOutput: *comment, slug: props.slug })
 		}
 	</div>
 }

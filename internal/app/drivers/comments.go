@@ -63,6 +63,7 @@ func (c *Controller) createComment(fc *fiber.Ctx) error {
 
 	return renderComponent(commentComp(commentProps{
 		CommentOutput: *comment,
+		slug:          slug,
 	}), fc)
 }
 
@@ -83,6 +84,7 @@ func (c *Controller) getComments(fc *fiber.Ctx) error {
 
 	props := commentsProps{
 		comments: comments,
+		slug:     slug,
 	}
 
 	return renderComponent(commentsComp(props), fc)

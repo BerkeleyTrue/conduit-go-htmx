@@ -1,12 +1,5 @@
 # TODO
 
-- Get article page
-  - [ ] delete if owner
-  - [ ] comments
-    - [ ] Load on load
-    - [ ] mark if owner
-  - [ ] delete comment if owner
-  - [x] /article/:slug
 - Profile page
   - [ ] favorite own article?
   - [ ] unfavorite favorited articles
@@ -17,30 +10,20 @@
     - update links to patch
 - User Api
   - Register should return error if user already exists
-- Refactor for loops to maps
 - Refactor to use strutured errors
+  - repo's should return raw error
+  - services should return user facing errors
+  - controllers should format error for templates
 
 # Doing
 
-- Comments
-  - API
-    - [ ] create comment on article
-    - [ ] delete comment from article
-    - [x] get articles by slug
-    - [ ] get by id
-    - [ ] get by user?
-  - Repo
-    - [x] create
-    - [x] read
-      - [x] by id
-      - [x] by author
-      - [x] by article
-    - [x] delete
-  - Service
-    - [x] create
-    - [ ] read
-    - [ ] delete
+- Get article page
+  - [ ] delete if owner
+  - [ ] comments
+    - [ ] Load on load
     - [ ] mark if owner
+  - [ ] delete comment if owner
+  - [x] /article/:slug
 
 # Done
 
@@ -97,3 +80,20 @@
   - [x] Check if user is following article author
   - [x] move createAt out of repo, into service
     - This should allow us to manipulate created at during seeding
+- Comments
+  - API
+    - [x] create comment on article
+    - [x] delete comment from article
+    - [x] get articles by slug
+  - Repo
+    - [x] create
+    - [x] read
+      - [x] by id
+      - [x] by author
+      - [x] by article
+    - [x] delete
+  - Service
+    - [x] create
+    - [x] read
+    - [x] delete
+    - [x] mark if owner
