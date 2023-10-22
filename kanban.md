@@ -1,7 +1,5 @@
 # TODO
 
-- Profile page
-  - [x] follow author
 - Get new/edit articles page
   - [x] /editor - new
   - [ ] /editor/slug - edit
@@ -19,9 +17,10 @@
 # Doing
 
 - Get article page
+  - [ ] add follower count
   - [ ] delete if owner
   - [x] Follow/Unfollow author
-  - [ ] Favorite/Unfavorite article
+  - [x] Favorite/Unfavorite article
   - [x] comments
     - [x] Get on load
     - [x] mark if owner
@@ -100,3 +99,5 @@
     - [x] read
     - [x] delete
     - [x] mark if owner
+- Profile page
+  - [x] follow author
