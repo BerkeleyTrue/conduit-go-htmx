@@ -154,7 +154,7 @@ func RegisterRoutes(
 	app.Delete("/articles/:slug/favorite", notImplementedHandler)
 
 	app.Post("/profiles/:username/follow", c.follow)
-	app.Delete("/profiles/:username/follow", notImplementedHandler)
+	app.Delete("/profiles/:username/follow", c.unfollow)
 
 	app.Get("/editor", c.getEditArticle)
 	app.Get("/editor/:slug", c.getEditArticle)

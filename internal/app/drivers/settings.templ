@@ -7,7 +7,7 @@ type settingsProps struct {
 	user services.UserOutput
 }
 
-templ settings(p settingsProps) {
+templ settingsComp(p settingsProps) {
 	@layout(p.layoutProps) {
 		<div class="settings-page">
 			<div class="container page">

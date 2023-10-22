@@ -48,7 +48,7 @@ func (c *Controller) GetProfile(fc *fiber.Ctx) error {
 		IsMyself:    _profile.Username == username,
 	}
 
-	return renderComponent(profile(props), fc)
+	return renderComponent(profileComp(props), fc)
 }
 
 func (c *Controller) follow(fc *fiber.Ctx) error {
@@ -74,8 +74,31 @@ func (c *Controller) follow(fc *fiber.Ctx) error {
 		return renderComponent(listErrors(map[string]error{"follow": err}), fc)
 	}
 
-	return renderComponent(followButton(
-		true,
+	return fc.SendStatus(200)
+}
+
+func (c *Controller) unfollow(fc *fiber.Ctx) error {
+	ctx := context.Background()
+	authorname := fc.Params("username")
+	userId, ok := fc.Locals("userId").(int)
+
+	if !ok {
+		return fiber.ErrUnauthorized
+	}
+
+	_, err := c.userService.Unfollow(
+		ctx,
+		userId,
+		0,
 		authorname,
-	), fc)
+	)
+
+	if err != nil {
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+
+		return renderComponent(listErrors(map[string]error{"follow": err}), fc)
+	}
+
+	return fc.SendStatus(200)
 }

@@ -9,6 +9,7 @@ import (
 func (c *Controller) getArticle(fc *fiber.Ctx) error {
 	ctx := context.Background()
 	slug := fc.Params("slug")
+	isOob := fc.Query("oob") == "true"
 	userId, ok := fc.Locals("userId").(int)
 
 	if !ok {
@@ -25,13 +26,15 @@ func (c *Controller) getArticle(fc *fiber.Ctx) error {
 	_layoutProps := getLayoutProps(fc)
 	_layoutProps.title = _article.Title
 
-	c.log.Debug("layoutProps", "layoutProps", _layoutProps)
-
 	props := articleProps{
 		ArticleOutput: _article,
 		layoutProps:   _layoutProps,
 		isMyArticle:   _article.Author.Username == _layoutProps.user.Username,
 	}
 
-	return renderComponent(article(props), fc)
+	if isOob {
+		return renderComponent(articleOOBComp(props), fc)
+	}
+
+	return renderComponent(articleComp(props), fc)
 }

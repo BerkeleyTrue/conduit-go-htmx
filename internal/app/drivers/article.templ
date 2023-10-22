@@ -3,31 +3,32 @@ package drivers
 import "github.com/berkeleytrue/conduit/internal/core/services"
 import "fmt"
 
-templ followButton(isFollowing bool, username string) {
-	<button
- 		if isFollowing {
-			hx-delete={ fmt.Sprintf("/profiles/%s/follow", username) }
-		} else {
-			hx-post={ fmt.Sprintf("/profiles/%s/follow", username) }
-		}
- 		class="btn btn-sm btn-outline-secondary"
- 		hx-swap="outerHTML"
-	>
-		<i class="ion-plus-round"></i>
-		&nbsp;
-		if isFollowing {
-			Unfollow
-		} else {
-			Follow
-		}
-		{ username }
-		<span class="counter">(?)</span>
-	</button>
-}
-
 templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug string) {
 	if !isMyArticle {
-		@followButton(isFollowing, username)
+		<button
+ 			_="
+ 			  on htmx:afterRequest[detail.successful]
+ 			    log &#39;updating&#39;
+ 			    send update to #article-page"
+ 			id="follow-btn"
+ 			class="btn btn-sm btn-outline-secondary follow-btn"
+ 			if isFollowing {
+				hx-delete={ fmt.Sprintf("/profiles/%s/follow", username) }
+			} else {
+				hx-post={ fmt.Sprintf("/profiles/%s/follow", username) }
+			}
+ 			hx-swap="none"
+		>
+			<i class="ion-plus-round"></i>
+			&nbsp;
+			if isFollowing {
+				Unfollow
+			} else {
+				Follow
+			}
+			{ username }
+			<span class="counter">(?)</span>
+		</button>
 		&nbsp;&nbsp;
 		<button
  			if isFavorited {
@@ -73,26 +74,88 @@ type articleProps struct {
 	isMyArticle bool
 }
 
-templ article(props articleProps) {
+templ articleMetaComp(key, image, username, slug, createdAt string, isAuthed, isMyArticle, isFollowing, isFavorited, isOob bool) {
+	<div
+ 		id={ key }
+ 		class="article-meta"
+ 		if isOob {
+			hx-swap-oob="true"
+		}
+	>
+		<a href={ templ.URL(fmt.Sprintf("/profiles/%s", username )) }>
+			<img
+ 				src={ image }
+			/>
+		</a>
+		<div class="info">
+			<a href={ templ.URL(fmt.Sprintf("/profiles/%s", username )) } class="author">
+				{ username }
+			</a>
+			<span class="date">{ createdAt }</span>
+		</div>
+		if isAuthed {
+			@actionsComp(isMyArticle, isFollowing, isFavorited, username, slug)
+		}
+	</div>
+}
+
+templ articleOOBComp(props articleProps) {
+	@articleMetaComp(
+	"article-meta-banner",
+	props.Author.Image,
+	props.Author.Username,
+	props.Slug.String(),
+	props.CreatedAt.ToString(),
+	props.layoutProps.userId != 0,
+	props.isMyArticle,
+	props.Author.IsFollowing,
+	props.IsFavorited,
+	true,
+	)
+	@articleMetaComp(
+	"article-meta-content",
+	props.Author.Image,
+	props.Author.Username,
+	props.Slug.String(),
+	props.CreatedAt.ToString(),
+	props.layoutProps.userId != 0,
+	props.isMyArticle,
+	props.Author.IsFollowing,
+	props.IsFavorited,
+	true,
+	)
+}
+
+templ articleComp(props articleProps) {
 	@layout(props.layoutProps) {
-		<div class="article-page">
+		<div
+ 			_="
+        on update
+          log &#39;article meta update&#39;
+      "
+ 			id="article-page"
+ 			class="article-page"
+ 			hx-get={ fmt.Sprintf("/articles/%s?oob=true", props.Slug) }
+ 			hx-trigger="update"
+ 			hx-val={ fmt.Sprintf(`{ "oob": true }`) }
+ 			hx-swap="none"
+ 			hx-disinherit="*"
+		>
 			<div class="banner">
 				<div class="container">
 					<h1>{ props.Title }</h1>
-					<div class="article-meta">
-						<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username )) }>
-							<img
- 								src={ props.Author.Image }
-							/>
-						</a>
-						<div class="info">
-							<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username )) } class="author">
-								{ props.Author.Username }
-							</a>
-							<span class="date">{ props.CreatedAt.ToString() }</span>
-						</div>
-						@actionsComp(props.isMyArticle, props.Author.IsFollowing, props.IsFavorited, props.Author.Username, props.Slug.String())
-					</div>
+					@articleMetaComp(
+					  "article-meta-banner",
+            props.Author.Image,
+            props.Author.Username,
+            props.Slug.String(),
+            props.CreatedAt.ToString(),
+            props.layoutProps.userId != 0,
+            props.isMyArticle,
+            props.Author.IsFollowing,
+            props.IsFavorited,
+            false,
+					)
 				</div>
 			</div>
 			<div class="container page">
@@ -112,16 +175,18 @@ templ article(props articleProps) {
 				</div>
 				<hr/>
 				<div class="article-actions">
-					<div class="article-meta">
-						<a href="profile.html"><img src={ props.Author.Image }/></a>
-						<div class="info">
-							<a href={ templ.URL(fmt.Sprintf("/profiles/%s", props.Author.Username)) } class="author">
-								{ props.Author.Username }
-							</a>
-							<span class="date">{ props.CreatedAt.ToString() }</span>
-						</div>
-						@actionsComp(props.isMyArticle, props.Author.IsFollowing, props.IsFavorited, props.Author.Username, props.Slug.String())
-					</div>
+					@articleMetaComp(
+					  "article-meta-content",
+            props.Author.Image,
+            props.Author.Username,
+            props.Slug.String(),
+            props.CreatedAt.ToString(),
+            props.layoutProps.userId != 0,
+            props.isMyArticle,
+            props.Author.IsFollowing,
+            props.IsFavorited,
+            false,
+					)
 				</div>
 				<div class="row">
 					<div class="col-xs-12 col-md-8 offset-md-2">

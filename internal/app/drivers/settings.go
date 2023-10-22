@@ -37,7 +37,7 @@ func (c *Controller) GetSettings(fc *fiber.Ctx) error {
 		props.layoutProps.flashes = flashes
 	}
 
-	return renderComponent(settings(props), fc)
+	return renderComponent(settingsComp(props), fc)
 }
 
 func (r *SettingsInput) validate() error {
@@ -119,5 +119,5 @@ func (c *Controller) UpdateSettings(fc *fiber.Ctx) error {
 		user:        *user,
 	}
 
-	return renderComponent(settings(props), fc)
+	return renderComponent(settingsComp(props), fc)
 }
