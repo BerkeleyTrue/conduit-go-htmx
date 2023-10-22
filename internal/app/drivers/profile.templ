@@ -9,7 +9,30 @@ type profileProps struct {
 	IsMyself bool
 }
 
-templ profile(props profileProps) {
+templ profileFollowButton(username string, isFollowing bool) {
+	<button
+ 		id="profile-follow-btn"
+ 		class="btn btn-sm btn-outline-secondary follow-btn"
+ 		if isFollowing {
+			hx-delete={ fmt.Sprintf("/profiles/%s/follow", username) }
+		} else {
+			hx-post={ fmt.Sprintf("/profiles/%s/follow", username) }
+		}
+ 		hx-swap="outerHTML"
+	>
+		<i class="ion-plus-round"></i>
+		&nbsp;
+		if isFollowing {
+			Unfollow
+		} else {
+			Follow
+		}
+		{ username }
+		<span class="counter">(?)</span>
+	</button>
+}
+
+templ profileComp(props profileProps) {
 	@layout(props.layoutProps) {
 		<div class="profile-page">
 			<div class="user-info">
@@ -21,20 +44,21 @@ templ profile(props profileProps) {
 							<p>
 								{ props.Profile.Bio }
 							</p>
-							if !props.IsMyself && props.layoutProps.userId != 0 {
-								@followButton(props.Profile.IsFollowing, props.Profile.Username)
-							}
-							if props.IsMyself {
-								<button
- 									class="btn btn-sm btn-outline-secondary action-btn"
- 									hx-get="/settings"
- 									hx-target="body"
- 									hx-swap="innerHTML"
- 									hx-push-url="/settings"
-								>
-									<i class="ion-gear-a"></i>
-									&nbsp; Edit Profile Settings
-								</button>
+							if props.layoutProps.userId != 0 {
+								if !props.IsMyself {
+									@profileFollowButton(props.Profile.Username, props.Profile.IsFollowing)
+								} else {
+									<button
+ 										class="btn btn-sm btn-outline-secondary action-btn"
+ 										hx-get="/settings"
+ 										hx-target="body"
+ 										hx-swap="innerHTML"
+ 										hx-push-url="/settings"
+									>
+										<i class="ion-gear-a"></i>
+										&nbsp; Edit Profile Settings
+									</button>
+								}
 							}
 						</div>
 					</div>

@@ -1,13 +1,12 @@
 # TODO
 
 - Profile page
-  - [ ] favorite own article?
-  - [ ] unfavorite favorited articles
+  - [x] follow author
 - Get new/edit articles page
   - [x] /editor - new
   - [ ] /editor/slug - edit
-    - Load article and prefill page
-    - update links to patch
+    - [ ] Load article and prefill page
+    - [ ] update links to patch
 - User Api
   - Register should return error if user already exists
   - feed should show following author articles...
@@ -21,7 +20,7 @@
 
 - Get article page
   - [ ] delete if owner
-  - [ ] Follow/Unfollow author
+  - [x] Follow/Unfollow author
   - [ ] Favorite/Unfavorite article
   - [x] comments
     - [x] Get on load

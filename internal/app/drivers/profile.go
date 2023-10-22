@@ -74,6 +74,10 @@ func (c *Controller) follow(fc *fiber.Ctx) error {
 		return renderComponent(listErrors(map[string]error{"follow": err}), fc)
 	}
 
+	if fc.Get("HX-Trigger") == "profile-follow-btn" {
+		return renderComponent(profileFollowButton(authorname, true), fc)
+	}
+
 	return fc.SendStatus(200)
 }
 
@@ -98,6 +102,10 @@ func (c *Controller) unfollow(fc *fiber.Ctx) error {
 		fc.Response().Header.Add("HX-Reswap", "none")
 
 		return renderComponent(listErrors(map[string]error{"follow": err}), fc)
+	}
+
+	if fc.Get("HX-Trigger") == "profile-follow-btn" {
+		return renderComponent(profileFollowButton(authorname, false), fc)
 	}
 
 	return fc.SendStatus(200)
