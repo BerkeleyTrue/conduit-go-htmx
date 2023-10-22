@@ -53,7 +53,10 @@ func registerArticleSchema(db *sqlx.DB) error {
 	return nil
 }
 
-func (s *ArticleStore) Create(ctx context.Context, input domain.ArticleCreateInput) (*domain.Article, error) {
+func (s *ArticleStore) Create(
+	ctx context.Context,
+	input domain.ArticleCreateInput,
+) (*domain.Article, error) {
 	slug := slug.NewSlug(input.Title)
 
 	err := s.CreateTx(ctx, func(q *Queries) error {
@@ -107,7 +110,10 @@ func (s *ArticleStore) Create(ctx context.Context, input domain.ArticleCreateInp
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) GetById(ctx context.Context, articleId int) (*domain.Article, error) {
+func (s *ArticleStore) GetById(
+	ctx context.Context,
+	articleId int,
+) (*domain.Article, error) {
 	article, err := s.getById(ctx, int64(articleId))
 
 	if err != nil {
@@ -130,7 +136,10 @@ func (s *ArticleStore) GetBySlug(
 }
 
 // TODO: get number of favorites per article
-func (s *ArticleStore) List(ctx context.Context, input domain.ArticleListInput) ([]*domain.Article, error) {
+func (s *ArticleStore) List(
+	ctx context.Context,
+	input domain.ArticleListInput,
+) ([]*domain.Article, error) {
 	params := listParams{
 		Limit:  int64(input.Limit),
 		Offset: int64(input.Offset),
@@ -174,6 +183,19 @@ func (s *ArticleStore) GetPopularTags(ctx context.Context) ([]string, error) {
 	}
 
 	return tags, nil
+}
+
+func (s *ArticleStore) GetNumOfFavorites(
+	ctx context.Context,
+	articleId int,
+) (int, error) {
+	count, err := s.getNumOfFavorites(ctx, int64(articleId))
+
+	if err != nil {
+		return 0, fmt.Errorf("error getting number of favorites: %w", err)
+	}
+
+	return int(count), nil
 }
 
 // TODO: update tags
@@ -222,7 +244,11 @@ func (s *ArticleStore) Update(
 	return formatToDomain(updatedArticle), nil
 }
 
-func (s *ArticleStore) Favorite(ctx context.Context, slug string, userId int) (*domain.Article, error) {
+func (s *ArticleStore) Favorite(
+	ctx context.Context,
+	slug string,
+	userId int,
+) (*domain.Article, error) {
 
 	article, err := s.getBySlug(ctx, slug)
 
@@ -242,7 +268,11 @@ func (s *ArticleStore) Favorite(ctx context.Context, slug string, userId int) (*
 	return formatToDomain(article), nil
 }
 
-func (s *ArticleStore) Unfavorite(ctx context.Context, slug string, userId int) (*domain.Article, error) {
+func (s *ArticleStore) Unfavorite(
+	ctx context.Context,
+	slug string,
+	userId int,
+) (*domain.Article, error) {
 	article, err := s.getBySlug(ctx, slug)
 
 	if err != nil {

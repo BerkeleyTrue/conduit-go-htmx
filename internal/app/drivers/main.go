@@ -150,8 +150,8 @@ func RegisterRoutes(
 	app.Post("/articles/:slug/comments", c.createComment)
 	app.Delete("/articles/:slug/comments/:id", c.deleteComment)
 
-	app.Post("/articles/:slug/favorite", notImplementedHandler)
-	app.Delete("/articles/:slug/favorite", notImplementedHandler)
+	app.Post("/articles/:slug/favorite", c.favorite)
+	app.Delete("/articles/:slug/favorite", c.unfavorite)
 
 	app.Post("/profiles/:username/follow", c.follow)
 	app.Delete("/profiles/:username/follow", c.unfollow)

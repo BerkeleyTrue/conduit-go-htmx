@@ -33,11 +33,11 @@ type (
 	}
 )
 
-// TODO: add favorites count
 // TODO: Favorited
 func formatArticle(
 	article *domain.Article,
 	profile PublicProfile,
+	numOfFavorites int,
 ) ArticleOutput {
 	return ArticleOutput{
 		Slug:        article.Slug,
@@ -48,9 +48,8 @@ func formatArticle(
 		CreatedAt:   article.CreatedAt,
 		UpdatedAt:   article.UpdatedAt,
 		// TODO: Favorited
-		IsFavorited: false,
-		// TODO: FavoritesCount
-		FavoritesCount: 0,
+		IsFavorited:    false,
+		FavoritesCount: numOfFavorites,
 		Author:         profile,
 	}
 }
@@ -101,7 +100,7 @@ func (s *ArticleService) Create(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile), nil
+	return formatArticle(article, *profile, 0), nil
 }
 
 type ListArticlesInput struct {
@@ -181,7 +180,14 @@ func (s *ArticleService) List(
 			continue
 		}
 
-		outputs[idx] = formatArticle(article, *profile)
+		numOfFavorites, err := s.repo.GetNumOfFavorites(ctx, article.ArticleId)
+
+		if err != nil {
+			s.log.Debug("error getting num of favorites", "error", err)
+			continue
+		}
+
+		outputs[idx] = formatArticle(article, *profile, numOfFavorites)
 	}
 
 	return outputs, err
@@ -208,7 +214,13 @@ func (s *ArticleService) GetBySlug(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile), nil
+	numOfFavorites, err := s.repo.GetNumOfFavorites(ctx, article.ArticleId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile, numOfFavorites), nil
 }
 
 func (s *ArticleService) GetIdFromSlug(
@@ -265,33 +277,65 @@ func (s *ArticleService) Update(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile), nil
+	numOfFavorites, err := s.repo.GetNumOfFavorites(ctx, article.ArticleId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile, numOfFavorites), nil
 }
 
 func (s *ArticleService) Favorite(
 	ctx context.Context,
 	slug string,
-	username string,
+	userId int,
 ) (ArticleOutput, error) {
-	article, err := s.repo.Update(
-		ctx,
-		slug,
-		func(a domain.Article) domain.Article {
-			return a
-		},
-	)
+	article, err := s.repo.Favorite(ctx, slug, userId)
 
 	if err != nil {
 		return ArticleOutput{}, err
 	}
 
-	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", 0)
+	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", userId)
 
 	if err != nil {
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile), nil
+	numOfFavorites, err := s.repo.GetNumOfFavorites(ctx, article.ArticleId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile, numOfFavorites), nil
+}
+
+func (s *ArticleService) Unfavorite(
+	ctx context.Context,
+	slug string,
+	userId int,
+) (ArticleOutput, error) {
+	article, err := s.repo.Unfavorite(ctx, slug, userId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	profile, err := s.userService.GetProfile(ctx, article.AuthorId, "", userId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	numOfFavorites, err := s.repo.GetNumOfFavorites(ctx, article.ArticleId)
+
+	if err != nil {
+		return ArticleOutput{}, err
+	}
+
+	return formatArticle(article, *profile, numOfFavorites), nil
 }
 
 func (s *ArticleService) Delete(

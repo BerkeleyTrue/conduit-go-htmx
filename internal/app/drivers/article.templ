@@ -3,7 +3,7 @@ package drivers
 import "github.com/berkeleytrue/conduit/internal/core/services"
 import "fmt"
 
-templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug string) {
+templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug string, favoritesCount int) {
 	if !isMyArticle {
 		<button
  			_="
@@ -31,12 +31,18 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
 		</button>
 		&nbsp;&nbsp;
 		<button
+ 			_="
+ 			  on htmx:afterRequest[detail.successful]
+ 			    log &#39;updating&#39;
+ 			    send update to #article-page
+ 			"
  			if isFavorited {
 				hx-delete={ fmt.Sprintf("/articles/%s/favorite", slug) }
 			} else {
 				hx-post={ fmt.Sprintf("/articles/%s/favorite", slug) }
 			}
  			class="btn btn-sm btn-outline-primary"
+ 			hx-swap="none"
 		>
 			<i class="ion-heart"></i>
 			&nbsp;
@@ -46,7 +52,7 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
 				Favorite
 			}
 			Post
-			<span class="counter">(?)</span>
+			<span class="counter">({ fmt.Sprintf("%d", favoritesCount) })</span>
 		</button>
 	} else {
 		<button
@@ -74,7 +80,7 @@ type articleProps struct {
 	isMyArticle bool
 }
 
-templ articleMetaComp(key, image, username, slug, createdAt string, isAuthed, isMyArticle, isFollowing, isFavorited, isOob bool) {
+templ articleMetaComp(key, image, username, slug, createdAt string, isAuthed, isMyArticle, isFollowing, isFavorited bool, favoritesCount int, isOob bool) {
 	<div
  		id={ key }
  		class="article-meta"
@@ -94,7 +100,7 @@ templ articleMetaComp(key, image, username, slug, createdAt string, isAuthed, is
 			<span class="date">{ createdAt }</span>
 		</div>
 		if isAuthed {
-			@actionsComp(isMyArticle, isFollowing, isFavorited, username, slug)
+			@actionsComp(isMyArticle, isFollowing, isFavorited, username, slug, favoritesCount)
 		}
 	</div>
 }
@@ -110,6 +116,7 @@ templ articleOOBComp(props articleProps) {
 	props.isMyArticle,
 	props.Author.IsFollowing,
 	props.IsFavorited,
+	props.FavoritesCount,
 	true,
 	)
 	@articleMetaComp(
@@ -122,6 +129,7 @@ templ articleOOBComp(props articleProps) {
 	props.isMyArticle,
 	props.Author.IsFollowing,
 	props.IsFavorited,
+	props.FavoritesCount,
 	true,
 	)
 }
@@ -137,7 +145,6 @@ templ articleComp(props articleProps) {
  			class="article-page"
  			hx-get={ fmt.Sprintf("/articles/%s?oob=true", props.Slug) }
  			hx-trigger="update"
- 			hx-val={ fmt.Sprintf(`{ "oob": true }`) }
  			hx-swap="none"
  			hx-disinherit="*"
 		>
@@ -154,6 +161,7 @@ templ articleComp(props articleProps) {
             props.isMyArticle,
             props.Author.IsFollowing,
             props.IsFavorited,
+	          props.FavoritesCount,
             false,
 					)
 				</div>
@@ -185,6 +193,7 @@ templ articleComp(props articleProps) {
             props.isMyArticle,
             props.Author.IsFollowing,
             props.IsFavorited,
+            props.FavoritesCount,
             false,
 					)
 				</div>

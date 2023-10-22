@@ -60,6 +60,7 @@ type (
 		GetBySlug(ctx context.Context, mySlug string) (*Article, error)
 		List(ctx context.Context, input ArticleListInput) ([]*Article, error)
 		GetPopularTags(ctx context.Context) ([]string, error)
+		GetNumOfFavorites(ctx context.Context, articleId int) (int, error)
 		Update(ctx context.Context, slug string, updater Updater[Article]) (*Article, error)
 		Favorite(ctx context.Context, slug string, userId int) (*Article, error)
 		Unfavorite(ctx context.Context, slug string, userId int) (*Article, error)

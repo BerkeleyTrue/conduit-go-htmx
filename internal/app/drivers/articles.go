@@ -137,3 +137,45 @@ func (c *Controller) getFeed(fc *fiber.Ctx) error {
 		currentPage: 1,
 	}), fc)
 }
+
+func (c *Controller) favorite(fc *fiber.Ctx) error {
+	ctx := context.Background()
+	slug := fc.Params("slug")
+	userId, ok := fc.Locals("userId").(int)
+
+	if !ok {
+		return fiber.ErrUnauthorized
+	}
+
+	_, err := c.articleService.Favorite(ctx, slug, userId)
+
+	if err != nil {
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+
+		return renderComponent(listErrors(map[string]error{"favorite": err}), fc)
+	}
+
+	return fc.SendStatus(200)
+}
+
+func (c *Controller) unfavorite(fc *fiber.Ctx) error {
+	ctx := context.Background()
+	slug := fc.Params("slug")
+	userId, ok := fc.Locals("userId").(int)
+
+	if !ok {
+		return fiber.ErrUnauthorized
+	}
+
+	_, err := c.articleService.Unfavorite(ctx, slug, userId)
+
+	if err != nil {
+		fc.Response().Header.Add("HX-Push-Url", "false")
+		fc.Response().Header.Add("HX-Reswap", "none")
+
+		return renderComponent(listErrors(map[string]error{"favorite": err}), fc)
+	}
+
+	return fc.SendStatus(200)
+}

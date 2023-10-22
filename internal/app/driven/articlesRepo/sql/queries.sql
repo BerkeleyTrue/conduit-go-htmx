@@ -132,3 +132,11 @@ WHERE
 DELETE FROM articles
 WHERE
   slug = ?;
+
+-- name: getNumOfFavorites :one
+SELECT
+  COUNT(f.id) as count
+FROM
+  favorites f
+WHERE
+  article_id = ?;
