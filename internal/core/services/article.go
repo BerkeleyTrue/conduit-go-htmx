@@ -33,22 +33,21 @@ type (
 	}
 )
 
-// TODO: Favorited
 func formatArticle(
 	article *domain.Article,
 	profile PublicProfile,
 	numOfFavorites int,
+	isFavorite bool,
 ) ArticleOutput {
 	return ArticleOutput{
-		Slug:        article.Slug,
-		Title:       article.Title,
-		Description: article.Description,
-		Body:        article.Body,
-		Tags:        article.Tags,
-		CreatedAt:   article.CreatedAt,
-		UpdatedAt:   article.UpdatedAt,
-		// TODO: Favorited
-		IsFavorited:    false,
+		Slug:           article.Slug,
+		Title:          article.Title,
+		Description:    article.Description,
+		Body:           article.Body,
+		Tags:           article.Tags,
+		CreatedAt:      article.CreatedAt,
+		UpdatedAt:      article.UpdatedAt,
+		IsFavorited:    isFavorite,
 		FavoritesCount: numOfFavorites,
 		Author:         profile,
 	}
@@ -100,7 +99,7 @@ func (s *ArticleService) Create(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile, 0), nil
+	return formatArticle(article, *profile, 0, false), nil
 }
 
 type ListArticlesInput struct {
@@ -187,7 +186,18 @@ func (s *ArticleService) List(
 			continue
 		}
 
-		outputs[idx] = formatArticle(article, *profile, numOfFavorites)
+		isFavorited, err := s.repo.IsFavoritedByUser(
+			ctx,
+			article.ArticleId,
+			userId,
+		)
+
+		if err != nil {
+			s.log.Debug("error getting is favorited", "error", err)
+			continue
+		}
+
+		outputs[idx] = formatArticle(article, *profile, numOfFavorites, isFavorited)
 	}
 
 	return outputs, err
@@ -220,7 +230,17 @@ func (s *ArticleService) GetBySlug(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile, numOfFavorites), nil
+	isFavorited, err := s.repo.IsFavoritedByUser(
+		ctx,
+		article.ArticleId,
+		userId,
+	)
+
+	if err != nil {
+		s.log.Debug("error getting is favorited", "error", err)
+	}
+
+	return formatArticle(article, *profile, numOfFavorites, isFavorited), nil
 }
 
 func (s *ArticleService) GetIdFromSlug(
@@ -283,7 +303,7 @@ func (s *ArticleService) Update(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile, numOfFavorites), nil
+	return formatArticle(article, *profile, numOfFavorites, true), nil
 }
 
 func (s *ArticleService) Favorite(
@@ -309,7 +329,7 @@ func (s *ArticleService) Favorite(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile, numOfFavorites), nil
+	return formatArticle(article, *profile, numOfFavorites, true), nil
 }
 
 func (s *ArticleService) Unfavorite(
@@ -335,7 +355,7 @@ func (s *ArticleService) Unfavorite(
 		return ArticleOutput{}, err
 	}
 
-	return formatArticle(article, *profile, numOfFavorites), nil
+	return formatArticle(article, *profile, numOfFavorites, false), nil
 }
 
 func (s *ArticleService) Delete(

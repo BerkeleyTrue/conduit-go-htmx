@@ -135,8 +135,17 @@ WHERE
 
 -- name: getNumOfFavorites :one
 SELECT
-  COUNT(f.id) as count
+  COUNT(*) as count
 FROM
   favorites f
 WHERE
   article_id = ?;
+
+-- name: isFavoritedByUser :one
+SELECT
+  COUNT(*) as count
+FROM
+  favorites f
+WHERE
+  f.user_id = ?
+  AND f.article_id = ?;

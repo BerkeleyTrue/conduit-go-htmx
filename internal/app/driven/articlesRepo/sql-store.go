@@ -135,7 +135,6 @@ func (s *ArticleStore) GetBySlug(
 	return formatToDomain(article), nil
 }
 
-// TODO: get number of favorites per article
 func (s *ArticleStore) List(
 	ctx context.Context,
 	input domain.ArticleListInput,
@@ -196,6 +195,19 @@ func (s *ArticleStore) GetNumOfFavorites(
 	}
 
 	return int(count), nil
+}
+
+func (s *ArticleStore) IsFavoritedByUser(ctx context.Context, articleId, userId int) (bool, error) {
+	count, err := s.isFavoritedByUser(ctx, isFavoritedByUserParams{
+		ArticleID: int64(articleId),
+		UserID:    int64(userId),
+	})
+
+	if err != nil {
+		return false, fmt.Errorf("error checking if article is favorited by user: %w", err)
+	}
+
+	return count > 0, nil
 }
 
 // TODO: update tags
