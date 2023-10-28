@@ -63,18 +63,18 @@ FROM
   LEFT JOIN article_tags at ON a.id = at.article_id
   LEFT JOIN tags t ON at.tag_id = t.id
 WHERE
-  (sqlc.narg(tag) IS NULL OR a.id IN (
+  (cast(sqlc.narg(tag) as text) IS NULL OR a.id IN (
     SELECT
       at2.article_id
     FROM
       article_tags at2
       LEFT JOIN tags t2 ON t2.id = at2.tag_id
     WHERE
-    t2.tag = 	sqlc.narg(tag)
+    t2.tag = sqlc.narg(tag)
     )
   )
-  AND (sqlc.narg(author_id) IS NULL OR a.author_id = sqlc.narg(author_id))
-  AND (sqlc.narg(favorited) IS NULL OR a.id IN (
+  AND (cast(sqlc.narg(author_id) as integer) IS NULL OR a.author_id = sqlc.narg(author_id))
+  AND (cast(sqlc.narg(favorited) as integer) IS NULL OR a.id IN (
     SELECT
       f.article_id
     FROM
