@@ -8,7 +8,8 @@ CREATE TABLE
     author_id INTEGER NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT,
-    FOREIGN KEY (author_id) REFERENCES users (id)
+    FOREIGN KEY (author_id) REFERENCES users (id),
+    FOREIGN KEY (author_id) REFERENCES followers (author_id)
   );
 
 CREATE TABLE

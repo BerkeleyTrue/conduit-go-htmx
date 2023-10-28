@@ -125,17 +125,7 @@ func (s *ArticleService) List(
 	}
 
 	if input.Feed {
-		followed, err := s.userService.GetFollowing(ctx, userId)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if len(followed) == 0 {
-			return nil, WarningNoFollowers
-		}
-
-		params.Authors = followed
+		params.FollowedBy = userId
 	} else {
 		params.Tag = input.Tag
 		if input.Authorname != "" {

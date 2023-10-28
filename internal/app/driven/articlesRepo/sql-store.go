@@ -12,6 +12,7 @@ import (
 	"github.com/berkeleytrue/conduit/internal/core/domain"
 	"github.com/berkeleytrue/conduit/internal/infra/data/krono"
 	"github.com/berkeleytrue/conduit/internal/infra/data/slug"
+	"github.com/berkeleytrue/conduit/internal/utils"
 )
 
 type (
@@ -107,7 +108,7 @@ func (s *ArticleStore) Create(
 		return nil, fmt.Errorf("error getting res article: %w", err)
 	}
 
-	return formatToDomain(article), nil
+	return formatToDomain(article, nil), nil
 }
 
 func (s *ArticleStore) GetById(
@@ -120,7 +121,7 @@ func (s *ArticleStore) GetById(
 		return nil, fmt.Errorf("error getting article: %w", err)
 	}
 
-	return formatToDomain(article), nil
+	return formatToDomain(article, nil), nil
 }
 
 func (s *ArticleStore) GetBySlug(
@@ -132,44 +133,60 @@ func (s *ArticleStore) GetBySlug(
 		return nil, fmt.Errorf("error getting article: %w", err)
 	}
 
-	return formatToDomain(article), nil
+	return formatToDomain(article, nil), nil
 }
 
 func (s *ArticleStore) List(
 	ctx context.Context,
 	input domain.ArticleListInput,
 ) ([]*domain.Article, error) {
-	params := listParams{
-		Limit:  int64(input.Limit),
-		Offset: int64(input.Offset),
-		AuthorID: sql.NullInt64{
-			Valid: input.AuthorId != 0,
-			Int64: int64(input.AuthorId),
-		},
-		Tag: sql.NullString{
-			Valid:  input.Tag != "",
-			String: input.Tag,
-		},
-		Favorited: sql.NullInt64{
-			Valid: input.Favorited != 0,
-			Int64: int64(input.Favorited),
-		},
+	if input.FollowedBy != 0 {
+		params := feedParams{
+			Limit:    int64(input.Limit),
+			Offset:   int64(input.Offset),
+			Followed: int64(input.FollowedBy),
+		}
+
+		feed, err := s.feed(ctx, params)
+
+		if err != nil {
+			fmt.Printf("error getting articles: %v\n", err)
+			return nil, err
+		}
+
+		return utils.Map(func(row feedRow) *domain.Article {
+			return formatToDomain(row.Article, &row.Tags)
+		}, feed), nil
+
+	} else {
+		params := listParams{
+			Limit:  int64(input.Limit),
+			Offset: int64(input.Offset),
+			AuthorID: sql.NullInt64{
+				Valid: input.AuthorId != 0,
+				Int64: int64(input.AuthorId),
+			},
+			Tag: sql.NullString{
+				Valid:  input.Tag != "",
+				String: input.Tag,
+			},
+			Favorited: sql.NullInt64{
+				Valid: input.Favorited != 0,
+				Int64: int64(input.Favorited),
+			},
+		}
+
+		rows, err := s.list(ctx, params)
+
+		if err != nil {
+			fmt.Printf("error getting articles: %v\n", err)
+			return nil, err
+		}
+
+		return utils.Map(func(row listRow) *domain.Article {
+			return formatToDomain(row.Article, &row.Tags)
+		}, rows), nil
 	}
-
-	rows, err := s.list(ctx, params)
-
-	if err != nil {
-		fmt.Printf("error getting articles: %v\n", err)
-		return nil, err
-	}
-
-	articles := make([]*domain.Article, len(rows))
-
-	for idx, row := range rows {
-		articles[idx] = formatRowToDomain(row)
-	}
-
-	return articles, nil
 }
 
 func (s *ArticleStore) GetPopularTags(ctx context.Context) ([]string, error) {
@@ -197,14 +214,20 @@ func (s *ArticleStore) GetNumOfFavorites(
 	return int(count), nil
 }
 
-func (s *ArticleStore) IsFavoritedByUser(ctx context.Context, articleId, userId int) (bool, error) {
+func (s *ArticleStore) IsFavoritedByUser(
+	ctx context.Context,
+	articleId, userId int,
+) (bool, error) {
 	count, err := s.isFavoritedByUser(ctx, isFavoritedByUserParams{
 		ArticleID: int64(articleId),
 		UserID:    int64(userId),
 	})
 
 	if err != nil {
-		return false, fmt.Errorf("error checking if article is favorited by user: %w", err)
+		return false, fmt.Errorf(
+			"error checking if article is favorited by user: %w",
+			err,
+		)
 	}
 
 	return count > 0, nil
@@ -222,7 +245,7 @@ func (s *ArticleStore) Update(
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
 	}
 
-	updates := updater(*formatToDomain(article))
+	updates := updater(*formatToDomain(article, nil))
 
 	params := updateParams{
 		UpdatedAt: krono.Now().ToNullString(),
@@ -253,7 +276,7 @@ func (s *ArticleStore) Update(
 		return nil, fmt.Errorf("sql-store: error updating article: %w", err)
 	}
 
-	return formatToDomain(updatedArticle), nil
+	return formatToDomain(updatedArticle, nil), nil
 }
 
 func (s *ArticleStore) Favorite(
@@ -277,7 +300,7 @@ func (s *ArticleStore) Favorite(
 		return nil, fmt.Errorf("sql-store: error favoriting article: %w", err)
 	}
 
-	return formatToDomain(article), nil
+	return formatToDomain(article, nil), nil
 }
 
 func (s *ArticleStore) Unfavorite(
@@ -300,7 +323,7 @@ func (s *ArticleStore) Unfavorite(
 		return nil, fmt.Errorf("sql-store: error unfavoriting article: %w", err)
 	}
 
-	return formatToDomain(article), nil
+	return formatToDomain(article, nil), nil
 }
 
 func (s *ArticleStore) Delete(ctx context.Context, slug string) error {

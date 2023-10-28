@@ -1,23 +1,24 @@
 # TODO
 
-- Get new/edit articles page
-  - [x] /editor - new
-  - [ ] /editor/slug - edit
-    - [ ] Load article and prefill page
-    - [ ] update links to patch
 - User Api
   - Register should return error if user already exists
   - feed should show following author articles...
 - Update dates in templates
-- Refactor to use strutured errors
+- Refactor to use structured errors
   - repo's should return raw error
   - services should return user facing errors
   - controllers should format error for templates
+- Refactor to Echo??
 
 # Doing
 
+- Get new/edit articles page
+  - [ ] edit tags
+  - [ ] /editor/slug - edit
+    - [ ] Load article and prefill page
+    - [ ] update links to patch
+  - [x] /editor - new
 - Get article page
-  - [ ] add follower count
   - [ ] delete if owner
   - [x] Follow/Unfollow author
   - [x] Favorite/Unfavorite article

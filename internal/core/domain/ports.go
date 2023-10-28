@@ -29,7 +29,11 @@ type (
 		// Get authors a user is following
 		GetFollowing(ctx context.Context, userId int) ([]int, error)
 		// Update a user
-		Update(ctx context.Context, userId int, updater Updater[User]) (*User, error)
+		Update(
+			ctx context.Context,
+			userId int,
+			updater Updater[User],
+		) (*User, error)
 		// A user follows an author
 		Follow(ctx context.Context, userId, authorId int) (*User, error)
 		// A user unfollows an author
@@ -46,12 +50,12 @@ type (
 	}
 
 	ArticleListInput struct {
-		AuthorId  int   // authorId
-		Favorited int   // authorId
-		Authors   []int // for user following authors
-		Tag       string
-		Limit     int
-		Offset    int
+		AuthorId   int   // authorId
+		Favorited  int   // authorId
+		FollowedBy int   // userId - used by feed
+		Tag        string
+		Limit      int
+		Offset     int
 	}
 
 	ArticleRepository interface {
@@ -61,10 +65,21 @@ type (
 		List(ctx context.Context, input ArticleListInput) ([]*Article, error)
 		GetPopularTags(ctx context.Context) ([]string, error)
 		GetNumOfFavorites(ctx context.Context, articleId int) (int, error)
-		IsFavoritedByUser(ctx context.Context, articleId, userId int) (bool, error)
-		Update(ctx context.Context, slug string, updater Updater[Article]) (*Article, error)
+		IsFavoritedByUser(
+			ctx context.Context,
+			articleId, userId int,
+		) (bool, error)
+		Update(
+			ctx context.Context,
+			slug string,
+			updater Updater[Article],
+		) (*Article, error)
 		Favorite(ctx context.Context, slug string, userId int) (*Article, error)
-		Unfavorite(ctx context.Context, slug string, userId int) (*Article, error)
+		Unfavorite(
+			ctx context.Context,
+			slug string,
+			userId int,
+		) (*Article, error)
 		Delete(ctx context.Context, slug string) error
 	}
 

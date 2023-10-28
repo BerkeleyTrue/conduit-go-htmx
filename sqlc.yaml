@@ -11,7 +11,9 @@ sql:
         output_models_file_name: "models.gen"
 
   - engine: "sqlite"
-    schema: "internal/app/driven/articlesRepo/sql/schema.sql"
+    schema:
+      - "internal/app/driven/userRepo/sql/schema.sql"
+      - "internal/app/driven/articlesRepo/sql/schema.sql"
     queries: "internal/app/driven/articlesRepo/sql/queries.sql"
     gen:
       go:

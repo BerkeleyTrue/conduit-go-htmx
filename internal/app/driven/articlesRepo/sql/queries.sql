@@ -56,7 +56,7 @@ LIMIT
 
 -- name: list :many
 SELECT
-  a.*,
+  sqlc.embed(a),
   GROUP_CONCAT(t.tag, ',') AS tags
 FROM
   articles a
@@ -82,6 +82,32 @@ WHERE
     WHERE
       f.user_id = sqlc.narg(favorited)
     )
+  )
+GROUP BY
+  a.id
+ORDER BY
+  a.created_at DESC
+LIMIT
+  sqlc.arg(limit)
+OFFSET
+  sqlc.arg(offset);
+
+-- name: feed :many
+SELECT
+  sqlc.embed(a),
+  GROUP_CONCAT(t.tag, ',') AS tags
+FROM
+  articles a
+  LEFT JOIN article_tags at ON a.id = at.article_id
+  LEFT JOIN tags t ON at.tag_id = t.id
+WHERE
+  a.author_id in (
+    SELECT
+      f.author_id
+    FROM
+      followers f
+    WHERE
+      f.follower_id = sqlc.arg(followed)
   )
 GROUP BY
   a.id

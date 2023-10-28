@@ -31,7 +31,7 @@ func (s *ArticleStore) CreateTx(ctx context.Context, fn func(*Queries) error) er
 	return tx.Commit()
 }
 
-func formatToDomain(article Article) *domain.Article {
+func formatToDomain(article Article, tags *string) *domain.Article {
 	createdAt, err := krono.FromString(article.CreatedAt)
 
 	if err != nil {
@@ -44,6 +44,12 @@ func formatToDomain(article Article) *domain.Article {
 		fmt.Printf("error parsing createdAt: %s", err)
 	}
 
+	_tags := []string{}
+
+	if tags != nil {
+		_tags = strings.Split(*tags, ",")
+	}
+
 	return &domain.Article{
 		ArticleId:   int(article.ID),
 		Slug:        slug.NewSlug(article.Slug),
@@ -51,39 +57,40 @@ func formatToDomain(article Article) *domain.Article {
 		Description: article.Description,
 		Body:        article.Body,
 		AuthorId:    int(article.AuthorID),
+		Tags:        _tags,
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
 	}
 }
 
-func formatRowToDomain(row listRow) *domain.Article {
-	createdAt, err := krono.FromString(row.CreatedAt)
-
-	if err != nil {
-		fmt.Printf("error parsing createdAt: %s", err)
-	}
-
-	updatedAt, err := krono.FromNullString(row.UpdatedAt)
-
-	if err != nil {
-		fmt.Printf("error parsing createdAt: %s", err)
-	}
-
-	tags := []string{}
-
-	if row.Tags != "" {
-		tags = strings.Split(row.Tags, ",")
-	}
-
-	return &domain.Article{
-		ArticleId:   int(row.ID),
-		Slug:        slug.NewSlug(row.Slug),
-		Title:       row.Title,
-		Description: row.Description,
-		Body:        row.Body,
-		AuthorId:    int(row.AuthorID),
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
-		Tags:        tags,
-	}
-}
+// func formatRowToDomain(row listRow) *domain.Article {
+// 	createdAt, err := krono.FromString(row.CreatedAt)
+//
+// 	if err != nil {
+// 		fmt.Printf("error parsing createdAt: %s", err)
+// 	}
+//
+// 	updatedAt, err := krono.FromNullString(row.UpdatedAt)
+//
+// 	if err != nil {
+// 		fmt.Printf("error parsing createdAt: %s", err)
+// 	}
+//
+// 	tags := []string{}
+//
+// 	if row.Tags != "" {
+// 		tags = strings.Split(row.Tags, ",")
+// 	}
+//
+// 	return &domain.Article{
+// 		ArticleId:   int(row.ID),
+// 		Slug:        slug.NewSlug(row.Slug),
+// 		Title:       row.Title,
+// 		Description: row.Description,
+// 		Body:        row.Body,
+// 		AuthorId:    int(row.AuthorID),
+// 		CreatedAt:   createdAt,
+// 		UpdatedAt:   updatedAt,
+// 		Tags:        tags,
+// 	}
+// }
