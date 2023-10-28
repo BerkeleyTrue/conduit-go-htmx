@@ -27,7 +27,6 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
 				Follow
 			}
 			{ username }
-			<span class="counter">(?)</span>
 		</button>
 		&nbsp;&nbsp;
 		<button
@@ -74,12 +73,6 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
 	}
 }
 
-type articleProps struct {
-	services.ArticleOutput
-	layoutProps
-	isMyArticle bool
-}
-
 templ articleMetaComp(key, image, username, slug, createdAt string, isAuthed, isMyArticle, isFollowing, isFavorited bool, favoritesCount int, isOob bool) {
 	<div
  		id={ key }
@@ -103,6 +96,12 @@ templ articleMetaComp(key, image, username, slug, createdAt string, isAuthed, is
 			@actionsComp(isMyArticle, isFollowing, isFavorited, username, slug, favoritesCount)
 		}
 	</div>
+}
+
+type articleProps struct {
+	services.ArticleOutput
+	layoutProps
+	isMyArticle bool
 }
 
 templ articleOOBComp(props articleProps) {
