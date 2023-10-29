@@ -47,17 +47,16 @@ templ editArticle(props editArticleProps) {
 									<input
  										_="
 									    on keyup[event.keyCode == 13]
-                        if (my.value).length > 3
+                        if (my.value).length &gt; 3
                           halt the event
                           set taginput to my.value
                           send newTag(tag: taginput) to #tags
-                          send newTag(tag: taginput) to #tags-list
                           set my.value to ``
                         end
 									    end
 
 									    on keyup[event.keyCode == 188]
-                        if (my.value).length > 4
+                        if (my.value).length &gt; 4
                           halt the event
                           set taginput to my.value.slice(0, -1)
                           send newTag(tag: taginput) to #tags
@@ -80,11 +79,7 @@ templ editArticle(props editArticleProps) {
                         call tagsSet.add(tag)
                         call tagsSet.delete(``)
                         call Array.from(tagsSet) then set my.value to it.join(`,`)
-									      make a &lt;span.tag-default.tag-pill /&gt; called tagEl
-                        set { tag: tag } on tagEl
-                        make a &lt;i.ion-close-round /&gt; then put it into tagEl
-                        append tag to tagEl
-                        put tagEl at the end of #tags-list
+                        send updateTags to #tags-list
                       end
 
                       on deleteTag(tag)
@@ -94,6 +89,7 @@ templ editArticle(props editArticleProps) {
                         call tagsSet.delete(tag)
                         call tagsSet.delete(&#39;&#39;)
                         call Array.from(tagsSet) then set my @value to it.join(&#39;,&#39;)
+                        send updateTags to #tags-list
                       end
                     "
  										id="tags"
@@ -101,7 +97,6 @@ templ editArticle(props editArticleProps) {
  										name="tags"
  										value=""
 									/>
-									<!-- TODO: make from input on each change -->
 									<div
  										_="
  										  on click
@@ -114,6 +109,16 @@ templ editArticle(props editArticleProps) {
  										    end
  										    if tag then
                           send deleteTag(tag: tag of target) to #tags
+                        end
+                      on updateTags or load
+                        remove my children
+                        set tags to (#tags).value
+                        repeat for tag in tags.split(`,`)
+									        make a &lt;span.tag-default.tag-pill /&gt; called tagEl
+                          set { tag: tag } on tagEl
+                          make a &lt;i.ion-close-round /&gt; then put it into tagEl
+                          append tag to tagEl
+                          put tagEl at the end of #tags-list
                         end
  										"
  										id="tags-list"
