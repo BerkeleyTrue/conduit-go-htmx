@@ -1,7 +1,10 @@
 package drivers
 
+import "github.com/berkeleytrue/conduit/internal/core/domain"
+
 type editArticleProps struct {
 	layoutProps
+	article domain.Article
 }
 
 templ editArticle(props editArticleProps) {
@@ -42,18 +45,80 @@ templ editArticle(props editArticleProps) {
 								</fieldset>
 								<fieldset class="form-group">
 									<input
- 										id="tag"
- 										name="tag"
+ 										_="
+									    on keyup[event.keyCode == 13]
+                        if (my.value).length > 3
+                          halt the event
+                          set taginput to my.value
+                          send newTag(tag: taginput) to #tags
+                          send newTag(tag: taginput) to #tags-list
+                          set my.value to ``
+                        end
+									    end
+
+									    on keyup[event.keyCode == 188]
+                        if (my.value).length > 4
+                          halt the event
+                          set taginput to my.value.slice(0, -1)
+                          send newTag(tag: taginput) to #tags
+                          send newTag(tag: taginput) to #tags-list
+                          set my.value to ``
+                        end
+                      end
+                    "
+ 										id="tag-input"
  										type="text"
  										class="form-control"
  										placeholder="Enter tags"
 									/>
-									<div class="tag-list">
-										<span class="tag-default tag-pill">
-											<i class="ion-close-round"></i>
-											tag
-										</span>
-									</div>
+									<input
+ 										_="
+									    on newTag(tag)
+									      log `new tag: $tag`
+                        call (my.value).split(`,`)
+                        make a Set from it called tagsSet
+                        call tagsSet.add(tag)
+                        call tagsSet.delete(``)
+                        call Array.from(tagsSet) then set my.value to it.join(`,`)
+									      make a &lt;span.tag-default.tag-pill /&gt; called tagEl
+                        set { tag: tag } on tagEl
+                        make a &lt;i.ion-close-round /&gt; then put it into tagEl
+                        append tag to tagEl
+                        put tagEl at the end of #tags-list
+                      end
+
+                      on deleteTag(tag)
+                        log `delete tag: $tag`
+                        call (@value of me).split(&#39;,&#39;)
+                        make a Set from it called tagsSet
+                        call tagsSet.delete(tag)
+                        call tagsSet.delete(&#39;&#39;)
+                        call Array.from(tagsSet) then set my @value to it.join(&#39;,&#39;)
+                      end
+                    "
+ 										id="tags"
+ 										type="hidden"
+ 										name="tags"
+ 										value=""
+									/>
+									<!-- TODO: make from input on each change -->
+									<div
+ 										_="
+ 										  on click
+ 										    if target matches .ion-close-round
+ 										      set tag to target.parentElement.tag
+ 										      remove target.parentElement
+ 										    else if target matches .tag-pill
+ 										      set tag to target.tag
+ 										      remove target
+ 										    end
+ 										    if tag then
+                          send deleteTag(tag: tag of target) to #tags
+                        end
+ 										"
+ 										id="tags-list"
+ 										class="tag-list"
+									></div>
 								</fieldset>
 								<button class="btn btn-lg pull-xs-right btn-primary" type="button">
 									Publish Article
