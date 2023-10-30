@@ -1,20 +1,22 @@
 package drivers
 
 import "github.com/berkeleytrue/conduit/internal/core/domain"
+import "fmt"
 
 type editArticleProps struct {
 	layoutProps
+	isNew   bool
 	article domain.Article
 }
 
-templ editArticle(props editArticleProps) {
+templ editArticleComp(props editArticleProps) {
 	@layout(props.layoutProps) {
 		<div class="editor-page">
 			<div class="container page">
 				<div class="row">
 					<div class="col-md-10 offset-md-1 col-xs-12">
 						<ul id="errors" class="error-messages" hidden></ul>
-						<form hx-post="/article">
+						<form>
 							<fieldset>
 								<fieldset class="form-group">
 									<input
@@ -125,7 +127,18 @@ templ editArticle(props editArticleProps) {
  										class="tag-list"
 									></div>
 								</fieldset>
-								<button class="btn btn-lg pull-xs-right btn-primary" type="button">
+								<button
+ 									id="submit"
+ 									type="button"
+ 									class="btn btn-lg pull-xs-right btn-primary"
+ 									if props.isNew {
+										hx-post="/article"
+									} else {
+										hx-put={ fmt.Sprintf("/article/%s", props.article.Slug) }
+									}
+ 									hx-swap="outerHTML"
+ 									hx-target="body"
+								>
 									Publish Article
 								</button>
 							</fieldset>
