@@ -102,13 +102,13 @@ func (s *ArticleStore) Create(
 		return nil, fmt.Errorf("error in commit: %w", err)
 	}
 
-	article, err := s.getBySlug(ctx, slug.String())
+	row, err := s.getBySlug(ctx, slug.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting res article: %w", err)
 	}
 
-	return formatToDomain(article, nil), nil
+	return formatToDomain(row.Article, &row.Tags), nil
 }
 
 func (s *ArticleStore) GetById(
@@ -127,13 +127,13 @@ func (s *ArticleStore) GetById(
 func (s *ArticleStore) GetBySlug(
 	ctx context.Context,
 	mySlug string) (*domain.Article, error) {
-	article, err := s.getBySlug(ctx, mySlug)
+	row, err := s.getBySlug(ctx, mySlug)
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting article: %w", err)
 	}
 
-	return formatToDomain(article, nil), nil
+	return formatToDomain(row.Article, &row.Tags), nil
 }
 
 func (s *ArticleStore) List(
@@ -239,13 +239,16 @@ func (s *ArticleStore) Update(
 	slug string,
 	updater domain.Updater[domain.Article],
 ) (*domain.Article, error) {
-	article, err := s.getBySlug(ctx, slug)
+	row, err := s.getBySlug(ctx, slug)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
 	}
 
-	updates := updater(*formatToDomain(article, nil))
+	article := row.Article
+	tags := row.Tags
+
+	updates := updater(*formatToDomain(article, &tags))
 
 	params := updateParams{
 		UpdatedAt: krono.Now().ToNullString(),
@@ -285,7 +288,7 @@ func (s *ArticleStore) Favorite(
 	userId int,
 ) (*domain.Article, error) {
 
-	article, err := s.getBySlug(ctx, slug)
+	row, err := s.getBySlug(ctx, slug)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
@@ -293,14 +296,14 @@ func (s *ArticleStore) Favorite(
 
 	_, err = s.favorite(ctx, favoriteParams{
 		UserID:    int64(userId),
-		ArticleID: article.ID,
+		ArticleID: row.Article.ID,
 	})
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error favoriting article: %w", err)
 	}
 
-	return formatToDomain(article, nil), nil
+	return formatToDomain(row.Article, &row.Tags), nil
 }
 
 func (s *ArticleStore) Unfavorite(
@@ -308,7 +311,7 @@ func (s *ArticleStore) Unfavorite(
 	slug string,
 	userId int,
 ) (*domain.Article, error) {
-	article, err := s.getBySlug(ctx, slug)
+	row, err := s.getBySlug(ctx, slug)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
@@ -316,14 +319,14 @@ func (s *ArticleStore) Unfavorite(
 
 	_, err = s.unfavorite(ctx, unfavoriteParams{
 		UserID:    int64(userId),
-		ArticleID: article.ID,
+		ArticleID: row.Article.ID,
 	})
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error unfavoriting article: %w", err)
 	}
 
-	return formatToDomain(article, nil), nil
+	return formatToDomain(row.Article, &row.Tags), nil
 }
 
 func (s *ArticleStore) Delete(ctx context.Context, slug string) error {

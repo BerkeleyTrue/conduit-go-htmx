@@ -36,9 +36,12 @@ VALUES
 
 -- name: getBySlug :one
 SELECT
-  *
+  sqlc.embed(a),
+  GROUP_CONCAT(t.tag, ',') AS tags
 FROM
-  articles
+  articles a
+  LEFT JOIN article_tags at ON a.id = at.article_id
+  LEFT JOIN tags t ON at.tag_id = t.id
 WHERE
   slug = ?
 LIMIT
@@ -46,9 +49,12 @@ LIMIT
 
 -- name: getById :one
 SELECT
-  *
+  sqlc.embed(a),
+  GROUP_CONCAT(t.tag, ',') AS tags
 FROM
-  articles
+  articles a
+  LEFT JOIN article_tags at ON a.id = at.article_id
+  LEFT JOIN tags t ON at.tag_id = t.id
 WHERE
   id = ?
 LIMIT
