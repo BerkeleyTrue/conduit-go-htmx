@@ -112,7 +112,7 @@ templ layout(props layoutProps) {
 		<body
  			_="
 		    on every htmx:afterRequest
-		      log 'htmx:afterRequest'
+		      log `htmx:afterRequest`
 		      if event.detail.successful
 		        if #htmx-alert
 		          then set {hidden: true} on #htmx-alert
@@ -123,7 +123,7 @@ templ layout(props layoutProps) {
               then set {hidden: false, innerText: &#39;Oops, something went wrong with the server...&#39;} on #htmx-alert
             end
 		      else
-		        log 'htmx:afterRequest unknown error'
+		        log `htmx:afterRequest unknown error`
 		        if #htmx-alert
 		          then set {hidden: false, innerText: &#39;Unexpected error, check your connection and refresh the page&#39;} on #htmx-alert
 		        end

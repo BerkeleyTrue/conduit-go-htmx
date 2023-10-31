@@ -1,12 +1,13 @@
 package drivers
 
-import "github.com/berkeleytrue/conduit/internal/core/domain"
 import "fmt"
+import "github.com/berkeleytrue/conduit/internal/core/services"
+import "strings"
 
 type editArticleProps struct {
 	layoutProps
 	isNew   bool
-	article domain.Article
+	article *services.ArticleOutput
 }
 
 templ editArticleComp(props editArticleProps) {
@@ -25,6 +26,9 @@ templ editArticleComp(props editArticleProps) {
  										type="text"
  										class="form-control form-control-lg"
  										placeholder="Article Title"
+ 										if !props.isNew {
+											value={ props.article.Title }
+										}
 									/>
 								</fieldset>
 								<fieldset class="form-group">
@@ -34,6 +38,9 @@ templ editArticleComp(props editArticleProps) {
  										type="text"
  										class="form-control"
  										placeholder="What&#39;s this article about?"
+ 										if !props.isNew {
+											value={ props.article.Description }
+										}
 									/>
 								</fieldset>
 								<fieldset class="form-group">
@@ -43,7 +50,11 @@ templ editArticleComp(props editArticleProps) {
  										class="form-control"
  										rows="8"
  										placeholder="Write your article (in markdown)"
-									></textarea>
+									>
+										if !props.isNew {
+											{ props.article.Body }
+										}
+									</textarea>
 								</fieldset>
 								<fieldset class="form-group">
 									<input
@@ -97,7 +108,11 @@ templ editArticleComp(props editArticleProps) {
  										id="tags"
  										type="hidden"
  										name="tags"
- 										value=""
+ 										if !props.isNew {
+											value={ strings.Join(props.article.Tags, `,`) }
+										} else {
+											value=""
+										}
 									/>
 									<div
  										_="
@@ -114,8 +129,10 @@ templ editArticleComp(props editArticleProps) {
                         end
                       on updateTags or load
                         remove my children
+                        log `update tags`
                         set tags to (#tags).value
-                        repeat for tag in tags.split(`,`)
+                        log `tags: $tags`
+                        repeat for tag in tags.split(`,`).filter(Boolean)
 									        make a &lt;span.tag-default.tag-pill /&gt; called tagEl
                           set { tag: tag } on tagEl
                           make a &lt;i.ion-close-round /&gt; then put it into tagEl
