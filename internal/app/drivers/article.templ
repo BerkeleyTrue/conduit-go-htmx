@@ -57,8 +57,8 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
 		<button
  			hx-get={ fmt.Sprintf("/editor/%s", slug) }
  			class="btn btn-sm btn-outline-secondary"
- 			hx-select="body"
  			hx-target="body"
+ 			hx-push-url="true"
 		>
 			<i class="ion-edit"></i>
 			Edit Article
