@@ -158,6 +158,7 @@ func RegisterRoutes(
 
 	app.Get("/editor", c.getEditArticle)
 	app.Get("/editor/:slug", c.getEditArticle)
+	app.Put("/articles/:slug", c.updateArticle)
 
 	app.Get("/settings", c.GetSettings)
 	app.Post("/settings", c.UpdateSettings)

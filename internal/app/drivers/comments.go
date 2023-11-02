@@ -3,10 +3,11 @@ package drivers
 import (
 	"context"
 
-	"github.com/berkeleytrue/conduit/internal/core/services"
-	"github.com/berkeleytrue/conduit/internal/infra/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gofiber/fiber/v2"
+
+	"github.com/berkeleytrue/conduit/internal/core/services"
+	"github.com/berkeleytrue/conduit/internal/infra/session"
 )
 
 type createCommentInput struct {

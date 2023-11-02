@@ -149,12 +149,13 @@ templ editArticleComp(props editArticleProps) {
  									type="button"
  									class="btn btn-lg pull-xs-right btn-primary"
  									if props.isNew {
-										hx-post="/article"
+										hx-post="/articles"
 									} else {
-										hx-put={ fmt.Sprintf("/article/%s", props.article.Slug) }
+										hx-put={ fmt.Sprintf("/articles/%s", props.article.Slug) }
 									}
  									hx-swap="outerHTML"
  									hx-target="body"
+ 									hx-push-url="true"
 								>
 									Publish Article
 								</button>
