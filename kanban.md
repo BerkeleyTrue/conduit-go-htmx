@@ -13,7 +13,7 @@
 # Doing
 
 - Get new/edit articles page
-  - [ ] edit tags
+  - [x] edit tags
   - [ ] /editor/slug - edit
     - [ ] Load article and prefill page
     - [ ] update links to patch

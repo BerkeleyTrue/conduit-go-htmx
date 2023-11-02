@@ -182,3 +182,15 @@ FROM
 WHERE
   f.user_id = ?
   AND f.article_id = ?;
+
+-- name: deleteArticleTag :execrows
+DELETE FROM article_tags
+WHERE
+  article_id = ? AND tag_id = (
+    SELECT
+      id
+    FROM
+      tags
+    WHERE
+      tag = ?
+  );

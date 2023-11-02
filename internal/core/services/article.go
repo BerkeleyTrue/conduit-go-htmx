@@ -250,6 +250,7 @@ type ArticleUpdateInput struct {
 	Title       string
 	Description string
 	Body        string
+	Tags        []string
 }
 
 func (s *ArticleService) Update(
@@ -272,6 +273,10 @@ func (s *ArticleService) Update(
 
 			if input.Body != "" {
 				a.Body = input.Body
+			}
+
+			if input.Tags != nil {
+				a.Tags = input.Tags
 			}
 			return a
 		},

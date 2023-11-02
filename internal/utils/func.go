@@ -41,3 +41,15 @@ func Map[T, U any](mapper func(T) U, input []T) []U {
 	}
 	return output
 }
+
+func Difference[T comparable](input1 []T, input2 []T) []T {
+  output := make([]T, 0)
+
+  for _, elem := range input1 {
+    if !Some(func(e T) bool { return e == elem }, input2) {
+      output = append(output, elem)
+    }
+  }
+
+  return output
+}

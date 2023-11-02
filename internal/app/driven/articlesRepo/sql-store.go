@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
@@ -126,7 +127,9 @@ func (s *ArticleStore) GetById(
 
 func (s *ArticleStore) GetBySlug(
 	ctx context.Context,
-	mySlug string) (*domain.Article, error) {
+	mySlug string,
+) (*domain.Article, error) {
+	// TODO: seems to try to get article by slug, but returns nil
 	row, err := s.getBySlug(ctx, mySlug)
 
 	if err != nil {
@@ -233,7 +236,6 @@ func (s *ArticleStore) IsFavoritedByUser(
 	return count > 0, nil
 }
 
-// TODO: update tags
 func (s *ArticleStore) Update(
 	ctx context.Context,
 	_slug string,
@@ -274,13 +276,53 @@ func (s *ArticleStore) Update(
 		params.Body = article.Body
 	}
 
-	updatedArticle, err := s.update(ctx, params)
+	oldTags := strings.Split(tags, ",")
+	removedTags := utils.Difference(oldTags, updates.Tags)
+	addedTags := utils.Difference(updates.Tags, oldTags)
+
+	var updatedArticle Article
+	err = s.CreateTx(ctx, func(q *Queries) error {
+		updatedArticle, err := q.update(ctx, params)
+
+		if err != nil {
+			return fmt.Errorf("sql-store: error updating article: %w", err)
+		}
+
+		for _, tag := range removedTags {
+
+			_, err = q.deleteArticleTag(ctx, deleteArticleTagParams{
+				ArticleID: updatedArticle.ID,
+				Tag:       tag,
+			})
+
+			if err != nil {
+				return fmt.Errorf(
+					"sql-store: error deleting article tag: %w",
+					err,
+				)
+			}
+		}
+
+		for _, tag := range addedTags {
+			_, err = q.createTag(ctx, tag)
+
+			if err != nil {
+				return fmt.Errorf("sql-store: error creating tag: %w", err)
+			}
+		}
+
+		return nil
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error updating article: %w", err)
 	}
 
-	return formatToDomain(updatedArticle, nil), nil
+	formatedArticle := formatToDomain(updatedArticle, nil)
+
+	formatedArticle.Tags = updates.Tags
+
+	return formatedArticle, nil
 }
 
 func (s *ArticleStore) Favorite(
