@@ -1,6 +1,9 @@
 package drivers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/gofiber/fiber/v2"
+)
 
 func (c *Controller) getEditArticle(fc *fiber.Ctx) error {
 	slug := fc.Params("slug")
@@ -26,4 +29,39 @@ func (c *Controller) getEditArticle(fc *fiber.Ctx) error {
 	props.article = &article
 
 	return renderComponent(editArticleComp(props), fc)
+}
+
+type updateArticleInput struct {
+  title string
+  description string
+  body string
+  tags string
+}
+
+func (i *updateArticleInput) validate() error {
+  return validation.ValidateStruct(
+    i,
+    validation.Field(
+      &i.title,
+      validation.Required,
+      validation.Length(1, 254),
+    ),
+    validation.Field(
+      &i.description,
+      validation.Required,
+      validation.Length(1, 254),
+    ),
+    validation.Field(
+      &i.body,
+      validation.Required,
+    ),
+    validation.Field(
+      &i.tags,
+    ),
+  )
+}
+
+func (c *Controller) updateArticle(fc *fiber.Ctx) error {
+  ctx := context.Background()
+  slug := fc.Params("slug")
 }

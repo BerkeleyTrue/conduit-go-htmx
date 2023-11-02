@@ -56,7 +56,7 @@ FROM
   LEFT JOIN article_tags at ON a.id = at.article_id
   LEFT JOIN tags t ON at.tag_id = t.id
 WHERE
-  id = ?
+  articles.id = ?
 LIMIT
   1;
 
@@ -142,11 +142,12 @@ LIMIT
 UPDATE articles
 SET
   title = ?,
+  slug = ?,
   description = ?,
   body = ?,
   updated_at = ?
 WHERE
-  slug = ? RETURNING *;
+  articles.id = ? RETURNING *;
 
 -- name: favorite :execrows
 INSERT INTO

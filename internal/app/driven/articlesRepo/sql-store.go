@@ -115,13 +115,13 @@ func (s *ArticleStore) GetById(
 	ctx context.Context,
 	articleId int,
 ) (*domain.Article, error) {
-	article, err := s.getById(ctx, int64(articleId))
+	row, err := s.getById(ctx, int64(articleId))
 
 	if err != nil {
 		return nil, fmt.Errorf("error getting article: %w", err)
 	}
 
-	return formatToDomain(article, nil), nil
+	return formatToDomain(row.Article, nil), nil
 }
 
 func (s *ArticleStore) GetBySlug(
@@ -236,10 +236,10 @@ func (s *ArticleStore) IsFavoritedByUser(
 // TODO: update tags
 func (s *ArticleStore) Update(
 	ctx context.Context,
-	slug string,
+	_slug string,
 	updater domain.Updater[domain.Article],
 ) (*domain.Article, error) {
-	row, err := s.getBySlug(ctx, slug)
+	row, err := s.getBySlug(ctx, _slug)
 
 	if err != nil {
 		return nil, fmt.Errorf("sql-store: error getting article: %w", err)
@@ -252,11 +252,12 @@ func (s *ArticleStore) Update(
 
 	params := updateParams{
 		UpdatedAt: krono.Now().ToNullString(),
-		Slug:      article.Slug,
+		ID:        article.ID,
 	}
 
 	if updates.Title != "" {
 		params.Title = updates.Title
+		params.Slug = slug.NewSlug(updates.Title).String()
 	} else {
 		params.Title = article.Title
 	}
