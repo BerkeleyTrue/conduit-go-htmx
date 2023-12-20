@@ -102,6 +102,7 @@ func (c *Controller) updateArticle(fc *fiber.Ctx) error {
 
 	if err != nil {
 		fc.Response().Header.Add("HX-Reswap", "none")
+		fc.Response().Header.Add("HX-Push-Url", "false")
 
 		return renderComponent(listErrors(map[string]error{"article": err}), fc)
 	}

@@ -147,6 +147,7 @@ func RegisterRoutes(
 
 	app.Use(authMiddleware)
 
+	app.Delete("/articles/:slug", c.deleteArticle)
 	app.Post("/articles/:slug/comments", c.createComment)
 	app.Delete("/articles/:slug/comments/:id", c.deleteComment)
 

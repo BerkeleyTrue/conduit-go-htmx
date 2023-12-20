@@ -55,6 +55,8 @@ In Progress...
   - Sqlite often crashes when making multiple request in parallel. I believe this might be a go-sql issu. I create a branch with libsql to see if the issue persists.
 - Docker Build
   - a build to let non-nix users run server
+- Seed
+  - add default user by cli flag
 
 #### Doing
 
@@ -64,15 +66,6 @@ In Progress...
     - [ ] Load article and prefill page
     - [ ] update links to patch
   - [x] /editor - new
-- Get article page
-  - [ ] delete if owner
-  - [x] Follow/Unfollow author
-  - [x] Favorite/Unfavorite article
-  - [x] comments
-    - [x] Get on load
-    - [x] mark if owner
-  - [x] delete comment if owner
-  - [x] /article/:slug
 
 #### Done
 
@@ -148,3 +141,12 @@ In Progress...
     - [x] mark if owner
 - Profile page
   - [x] follow author
+- Get article page
+  - [x] delete if owner
+  - [x] Follow/Unfollow author
+  - [x] Favorite/Unfavorite article
+  - [x] comments
+    - [x] Get on load
+    - [x] mark if owner
+  - [x] delete comment if owner
+  - [x] /article/:slug

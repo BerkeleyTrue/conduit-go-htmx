@@ -65,6 +65,8 @@ templ actionsComp(isMyArticle, isFollowing, isFavorited bool, username, slug str
 		</button>
 		<button
  			hx-delete={ fmt.Sprintf("/articles/%s", slug) }
+ 			hx-target="body"
+ 			hx-push-url="true"
  			class="btn btn-sm btn-outline-danger"
 		>
 			<i class="ion-trash-a"></i>
