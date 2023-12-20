@@ -9,9 +9,8 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    nix-filter = {
-      url = "github:numtide/nix-filter";
-    };
+    boulder.url = "github:berkeleytrue/nix-boulder-banner";
+    nix-filter.url = "github:numtide/nix-filter";
 
     templ = {
       url = "github:a-h/templ";
@@ -23,7 +22,7 @@
   outputs = inputs @ {flake-parts, ...}:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
-        (import ./nix/boulder)
+        inputs.boulder.flakeModule
         (import ./default.nix)
         (import ./shell.nix)
       ];
