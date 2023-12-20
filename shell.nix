@@ -42,7 +42,7 @@
       ${pkgs.fd}/bin/fd -e templ | ${pkgs.entr}/bin/entr ${generate-templ}/bin/generate-templ
     '';
 
-    watch-compile = pkgs.writeShellScriptBin "watch-compile" ''
+    dev = pkgs.writeShellScriptBin "dev" ''
       ${pkgs.concurrently}/bin/concurrently -n "air,sqlc,templ" "${pkgs.air}/bin/air" "${watch-sql}/bin/watch-sql" "${watch-templ}/bin/watch-templ"
     '';
 
@@ -81,8 +81,8 @@
           description = "watch templ files for changes and re-run templ";
         }
         {
-          exec = watch-compile;
-          description = "watch go files for changes and recompile";
+          exec = dev;
+          description = "watch go,sql,templ files for changes and recompile, runs main server";
         }
       ];
     };
